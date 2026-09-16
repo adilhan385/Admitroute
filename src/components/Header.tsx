@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, RotateCcw, Printer, ShieldCheck, Calendar } from 'lucide-react';
+import { RotateCcw, Printer, ShieldCheck, Calendar } from 'lucide-react';
 
 interface HeaderProps {
   onReset: () => void;
@@ -17,8 +17,8 @@ export const Header: React.FC<HeaderProps> = ({ onReset, hasProfile, onExportCal
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white shadow-xs">
-            <Compass className="h-5 w-5 text-blue-400" />
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border border-slate-700/50 bg-slate-900 shadow-xs">
+            <img src="/avatar.jpg" alt="AdmitRoute Logo" className="h-full w-full object-cover" />
           </div>
           <div>
             <div className="flex items-center gap-2">

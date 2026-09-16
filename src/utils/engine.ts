@@ -79,8 +79,12 @@ export function calculateDiagnosis(profile: UserProfile): ProfileDiagnosis {
 }
 
 export function recommendUniversities(profile: UserProfile): UniversityProgram[] {
-  // Score and filter universities
-  const scored = UNIVERSITIES_DATABASE.map((uni) => {
+  // 1. Приоритетно выбираем вузы из региона, указанного пользователем!
+  const regionalPool = UNIVERSITIES_DATABASE.filter(u => u.region === profile.targetRegion);
+  const pool = regionalPool.length >= 3 ? regionalPool : UNIVERSITIES_DATABASE;
+
+  // Расчет релевантности программ
+  const scored = pool.map((uni) => {
     let score = 70;
 
     // Field match
@@ -90,7 +94,7 @@ export function recommendUniversities(profile: UserProfile): UniversityProgram[]
 
     // Region preference
     if (uni.region === profile.targetRegion) {
-      score += 15;
+      score += 25;
     }
 
     // Budget match
@@ -102,10 +106,10 @@ export function recommendUniversities(profile: UserProfile): UniversityProgram[]
     let dynamicCategory: MatchCategory = 'target';
     const gpaDiff = profile.gpa - uni.avgGpa;
 
-    if (gpaDiff < -0.2 || (uni.languageRequirement.includes('IELTS 6.5') && !profile.hasLanguageTest)) {
+    if (gpaDiff < -0.15 || (uni.languageRequirement.includes('6.5') && !profile.hasLanguageTest)) {
       dynamicCategory = 'reach';
       score = Math.max(75, Math.min(score, 88));
-    } else if (gpaDiff >= 0.3 && (uni.acceptanceRate.includes('4') || uni.acceptanceRate.includes('5'))) {
+    } else if (gpaDiff >= 0.25 || uni.acceptanceRate.includes('5') || uni.acceptanceRate.includes('6') || uni.acceptanceRate.includes('8')) {
       dynamicCategory = 'safety';
       score = Math.min(95, score + 5);
     } else {
