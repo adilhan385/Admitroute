@@ -57,28 +57,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleQuickLoginAdmin = () => {
-    setEmail('adilhananuar426@gmail.com');
-    setPassword('Adilhan0404');
-    setMode('login');
-    const res = login('adilhananuar426@gmail.com', 'Adilhan0404');
-    if (res.success && res.user) {
-      onAuthSuccess(res.user);
-      onClose();
-    }
-  };
-
-  const handleQuickLoginStudent = () => {
-    setEmail('student@admitroute.kz');
-    setPassword('Student123');
-    setMode('login');
-    const res = login('student@admitroute.kz', 'Student123');
-    if (res.success && res.user) {
-      onAuthSuccess(res.user);
-      onClose();
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-in fade-in duration-150">
       <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
@@ -202,48 +180,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </form>
 
-        {/* Quick Demo Logins for Hackathon Jury */}
-        <div className="mt-5 border-t border-slate-100 pt-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2.5">
-            Быстрый вход для проверки жюри:
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={handleQuickLoginAdmin}
-              className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50/70 p-2 text-left text-xs font-medium text-amber-900 hover:bg-amber-100 transition-colors"
-              title="adilhananuar426@gmail.com"
-            >
-              <Shield className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-              <div className="truncate">
-                <div className="font-semibold leading-tight">Администратор</div>
-                <div className="text-[10px] text-amber-700 truncate">adilhananuar426@...</div>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleQuickLoginStudent}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 p-2 text-left text-xs font-medium text-slate-800 hover:bg-slate-100 transition-colors"
-              title="student@admitroute.kz"
-            >
-              <User className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-              <div className="truncate">
-                <div className="font-semibold leading-tight">Абитуриент</div>
-                <div className="text-[10px] text-slate-500 truncate">student@admit...</div>
-              </div>
-            </button>
-          </div>
-
-          <div className="mt-3 text-center">
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-[11px] text-slate-400 hover:text-slate-600 underline"
-            >
-              Продолжить как гость (с базовыми лимитами)
-            </button>
-          </div>
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[11px] text-slate-400 hover:text-slate-600 underline"
+          >
+            Продолжить как гость (с базовыми лимитами)
+          </button>
         </div>
       </div>
     </div>
