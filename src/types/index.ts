@@ -24,6 +24,7 @@ export interface UserProfile {
   targetRegion: TargetRegion;
   budget: BudgetTier;
   targetYear: string; // "2026" or "2027"
+  portfolioText?: string; // внеучебные активности, проекты, олимпиады
 }
 
 export type MatchCategory = 'target' | 'reach' | 'safety';
@@ -71,4 +72,33 @@ export interface ProfileDiagnosis {
   riskFactors: string[];
   primaryGoal: string;
   overallReadinessScore: number; // 0 - 100
+}
+
+export interface PortfolioAudit {
+  rating: 'strong' | 'moderate' | 'basic';
+  scoreOutOf100: number;
+  abroadCompetitiveness: 'Высокая' | 'Умеренная' | 'Недостаточная без усиления';
+  strongPoints: string[];
+  criticalGaps: string[];
+  honestVerdict: string;
+  recommendedNextActivities: string[];
+}
+
+export interface ScholarshipItem {
+  id: string;
+  title: string;
+  organization: string;
+  coverage: string;
+  eligibility: string;
+  region: TargetRegion;
+  deadline: string;
+  officialUrl: string;
+}
+
+export interface EssayDraft {
+  targetUniName: string;
+  hook: string;
+  academicBackground: string;
+  whyUniversity: string;
+  futureImpact: string;
 }

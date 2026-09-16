@@ -1,12 +1,13 @@
 import React from 'react';
-import { Compass, RotateCcw, Printer, ShieldCheck } from 'lucide-react';
+import { Compass, RotateCcw, Printer, ShieldCheck, Calendar } from 'lucide-react';
 
 interface HeaderProps {
   onReset: () => void;
   hasProfile: boolean;
+  onExportCalendar?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onReset, hasProfile }) => {
+export const Header: React.FC<HeaderProps> = ({ onReset, hasProfile, onExportCalendar }) => {
   const handlePrint = () => {
     window.print();
   };
@@ -43,6 +44,18 @@ export const Header: React.FC<HeaderProps> = ({ onReset, hasProfile }) => {
 
           {hasProfile && (
             <>
+              {onExportCalendar && (
+                <button
+                  type="button"
+                  onClick={onExportCalendar}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                  title="Экспорт всех дедлайнов в Google/Apple Календарь (.ics)"
+                >
+                  <Calendar className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="hidden sm:inline">В календарь (.ics)</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={handlePrint}

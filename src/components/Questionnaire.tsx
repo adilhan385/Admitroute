@@ -231,6 +231,25 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
               </div>
             )}
           </div>
+
+          <div>
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Внеучебные активности и портфолио (Extracurriculars)
+              </label>
+              <span className="text-[11px] text-blue-600 font-medium">Для зарубежа и грантов</span>
+            </div>
+            <p className="mt-0.5 text-[11px] text-slate-500">
+              Опишите олимпиады, хакатоны, проекты, волонтерство, спорт или клубы в свободной форме:
+            </p>
+            <textarea
+              rows={3}
+              value={formData.portfolioText || ''}
+              onChange={(e) => setFormData({ ...formData, portfolioText: e.target.value })}
+              placeholder="Например: Участвовал в городском хакатоне по AI, разработал мобильное приложение для школьной библиотеки, 1.5 года капитан дебатного клуба, 40 часов волонтерства..."
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-xs font-medium text-slate-800 focus:border-slate-400 focus:bg-white focus:outline-none leading-relaxed"
+            />
+          </div>
         </div>
       )}
 

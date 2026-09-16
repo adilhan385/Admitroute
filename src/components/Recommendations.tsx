@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import type { UniversityProgram, MatchCategory } from '../types';
-import { Target, ExternalLink, Check, Scale, Award } from 'lucide-react';
+import { Target, ExternalLink, Check, Scale, Award, FileText } from 'lucide-react';
 
 interface RecommendationsProps {
   universities: UniversityProgram[];
   selectedForCompare: string[];
   onToggleCompare: (id: string) => void;
   onOpenCompareModal: () => void;
+  onOpenEssayModal?: (uni: UniversityProgram) => void;
 }
 
 export const Recommendations: React.FC<RecommendationsProps> = ({
   universities,
   selectedForCompare,
   onToggleCompare,
-  onOpenCompareModal
+  onOpenCompareModal,
+  onOpenEssayModal
 }) => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -199,19 +201,33 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
               </div>
 
               {/* Card Footer Actions */}
-              <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-                <button
-                  type="button"
-                  onClick={() => onToggleCompare(uni.id)}
-                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
-                    isCompared
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  <Scale className="h-3.5 w-3.5" />
-                  <span>{isCompared ? 'В сравнении' : 'Добавить к сравнению'}</span>
-                </button>
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-4">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onToggleCompare(uni.id)}
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+                      isCompared
+                        ? 'border-blue-600 bg-blue-50 text-blue-700'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Scale className="h-3.5 w-3.5" />
+                    <span>{isCompared ? 'В сравнении' : 'К сравнению'}</span>
+                  </button>
+
+                  {onOpenEssayModal && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenEssayModal(uni)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+                      title="Сгенерировать структуру мотивационного письма"
+                    >
+                      <FileText className="h-3.5 w-3.5 text-blue-600" />
+                      <span>План эссе</span>
+                    </button>
+                  )}
+                </div>
 
                 <a
                   href={uni.officialSiteUrl}

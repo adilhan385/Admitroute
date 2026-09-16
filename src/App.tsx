@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
-import type { UserProfile, RoadmapStep } from './types';
+import type { UserProfile, RoadmapStep, UniversityProgram, EssayDraft } from './types';
 import { calculateDiagnosis, recommendUniversities, generateRoadmap } from './utils/engine';
+import { evaluatePortfolio } from './utils/portfolioEvaluator';
+import { exportRoadmapToIcs } from './utils/calendar';
+import { generateEssayStructure } from './services/ai';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { Questionnaire } from './components/Questionnaire';
 import { DiagnosticCard } from './components/DiagnosticCard';
+import { PortfolioAuditCard } from './components/PortfolioAuditCard';
 import { Recommendations } from './components/Recommendations';
 import { ComparisonModal } from './components/ComparisonModal';
 import { RoadmapTimeline } from './components/RoadmapTimeline';
+import { ScholarshipsSection } from './components/ScholarshipsSection';
 import { NextActionBanner } from './components/NextActionBanner';
+import { EssayAssistantModal } from './components/EssayAssistantModal';
 import { Sparkles, SlidersHorizontal } from 'lucide-react';
 
 const STORAGE_KEY_PROFILE = 'admitroute_profile_v1';
@@ -31,6 +37,11 @@ export const App: React.FC = () => {
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const [isCompareOpen, setIsCompareOpen] = useState<boolean>(false);
   const [roadmap, setRoadmap] = useState<RoadmapStep[]>([]);
+
+  // Essay Assistant state
+  const [isEssayModalOpen, setIsEssayModalOpen] = useState<boolean>(false);
+  const [essayTargetUni, setEssayTargetUni] = useState<UniversityProgram | null>(null);
+  const [essayDraft, setEssayDraft] = useState<EssayDraft | null>(null);
 
   // When profile updates, update roadmap and save to localStorage
   useEffect(() => {
@@ -67,7 +78,8 @@ export const App: React.FC = () => {
         stateExamScore: 'ЕНТ 115 / 140',
         targetRegion: 'kazakhstan',
         budget: 'full_grant',
-        targetYear: '2026'
+        targetYear: '2026',
+        portfolioText: '2 место на городском хакатоне по веб-разработке, создал Telegram-бота расписания для лицея (300 пользователей), капитан школьного IT-клуба, 25 часов волонтерства на выставке робототехники.'
       };
     } else if (presetKey === 'intl_cs') {
       chosenProfile = {
@@ -81,7 +93,8 @@ export const App: React.FC = () => {
         stateExamScore: 'SAT 1420',
         targetRegion: 'europe',
         budget: 'full_grant',
-        targetYear: '2027'
+        targetYear: '2027',
+        portfolioText: 'Призер областной олимпиады по информатике, разработала открытый AI-проект по анализу данных на GitHub (45 звёзд), 2 года капитан школьного дебатного клуба, организатор благотворительной IT-ярмарки.'
       };
     } else {
       chosenProfile = {
@@ -95,7 +108,8 @@ export const App: React.FC = () => {
         stateExamScore: 'ЕНТ 98 / 140',
         targetRegion: 'kazakhstan',
         budget: 'full_grant',
-        targetYear: '2026'
+        targetYear: '2026',
+        portfolioText: 'Участник школьного кружка моделирования и робототехники, помогал в оцифровке архивов школьной библиотеки.'
       };
     }
 
@@ -111,6 +125,13 @@ export const App: React.FC = () => {
     setSelectedForCompare([]);
     localStorage.removeItem(STORAGE_KEY_PROFILE);
     localStorage.removeItem(STORAGE_KEY_ROADMAP);
+  };
+
+  // Export to calendar
+  const handleExportCalendar = () => {
+    if (profile && roadmap.length > 0) {
+      exportRoadmapToIcs(roadmap, profile.name);
+    }
   };
 
   // Compare toggles
@@ -141,8 +162,18 @@ export const App: React.FC = () => {
     handleToggleStep(stepId);
   };
 
+  // Open Essay Structure modal
+  const handleOpenEssayModal = async (uni: UniversityProgram) => {
+    if (!profile) return;
+    setEssayTargetUni(uni);
+    setIsEssayModalOpen(true);
+    const draft = await generateEssayStructure(profile, uni);
+    setEssayDraft(draft);
+  };
+
   // Calculated properties
   const diagnosis = profile ? calculateDiagnosis(profile) : null;
+  const portfolioAudit = profile ? evaluatePortfolio(profile) : null;
   const recommendedUnis = profile ? recommendUniversities(profile) : [];
   const nextUnfinishedStep = roadmap.find((s) => !s.completed) || null;
   const comparedUniversities = recommendedUnis.filter((u) =>
@@ -152,7 +183,11 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans">
       {/* Header */}
-      <Header onReset={handleReset} hasProfile={!!profile} />
+      <Header
+        onReset={handleReset}
+        hasProfile={!!profile}
+        onExportCalendar={profile ? handleExportCalendar : undefined}
+      />
 
       {/* Main Content Area */}
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
@@ -183,7 +218,7 @@ export const App: React.FC = () => {
             />
           </div>
         ) : (
-          /* FULL SCENARIO DASHBOARD (Stages 3 to 7) */
+          /* FULL SCENARIO DASHBOARD (Stages 3 to 7 + Enhancements) */
           <div className="space-y-10">
             {/* Quick interactive banner to adjust inputs (Demonstrates Reactivity for Jury) */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
@@ -229,13 +264,26 @@ export const App: React.FC = () => {
               />
             )}
 
+            {/* HONEST AI PORTFOLIO AUDIT (No Exaggeration) */}
+            {portfolioAudit && profile && (
+              <PortfolioAuditCard
+                audit={portfolioAudit}
+                profile={profile}
+                onEditPortfolio={() => setIsEditing(true)}
+              />
+            )}
+
             {/* STAGE 4: University Recommendations (Target, Reach, Safety) */}
             <Recommendations
               universities={recommendedUnis}
               selectedForCompare={selectedForCompare}
               onToggleCompare={handleToggleCompare}
               onOpenCompareModal={() => setIsCompareOpen(true)}
+              onOpenEssayModal={handleOpenEssayModal}
             />
+
+            {/* SCHOLARSHIPS FINDER */}
+            <ScholarshipsSection />
 
             {/* STAGE 6: Chronological Roadmap */}
             <RoadmapTimeline
@@ -249,6 +297,14 @@ export const App: React.FC = () => {
               onClose={() => setIsCompareOpen(false)}
               selectedPrograms={comparedUniversities}
               onRemoveFromCompare={handleRemoveFromCompare}
+            />
+
+            {/* ESSAY STRUCTURE ASSISTANT MODAL */}
+            <EssayAssistantModal
+              isOpen={isEssayModalOpen}
+              onClose={() => setIsEssayModalOpen(false)}
+              essayDraft={essayDraft}
+              targetUni={essayTargetUni}
             />
           </div>
         )}
