@@ -8,7 +8,55 @@ import { UNIVERSITIES_DATABASE } from '../data/universities';
  * мгновенно формирует точную экспертную карточку любого вуза через встроенную базу знаний.
  */
 
-const MODEL_NAME = 'gemini-2.5-flash';
+const PRIMARY_MODEL = 'gemini-3.6-flash';
+const FALLBACK_MODELS = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+
+/**
+ * Надежный вызов Google Gemini API с поддержкой актуальных версий моделей
+ */
+async function callGeminiApi(prompt: string, apiKey: string, responseMimeType: string = 'application/json'): Promise<string | null> {
+  const modelsToTry = [PRIMARY_MODEL, ...FALLBACK_MODELS];
+  const cleanKey = apiKey.trim();
+
+  for (const model of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType,
+            temperature: 0.3,
+          },
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          // Remove potential markdown fences ```json ... ```
+          const cleanText = text.replace(/^\s*```(json)?/i, '').replace(/```\s*$/, '').trim();
+          return cleanText;
+        }
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        console.warn(`[Gemini API ${model}] Status ${response.status}:`, errData?.error?.message || response.statusText);
+        // If 404 (model unavailable), continue to next model
+        if (response.status !== 404) {
+          // Key error, quota, etc.
+          break;
+        }
+      }
+    } catch (err) {
+      console.warn(`[Gemini API ${model}] Network error:`, err);
+    }
+  }
+
+  return null;
+}
 
 export function getGeminiApiKey(): string {
   if (typeof window !== 'undefined') {
@@ -68,28 +116,12 @@ ${recommendations.map(u => `- ${u.name} (${u.programTitle}) [Категория:
 }`;
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key.trim()}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              temperature: 0.4,
-            },
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) return JSON.parse(text);
+      const text = await callGeminiApi(prompt, key, 'application/json');
+      if (text) {
+        return JSON.parse(text);
       }
     } catch (e) {
-      console.warn('Gemini API request failed, falling back:', e);
+      console.warn('Gemini API advice parsing failed, using fallback:', e);
     }
   }
 
@@ -141,28 +173,12 @@ export async function generateEssayStructure(
 }`;
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key.trim()}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              temperature: 0.5,
-            },
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) return JSON.parse(text);
+      const text = await callGeminiApi(prompt, key, 'application/json');
+      if (text) {
+        return JSON.parse(text);
       }
     } catch (e) {
-      console.warn('AI essay generator fallback triggered:', e);
+      console.warn('Gemini API essay parsing failed, using fallback:', e);
     }
   }
 
@@ -254,32 +270,15 @@ export async function searchOrGenerateUniversityWithAi(
 }`;
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key.trim()}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              temperature: 0.3,
-            },
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) {
-          const parsed = JSON.parse(text) as UniversityProgram;
-          parsed.isAiGenerated = true;
-          return parsed;
-        }
+      const text = await callGeminiApi(prompt, key, 'application/json');
+      if (text) {
+        const parsed = JSON.parse(text) as UniversityProgram;
+        parsed.isAiGenerated = true;
+        if (!parsed.id) parsed.id = `ai-${Date.now()}`;
+        return parsed;
       }
     } catch (e) {
-      console.warn('Gemini search failed, activating smart offline generator:', e);
+      console.warn('Gemini API university search parsing failed, activating smart offline generator:', e);
     }
   }
 
@@ -568,37 +567,19 @@ export async function generateAiUniversityRecommendations(
 Верни ответ СТРОГО в формате JSON-массива [ {...}, {...}, {...} ]:`;
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key.trim()}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              temperature: 0.4,
-            },
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) {
-          const parsed = JSON.parse(text);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((item, idx) => ({
-              ...item,
-              id: item.id || `ai-gen-${Date.now()}-${idx}`,
-              isAiGenerated: true
-            }));
-          }
+      const text = await callGeminiApi(prompt, key, 'application/json');
+      if (text) {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((item, idx) => ({
+            ...item,
+            id: item.id || `ai-gen-${Date.now()}-${idx}`,
+            isAiGenerated: true
+          }));
         }
       }
     } catch (e) {
-      console.warn('AI recommendations API call failed, falling back to diverse pool:', e);
+      console.warn('Gemini API recommendations parsing failed, activating fallback:', e);
     }
   }
 
