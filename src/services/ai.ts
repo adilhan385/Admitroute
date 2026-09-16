@@ -602,3 +602,23 @@ export async function generateAiUniversityRecommendations(
     };
   });
 }
+
+/**
+ * Проверка валидности API ключа и связи с Google Gemini
+ */
+export async function testGeminiConnection(apiKey?: string): Promise<{ success: boolean; message: string }> {
+  const key = apiKey || getGeminiApiKey();
+  if (!key || !key.trim()) {
+    return { success: false, message: 'Ключ API пуст' };
+  }
+
+  try {
+    const text = await callGeminiApi('Answer in one word: ok', key, 'text/plain');
+    if (text) {
+      return { success: true, message: `Успешное подключение к Gemini (${PRIMARY_MODEL})!` };
+    }
+    return { success: false, message: 'Google API не вернул ответ или исчерпан лимит' };
+  } catch (err: any) {
+    return { success: false, message: err.message || 'Ошибка подключения к сети' };
+  }
+}

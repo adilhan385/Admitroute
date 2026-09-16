@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import type { UserProfile, UniversityProgram } from '../types';
 import { UNIVERSITIES_DATABASE } from '../data/universities';
 import { evaluateUniversityProgram } from '../utils/engine';
-import { searchOrGenerateUniversityWithAi, generateSmartFallbackUniversity, getGeminiApiKey, setGeminiApiKey } from '../services/ai';
+import { searchOrGenerateUniversityWithAi, generateSmartFallbackUniversity, getGeminiApiKey, setGeminiApiKey, testGeminiConnection } from '../services/ai';
 import {
   Search,
   Sparkles,
@@ -17,7 +17,8 @@ import {
   Plus,
   Loader2,
   Key,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react';
 
 interface UniversitySearchProps {
@@ -43,6 +44,22 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState(() => getGeminiApiKey());
   const [hasCustomKey, setHasCustomKey] = useState(() => !!getGeminiApiKey());
+  const [isTestingKey, setIsTestingKey] = useState(false);
+  const [testStatus, setTestStatus] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleTestConnection = async () => {
+    if (!apiKeyInput.trim()) return;
+    setIsTestingKey(true);
+    setTestStatus(null);
+    try {
+      const res = await testGeminiConnection(apiKeyInput);
+      setTestStatus(res);
+    } catch (e: any) {
+      setTestStatus({ success: false, message: e.message || 'Ошибка проверки' });
+    } finally {
+      setIsTestingKey(false);
+    }
+  };
 
   // Popular quick-search presets
   const popularPresets = [
@@ -525,23 +542,51 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               Вы можете использовать свой ключ Gemini API для живых запросов. Если ключ не задан, AdmitRoute автоматически использует встроенный экспертный аналитический движок.
             </p>
 
-            <div className="mt-4 space-y-1.5">
+            <div className="mt-4 space-y-2">
               <label className="text-[11px] font-semibold text-slate-700">
-                Ваш API-ключ Gemini (начинается с AIzaSy...):
+                Ваш API-ключ Gemini (из Google AI Studio):
               </label>
               <input
                 type="password"
                 value={apiKeyInput}
-                onChange={e => setApiKeyInput(e.target.value)}
-                placeholder="Вставьте ключ или оставьте пустым"
+                onChange={e => {
+                  setApiKeyInput(e.target.value);
+                  setTestStatus(null);
+                }}
+                placeholder="AQ.Ab8RN6... или AIzaSy..."
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
               />
+
+              <div className="flex items-center justify-between pt-1">
+                <button
+                  type="button"
+                  disabled={isTestingKey || !apiKeyInput.trim()}
+                  onClick={handleTestConnection}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50"
+                >
+                  {isTestingKey ? (
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin text-blue-600" />
+                  ) : (
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                  )}
+                  <span>{isTestingKey ? 'Проверка...' : 'Проверить ключ'}</span>
+                </button>
+
+                {testStatus && (
+                  <span className={`text-xs font-medium ${testStatus.success ? 'text-emerald-700' : 'text-rose-600'}`}>
+                    {testStatus.message}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="mt-5 flex items-center justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setIsKeyModalOpen(false)}
+                onClick={() => {
+                  setIsKeyModalOpen(false);
+                  setTestStatus(null);
+                }}
                 className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
               >
                 Отмена
