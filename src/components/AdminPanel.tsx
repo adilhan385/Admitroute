@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   X,
   Shield,
@@ -8,7 +8,10 @@ import {
   MessageSquare,
   Search,
   Settings,
-  Send
+  Send,
+  Sparkles,
+  CheckCircle2,
+  CreditCard
 } from 'lucide-react';
 import {
   getAllUsers,
@@ -18,8 +21,17 @@ import {
   getSiteSettings,
   updateSiteSettings
 } from '../services/auth';
-import { getAllMessages, replyToSupportMessage } from '../services/chat';
-import type { UserAccount, SupportMessage, SiteSettings, SubscriptionTier } from '../types';
+import {
+  getAllThreadSummaries,
+  getThreadMessages,
+  sendAdminReply,
+  activateProFromChat,
+  markThreadReadByAdmin,
+  getTotalUnreadForAdmin,
+  type ChatThreadSummary,
+  type ChatMessage
+} from '../services/chat';
+import type { UserAccount, SiteSettings, SubscriptionTier } from '../types';
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -30,16 +42,29 @@ interface AdminPanelProps {
 export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, currentUser }) => {
   const [activeTab, setActiveTab] = useState<'users' | 'messages' | 'settings'>('users');
   const [users, setUsers] = useState<UserAccount[]>([]);
-  const [messages, setMessages] = useState<SupportMessage[]>([]);
+  const [threadSummaries, setThreadSummaries] = useState<ChatThreadSummary[]>([]);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [activeThreadMessages, setActiveThreadMessages] = useState<ChatMessage[]>([]);
+  const [adminReplyInput, setAdminReplyInput] = useState('');
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(getSiteSettings());
   const [searchQuery, setSearchQuery] = useState('');
-  const [replyTextMap, setReplyTextMap] = useState<Record<string, string>>({});
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const loadData = () => {
     setUsers(getAllUsers());
-    setMessages(getAllMessages());
+    const summaries = getAllThreadSummaries();
+    setThreadSummaries(summaries);
     setSiteSettings(getSiteSettings());
+
+    if (!selectedThreadId && summaries.length > 0) {
+      setSelectedThreadId(summaries[0].threadId);
+      setActiveThreadMessages(getThreadMessages(summaries[0].threadId));
+      markThreadReadByAdmin(summaries[0].threadId);
+    } else if (selectedThreadId) {
+      setActiveThreadMessages(getThreadMessages(selectedThreadId));
+      markThreadReadByAdmin(selectedThreadId);
+    }
   };
 
   useEffect(() => {
@@ -47,6 +72,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
       loadData();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (selectedThreadId) {
+      setActiveThreadMessages(getThreadMessages(selectedThreadId));
+      markThreadReadByAdmin(selectedThreadId);
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [selectedThreadId]);
 
   if (!isOpen) return null;
 
@@ -103,14 +138,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
     }
   };
 
-  const handleReplyMessage = (msgId: string) => {
-    const text = replyTextMap[msgId];
-    if (!text || !text.trim()) return;
+  const handleSendAdminReply = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!selectedThreadId || !adminReplyInput.trim()) return;
 
-    replyToSupportMessage(msgId, text.trim());
-    setReplyTextMap(prev => ({ ...prev, [msgId]: '' }));
+    sendAdminReply(selectedThreadId, adminReplyInput.trim());
+    setAdminReplyInput('');
     loadData();
     showNotification('Ответ отправлен пользователю в чат');
+  };
+
+  const handleActivateProForSelectedThread = () => {
+    if (!selectedThreadId) return;
+    const res = activateProFromChat(selectedThreadId);
+    if (res.success) {
+      loadData();
+      showNotification('Подписка PRO успешно активирована для этого пользователя!');
+    }
   };
 
   const handleSaveSettings = () => {
@@ -127,15 +171,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
 
   const totalPro = users.filter(u => u.subscriptionTier === 'pro').length;
   const totalBanned = users.filter(u => u.isBanned).length;
-  const unreadMessages = messages.filter(m => !m.isRead && m.userId !== 'system').length;
+  const totalUnreadChat = getTotalUnreadForAdmin();
+
+  const currentThreadSummary = threadSummaries.find(t => t.threadId === selectedThreadId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-3 sm:p-6 backdrop-blur-xs animate-in fade-in duration-150">
       <div className="relative flex h-[92vh] max-h-[780px] w-full max-w-5xl flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-3.5 text-white">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-xs">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-xs font-bold">
               <Shield className="h-5 w-5" />
             </div>
             <div>
@@ -146,44 +192,44 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Управление пользователями, подписками PRO и входящими сообщениями
+                Управление пользователями, активация подписок PRO и живой чат поддержки
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Stats Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-b border-slate-200 bg-slate-50 p-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-3">
-            <div className="text-[11px] font-semibold uppercase text-slate-500">Всего пользователей</div>
-            <div className="mt-1 text-2xl font-bold text-slate-900">{users.length}</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-b border-slate-200 bg-slate-50 p-3.5">
+          <div className="rounded-xl border border-slate-200 bg-white p-2.5">
+            <div className="text-[10px] font-semibold uppercase text-slate-500">Пользователей в базе</div>
+            <div className="mt-0.5 text-xl font-bold text-slate-900">{users.length}</div>
           </div>
-          <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3">
-            <div className="text-[11px] font-semibold uppercase text-blue-700">Подписки PRO</div>
-            <div className="mt-1 text-2xl font-bold text-blue-700">{totalPro}</div>
+          <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-2.5">
+            <div className="text-[10px] font-semibold uppercase text-blue-700">Активных PRO</div>
+            <div className="mt-0.5 text-xl font-bold text-blue-700">{totalPro}</div>
           </div>
-          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3">
-            <div className="text-[11px] font-semibold uppercase text-amber-700">Сообщений в чате</div>
-            <div className="mt-1 text-2xl font-bold text-amber-700">
-              {messages.length} {unreadMessages > 0 && <span className="text-xs text-rose-600 font-semibold">({unreadMessages} новых)</span>}
+          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-2.5">
+            <div className="text-[10px] font-semibold uppercase text-amber-700">Чаты и заявки</div>
+            <div className="mt-0.5 text-xl font-bold text-amber-700">
+              {threadSummaries.length} {totalUnreadChat > 0 && <span className="text-xs text-rose-600 font-bold">({totalUnreadChat} новых)</span>}
             </div>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-3">
-            <div className="text-[11px] font-semibold uppercase text-slate-500">Заблокировано</div>
-            <div className="mt-1 text-2xl font-bold text-rose-600">{totalBanned}</div>
+          <div className="rounded-xl border border-slate-200 bg-white p-2.5">
+            <div className="text-[10px] font-semibold uppercase text-slate-500">Заблокировано</div>
+            <div className="mt-0.5 text-xl font-bold text-rose-600">{totalBanned}</div>
           </div>
         </div>
 
         {/* Action Notice Alert */}
         {actionNotice && (
-          <div className="bg-emerald-600 px-4 py-2 text-center text-xs font-semibold text-white animate-in slide-in-from-top duration-150">
+          <div className="bg-emerald-600 px-4 py-1.5 text-center text-xs font-semibold text-white animate-in slide-in-from-top duration-150">
             ✓ {actionNotice}
           </div>
         )}
@@ -212,10 +258,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
             }`}
           >
             <MessageSquare className="h-4 w-4" />
-            <span>Заявки и Чат ({messages.length})</span>
-            {unreadMessages > 0 && (
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] text-white">
-                {unreadMessages}
+            <span>Живой чат и заявки на PRO ({threadSummaries.length})</span>
+            {totalUnreadChat > 0 && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] text-white font-bold">
+                {totalUnreadChat}
               </span>
             )}
           </button>
@@ -235,8 +281,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
 
         {/* Tab 1: Users */}
         {activeTab === 'users' && (
-          <div className="flex-1 flex flex-col overflow-hidden p-6">
-            <div className="mb-4 flex items-center justify-between gap-4">
+          <div className="flex-1 flex flex-col overflow-hidden p-5">
+            <div className="mb-3 flex items-center justify-between gap-4">
               <div className="relative w-full max-w-sm">
                 <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <input
@@ -244,7 +290,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Поиск по email или имени..."
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-1.5 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                 />
               </div>
               <div className="text-xs text-slate-500">
@@ -256,12 +302,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
               <table className="w-full text-left text-xs text-slate-700">
                 <thead className="sticky top-0 border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase text-slate-500">
                   <tr>
-                    <th className="px-4 py-3">Пользователь</th>
-                    <th className="px-4 py-3">Роль</th>
-                    <th className="px-4 py-3">Подписка</th>
-                    <th className="px-4 py-3">Поисков / Расчетов</th>
-                    <th className="px-4 py-3">Статус</th>
-                    <th className="px-4 py-3 text-right">Действия админа</th>
+                    <th className="px-4 py-2.5">Пользователь</th>
+                    <th className="px-4 py-2.5">Роль</th>
+                    <th className="px-4 py-2.5">Подписка</th>
+                    <th className="px-4 py-2.5">Поисков / Расчетов</th>
+                    <th className="px-4 py-2.5">Статус</th>
+                    <th className="px-4 py-2.5 text-right">Действия админа</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -270,11 +316,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
 
                     return (
                       <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2.5">
                           <div className="font-semibold text-slate-900">{u.name}</div>
                           <div className="text-[11px] text-slate-500">{u.email}</div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2.5">
                           <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
                             u.role === 'admin'
                               ? 'bg-amber-100 text-amber-800'
@@ -283,7 +329,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                             {u.role === 'admin' ? '👑 Admin' : '🎓 Customer'}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2.5">
                           <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
                             u.subscriptionTier === 'pro'
                               ? 'bg-blue-100 text-blue-800'
@@ -292,10 +338,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                             {u.subscriptionTier === 'pro' ? '⭐ PRO' : 'Free'}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-[11px] text-slate-600">
+                        <td className="px-4 py-2.5 text-[11px] text-slate-600">
                           {u.usageStats.searchesCount} поисков • {u.usageStats.recalculationsCount} расчетов
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-2.5">
                           {u.isBanned ? (
                             <span className="rounded-md bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700">
                               Заблокирован
@@ -306,7 +352,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="px-4 py-2.5 text-right">
                           {isAdmin ? (
                             <span className="text-[11px] font-medium text-slate-400">Главный аккаунт</span>
                           ) : (
@@ -316,7 +362,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                                   type="button"
                                   onClick={() => handleSetSubscription(u.id, 'free')}
                                   className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
-                                  title="Откатить до бесплатного тарифа"
                                 >
                                   Снять PRO
                                 </button>
@@ -325,7 +370,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                                   type="button"
                                   onClick={() => handleSetSubscription(u.id, 'pro')}
                                   className="rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 shadow-2xs"
-                                  title="Выдать безлимитный доступ PRO"
                                 >
                                   + Выдать PRO
                                 </button>
@@ -347,7 +391,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                                 type="button"
                                 onClick={() => handleDeleteUser(u.id, u.email)}
                                 className="rounded-lg p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                                title="Удалить пользователя"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </button>
@@ -363,68 +406,177 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
           </div>
         )}
 
-        {/* Tab 2: Messages */}
+        {/* Tab 2: Messages (THREADED MESSENGER) */}
         {activeTab === 'messages' && (
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {messages.length === 0 ? (
-              <div className="py-12 text-center text-slate-400 text-xs">
-                Сообщений пока нет. Когда пользователи напишут в чат поддержки, они появятся здесь.
+          <div className="flex-1 flex overflow-hidden">
+            {/* Left Thread List */}
+            <div className="w-72 border-r border-slate-200 bg-slate-50/70 overflow-y-auto flex flex-col">
+              <div className="p-3 border-b border-slate-200 bg-white font-semibold text-xs text-slate-800">
+                Диалоги пользователей ({threadSummaries.length})
               </div>
-            ) : (
-              messages.map(m => (
-                <div
-                  key={m.id}
-                  className={`rounded-2xl border p-4 transition-all ${
-                    !m.isRead && m.userId !== 'system'
-                      ? 'border-blue-300 bg-blue-50/40'
-                      : 'border-slate-200 bg-white'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
+              <div className="divide-y divide-slate-200/60">
+                {threadSummaries.map(thread => {
+                  const isSelected = thread.threadId === selectedThreadId;
+
+                  return (
+                    <button
+                      key={thread.threadId}
+                      type="button"
+                      onClick={() => setSelectedThreadId(thread.threadId)}
+                      className={`w-full text-left p-3 transition-colors flex flex-col gap-1 ${
+                        isSelected ? 'bg-white border-l-4 border-l-blue-600 shadow-2xs' : 'hover:bg-white/80'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="font-semibold text-xs text-slate-900 truncate">
+                          {thread.userName}
+                        </div>
+                        {thread.unreadCountForAdmin > 0 && (
+                          <span className="rounded-full bg-rose-600 px-1.5 py-0.2 text-[9px] font-bold text-white">
+                            +{thread.unreadCountForAdmin}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-[11px] text-slate-500 truncate">
+                        {thread.userEmail}
+                      </div>
+
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        {thread.isPro ? (
+                          <span className="rounded bg-blue-100 px-1.5 py-0.2 text-[9px] font-bold text-blue-700">
+                            ⭐ PRO
+                          </span>
+                        ) : (
+                          <span className="rounded bg-slate-200 px-1.5 py-0.2 text-[9px] font-medium text-slate-600">
+                            Free
+                          </span>
+                        )}
+                        {thread.hasPaymentRequest && !thread.isPro && (
+                          <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800 flex items-center gap-0.5">
+                            <CreditCard className="h-2.5 w-2.5" />
+                            <span>Хочет PRO</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-[11px] text-slate-600 truncate mt-1 italic">
+                        "{thread.lastMessage}"
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right Chat Conversation Area */}
+            {selectedThreadId && currentThreadSummary ? (
+              <div className="flex-1 flex flex-col overflow-hidden bg-white">
+                {/* Conversation Header with Quick PRO Activation Button */}
+                <div className="flex items-center justify-between border-b border-slate-200 p-3 bg-slate-50">
+                  <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-xs text-slate-900">{m.userName}</span>
-                      <span className="text-[11px] text-slate-500">({m.userEmail})</span>
-                      {!m.isRead && m.userId !== 'system' && (
-                        <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white">
-                          Новое
+                      <h4 className="text-xs font-bold text-slate-900">{currentThreadSummary.userName}</h4>
+                      <span className="text-[11px] text-slate-500 font-normal">({currentThreadSummary.userEmail})</span>
+                      {currentThreadSummary.isPro ? (
+                        <span className="rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                          ⭐ PRO АКТИВЕН
+                        </span>
+                      ) : (
+                        <span className="rounded-md bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
+                          FREE ТАРИФ
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-slate-400">
-                      {new Date(m.createdAt).toLocaleString()}
-                    </span>
                   </div>
 
-                  <div className="rounded-xl bg-slate-50 p-3 text-xs text-slate-800 border border-slate-100">
-                    {m.message}
-                  </div>
-
-                  {m.reply ? (
-                    <div className="mt-2.5 rounded-xl bg-emerald-50 p-2.5 text-xs text-emerald-800 border border-emerald-100">
-                      <span className="font-semibold">Ваш ответ: </span>
-                      {m.reply}
-                    </div>
+                  {/* 1-CLICK PRO ACTIVATION BUTTON */}
+                  {!currentThreadSummary.isPro ? (
+                    <button
+                      type="button"
+                      onClick={handleActivateProForSelectedThread}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:from-blue-700 hover:to-indigo-700 transition-all"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>⚡ Активировать PRO этому пользователю</span>
+                    </button>
                   ) : (
-                    <div className="mt-3 flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={replyTextMap[m.id] || ''}
-                        onChange={e => setReplyTextMap({ ...replyTextMap, [m.id]: e.target.value })}
-                        placeholder="Напишите ответ пользователю..."
-                        className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-900 focus:border-blue-600 focus:outline-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleReplyMessage(m.id)}
-                        className="flex items-center gap-1 rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 shadow-2xs"
-                      >
-                        <Send className="h-3 w-3" />
-                        <span>Ответить</span>
-                      </button>
+                    <div className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      <span>PRO подписка активирована</span>
                     </div>
                   )}
                 </div>
-              ))
+
+                {/* Messages Feed */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
+                  {activeThreadMessages.map(m => {
+                    const isAdmin = m.senderRole === 'admin';
+                    const isSystem = m.senderRole === 'system';
+
+                    if (isSystem) {
+                      return (
+                        <div key={m.id} className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-800">
+                          <div className="font-bold flex items-center gap-1 mb-0.5">
+                            <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                            <span>Системное уведомление</span>
+                          </div>
+                          <p>{m.text}</p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={m.id} className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
+                        <div className="flex items-center gap-1 mb-0.5 text-[10px] text-slate-400">
+                          <span>{isAdmin ? 'Вы (Администратор)' : m.userName}</span>
+                          <span>•</span>
+                          <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        <div
+                          className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed shadow-2xs ${
+                            isAdmin
+                              ? 'bg-blue-600 text-white rounded-br-xs'
+                              : 'border border-slate-200 bg-white text-slate-800 rounded-bl-xs'
+                          }`}
+                        >
+                          {m.isPaymentRequest && (
+                            <div className="mb-1 text-[10px] font-bold text-amber-500 flex items-center gap-1">
+                              <CreditCard className="h-3.5 w-3.5" />
+                              <span>ЗАЯВКА НА ПОДПИСКУ PRO</span>
+                            </div>
+                          )}
+                          <p>{m.text}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Reply Form */}
+                <form onSubmit={handleSendAdminReply} className="border-t border-slate-200 p-3 bg-white flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={adminReplyInput}
+                    onChange={e => setAdminReplyInput(e.target.value)}
+                    placeholder="Напишите ответ пользователю в чат..."
+                    className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!adminReplyInput.trim()}
+                    className="flex items-center gap-1 rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40 transition-colors shadow-2xs"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Отправить ответ</span>
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-6 text-slate-400 text-xs">
+                Выберите диалог из списка слева для просмотра и ответа
+              </div>
             )}
           </div>
         )}

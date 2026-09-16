@@ -1,6 +1,31 @@
-import type { SupportMessage } from '../types';
+import { setSubscriptionTier, getAllUsers } from './auth';
 
-const STORAGE_CHAT_KEY = 'admitroute_support_chat_v1';
+export interface ChatMessage {
+  id: string;
+  threadId: string; // userId or guest id
+  userEmail: string;
+  userName: string;
+  senderRole: 'user' | 'admin' | 'system';
+  text: string;
+  createdAt: string;
+  isReadByAdmin: boolean;
+  isReadByUser: boolean;
+  isPaymentRequest?: boolean;
+  isProActivated?: boolean;
+}
+
+export interface ChatThreadSummary {
+  threadId: string;
+  userName: string;
+  userEmail: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCountForAdmin: number;
+  isPro: boolean;
+  hasPaymentRequest: boolean;
+}
+
+const STORAGE_CHAT_KEY = 'admitroute_live_chat_threads_v2';
 
 export const ADMIN_CONTACTS = {
   name: 'Адильхан',
@@ -12,77 +37,286 @@ export const ADMIN_CONTACTS = {
   email: 'adilhananuar426@gmail.com'
 };
 
-const SEED_MESSAGES: SupportMessage[] = [
+const SEED_MESSAGES: ChatMessage[] = [
   {
-    id: 'msg-welcome-01',
-    userId: 'system',
-    userEmail: 'adilhananuar426@gmail.com',
-    userName: 'Адильхан (Администратор AdmitRoute)',
-    message: 'Здравствуйте! Для оформления подписки AdmitRoute PRO, снятия лимитов или индивидуального аудита документов напишите мне здесь либо сразу в WhatsApp или Telegram.',
+    id: 'msg-seed-01',
+    threadId: 'user-demo-02',
+    userEmail: 'student@admitroute.kz',
+    userName: 'Алихан (Абитуриент)',
+    senderRole: 'user',
+    text: 'Здравствуйте! Хочу оформить подписку AdmitRoute PRO для безлимитного поиска вузов Европы и Италии.',
     createdAt: new Date(Date.now() - 3600000).toISOString(),
-    isRead: true
+    isReadByAdmin: false,
+    isReadByUser: true,
+    isPaymentRequest: true
+  },
+  {
+    id: 'msg-seed-02',
+    threadId: 'user-demo-02',
+    userEmail: 'adilhananuar426@gmail.com',
+    userName: 'Адильхан (Основатель AdmitRoute)',
+    senderRole: 'admin',
+    text: 'Приветствую, Алихан! Отличный выбор. Оплату можно произвести переводом на Kaspi (+7 775 253 01 10). Как оплатите — напишите сюда, и я сразу активирую PRO в этом чате.',
+    createdAt: new Date(Date.now() - 1800000).toISOString(),
+    isReadByAdmin: true,
+    isReadByUser: true
   }
 ];
 
-export function getAllMessages(): SupportMessage[] {
+function notifyChatChange(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('admitroute_chat_update'));
+  }
+}
+
+export function getAllChatMessages(): ChatMessage[] {
   if (typeof window === 'undefined') return SEED_MESSAGES;
   try {
     const raw = localStorage.getItem(STORAGE_CHAT_KEY);
-    return raw ? JSON.parse(raw) : SEED_MESSAGES;
+    if (!raw) {
+      localStorage.setItem(STORAGE_CHAT_KEY, JSON.stringify(SEED_MESSAGES));
+      return SEED_MESSAGES;
+    }
+    return JSON.parse(raw);
   } catch {
     return SEED_MESSAGES;
   }
 }
 
-function saveMessages(msgs: SupportMessage[]): void {
+function saveAllChatMessages(msgs: ChatMessage[]): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_CHAT_KEY, JSON.stringify(msgs));
+  notifyChatChange();
 }
 
-export function getUserMessages(userId: string): SupportMessage[] {
-  const all = getAllMessages();
-  return all.filter(m => m.userId === userId || m.userId === 'system');
+/**
+ * Получить сообщения конкретной переписки
+ */
+export function getThreadMessages(threadId: string): ChatMessage[] {
+  const all = getAllChatMessages();
+  const threadMsgs = all.filter(m => m.threadId === threadId);
+
+  // If new thread and empty, inject welcome greeting
+  if (threadMsgs.length === 0) {
+    const welcomeMsg: ChatMessage = {
+      id: `msg-welcome-${threadId}`,
+      threadId,
+      userEmail: 'adilhananuar426@gmail.com',
+      userName: 'Адильхан (Основатель AdmitRoute)',
+      senderRole: 'admin',
+      text: 'Здравствуйте! Я основатель платформы AdmitRoute. Здесь вы можете задать вопрос по поступлению, запросить подбор вузов или оформить подписку PRO прямо в чате.',
+      createdAt: new Date().toISOString(),
+      isReadByAdmin: true,
+      isReadByUser: true
+    };
+    all.push(welcomeMsg);
+    saveAllChatMessages(all);
+    return [welcomeMsg];
+  }
+
+  return threadMsgs;
 }
 
-export function sendSupportMessage(userId: string, userEmail: string, userName: string, text: string): SupportMessage {
-  const all = getAllMessages();
-  const newMsg: SupportMessage = {
+/**
+ * Отправить сообщение от пользователя
+ */
+export function sendUserMessage(
+  threadId: string,
+  userName: string,
+  userEmail: string,
+  text: string,
+  isPaymentRequest: boolean = false
+): ChatMessage {
+  const all = getAllChatMessages();
+  const newMsg: ChatMessage = {
     id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-    userId: userId || 'guest',
+    threadId,
+    userName: userName || 'Гость',
     userEmail: userEmail || 'guest@admitroute.kz',
-    userName: userName || 'Гость сайта',
-    message: text.trim(),
+    senderRole: 'user',
+    text: text.trim(),
     createdAt: new Date().toISOString(),
-    isRead: false
+    isReadByAdmin: false,
+    isReadByUser: true,
+    isPaymentRequest
   };
 
   all.push(newMsg);
-  saveMessages(all);
+  saveAllChatMessages(all);
   return newMsg;
 }
 
-export function replyToSupportMessage(messageId: string, replyText: string): boolean {
-  const all = getAllMessages();
-  const target = all.find(m => m.id === messageId);
-  if (!target) return false;
+/**
+ * Ответ администратора в конкретный тред
+ */
+export function sendAdminReply(threadId: string, text: string): ChatMessage {
+  const all = getAllChatMessages();
+  const newMsg: ChatMessage = {
+    id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    threadId,
+    userName: 'Адильхан (Основатель)',
+    userEmail: 'adilhananuar426@gmail.com',
+    senderRole: 'admin',
+    text: text.trim(),
+    createdAt: new Date().toISOString(),
+    isReadByAdmin: true,
+    isReadByUser: false
+  };
 
-  target.reply = replyText.trim();
-  target.repliedAt = new Date().toISOString();
-  target.isRead = true;
-  saveMessages(all);
-  return true;
+  all.push(newMsg);
+  saveAllChatMessages(all);
+  return newMsg;
 }
 
-export function markAsRead(messageId: string): void {
-  const all = getAllMessages();
-  const target = all.find(m => m.id === messageId);
-  if (target) {
-    target.isRead = true;
-    saveMessages(all);
+/**
+ * Активация подписки PRO прямо из чата админом
+ */
+export function activateProFromChat(threadId: string, userId?: string): { success: boolean; message: ChatMessage } {
+  const allUsers = getAllUsers();
+
+  // Try finding user by userId or threadId or email
+  let targetUser = allUsers.find(u => u.id === (userId || threadId));
+  if (!targetUser) {
+    // Check if thread messages have user email
+    const threadMsgs = getThreadMessages(threadId);
+    const userMsg = threadMsgs.find(m => m.senderRole === 'user');
+    if (userMsg && userMsg.userEmail) {
+      targetUser = allUsers.find(u => u.email.toLowerCase() === userMsg.userEmail.toLowerCase());
+    }
+  }
+
+  if (targetUser) {
+    setSubscriptionTier(targetUser.id, 'pro');
+  }
+
+  // Post system celebration message to thread
+  const all = getAllChatMessages();
+  const activationMsg: ChatMessage = {
+    id: `msg-pro-${Date.now()}`,
+    threadId,
+    userName: 'Система AdmitRoute',
+    userEmail: 'system@admitroute.kz',
+    senderRole: 'system',
+    text: `🎉 Администратор Адильхан активировал подписку AdmitRoute PRO${targetUser ? ' для аккаунта ' + targetUser.email : ''}! Теперь вам открыт безлимитный поиск любых университетов мира, расширенный роадмап и AI-генератор эссе.`,
+    createdAt: new Date().toISOString(),
+    isReadByAdmin: true,
+    isReadByUser: false,
+    isProActivated: true
+  };
+
+  all.push(activationMsg);
+  saveAllChatMessages(all);
+
+  return { success: true, message: activationMsg };
+}
+
+/**
+ * Сводка всех тредов для панели администратора
+ */
+export function getAllThreadSummaries(): ChatThreadSummary[] {
+  const allMsgs = getAllChatMessages();
+  const allUsers = getAllUsers();
+
+  const threadsMap: Record<string, ChatMessage[]> = {};
+  for (const msg of allMsgs) {
+    if (!threadsMap[msg.threadId]) {
+      threadsMap[msg.threadId] = [];
+    }
+    threadsMap[msg.threadId].push(msg);
+  }
+
+  const summaries: ChatThreadSummary[] = [];
+
+  for (const threadId in threadsMap) {
+    const msgs = threadsMap[threadId];
+    const lastMsg = msgs[msgs.length - 1];
+    const userMsg = msgs.find(m => m.senderRole === 'user') || lastMsg;
+
+    // Check if user is pro
+    const matchedUser = allUsers.find(u => u.id === threadId || u.email.toLowerCase() === userMsg.userEmail.toLowerCase());
+    const isPro = matchedUser ? matchedUser.subscriptionTier === 'pro' : false;
+
+    const unreadCount = msgs.filter(m => !m.isReadByAdmin && m.senderRole === 'user').length;
+    const hasPaymentRequest = msgs.some(m => m.isPaymentRequest);
+
+    summaries.push({
+      threadId,
+      userName: userMsg.userName || 'Пользователь',
+      userEmail: userMsg.userEmail || 'guest@admitroute.kz',
+      lastMessage: lastMsg.text,
+      lastMessageAt: lastMsg.createdAt,
+      unreadCountForAdmin: unreadCount,
+      isPro,
+      hasPaymentRequest
+    });
+  }
+
+  // Sort by latest message
+  return summaries.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+}
+
+/**
+ * Отметить все сообщения треда как прочитанные админом
+ */
+export function markThreadReadByAdmin(threadId: string): void {
+  const all = getAllChatMessages();
+  let modified = false;
+
+  for (const m of all) {
+    if (m.threadId === threadId && !m.isReadByAdmin) {
+      m.isReadByAdmin = true;
+      modified = true;
+    }
+  }
+
+  if (modified) {
+    saveAllChatMessages(all);
   }
 }
 
-export function getUnreadCount(): number {
-  const all = getAllMessages();
-  return all.filter(m => !m.isRead && m.userId !== 'system').length;
+/**
+ * Получить общее количество непрочитанных сообщений для админа
+ */
+export function getTotalUnreadForAdmin(): number {
+  const all = getAllChatMessages();
+  return all.filter(m => !m.isReadByAdmin && m.senderRole === 'user').length;
+}
+
+// Backward compatibility helper
+export function getAllMessages(): any[] {
+  return getAllChatMessages().map(m => ({
+    id: m.id,
+    userId: m.threadId,
+    userEmail: m.userEmail,
+    userName: m.userName,
+    message: m.text,
+    createdAt: m.createdAt,
+    isRead: m.isReadByAdmin
+  }));
+}
+
+// Backward-compatibility wrappers
+export function getUserMessages(userId: string): any[] {
+  return getThreadMessages(userId).map(m => ({
+    id: m.id,
+    userId: m.threadId,
+    userEmail: m.userEmail,
+    userName: m.userName,
+    message: m.text,
+    createdAt: m.createdAt,
+    isRead: m.isReadByAdmin
+  }));
+}
+
+export function sendSupportMessage(userId: string, userEmail: string, userName: string, text: string): any {
+  const msg = sendUserMessage(userId, userName, userEmail, text, false);
+  return {
+    id: msg.id,
+    userId: msg.threadId,
+    userEmail: msg.userEmail,
+    userName: msg.userName,
+    message: msg.text,
+    createdAt: msg.createdAt,
+    isRead: false
+  };
 }

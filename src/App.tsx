@@ -19,7 +19,7 @@ import { NextActionBanner } from './components/NextActionBanner';
 import { EssayAssistantModal } from './components/EssayAssistantModal';
 import { UniversityDetailModal } from './components/UniversityDetailModal';
 import { AuthModal } from './components/AuthModal';
-import { SupportChatModal } from './components/SupportChatModal';
+import { LiveChatWidget } from './components/LiveChatWidget';
 import { AdminPanel } from './components/AdminPanel';
 import { getCurrentUser, logout as authLogout, getSiteSettings, recordActionUsage } from './services/auth';
 import type { UserAccount, SiteSettings } from './types';
@@ -69,6 +69,22 @@ export const App: React.FC = () => {
   const [supportTopic, setSupportTopic] = useState<string>('PRO');
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => getSiteSettings());
+
+  // Listen to live chat and auth updates (e.g. when admin activates PRO)
+  useEffect(() => {
+    const handleSync = () => {
+      setCurrentUser(getCurrentUser());
+      setSiteSettings(getSiteSettings());
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('admitroute_chat_update', handleSync);
+
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('admitroute_chat_update', handleSync);
+    };
+  }, []);
 
   const handleOpenAuth = (mode: 'login' | 'register' = 'login') => {
     setAuthModalMode(mode);
@@ -468,11 +484,13 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Support Chat Modal (In-App Chat with Admin + WhatsApp & Telegram) */}
-      <SupportChatModal
-        isOpen={isSupportModalOpen}
-        onClose={() => setIsSupportModalOpen(false)}
-        defaultTopic={supportTopic}
+      {/* Live In-App Chat & In-Site Purchase Widget */}
+      <LiveChatWidget
+        currentUser={currentUser}
+        onOpenAuth={handleOpenAuth}
+        isOpenExternal={isSupportModalOpen}
+        onCloseExternal={() => setIsSupportModalOpen(false)}
+        initialTopic={supportTopic}
       />
 
       {/* Admin Panel (Accessible by adilhananuar426@gmail.com) */}
