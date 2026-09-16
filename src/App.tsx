@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import type { UserProfile, RoadmapStep, UniversityProgram, EssayDraft } from './types';
-import { calculateDiagnosis, recommendUniversities, generateRoadmap } from './utils/engine';
+import { calculateDiagnosis, recommendUniversities, generateRoadmap, evaluateUniversityProgram } from './utils/engine';
 import { evaluatePortfolio } from './utils/portfolioEvaluator';
 import { exportRoadmapToIcs } from './utils/calendar';
-import { generateEssayStructure } from './services/ai';
+import { generateEssayStructure, generateAiUniversityRecommendations } from './services/ai';
+import { UNIVERSITIES_DATABASE } from './data/universities';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { Questionnaire } from './components/Questionnaire';
 import { DiagnosticCard } from './components/DiagnosticCard';
 import { PortfolioAuditCard } from './components/PortfolioAuditCard';
+import { UniversitySearch } from './components/UniversitySearch';
 import { Recommendations } from './components/Recommendations';
 import { ComparisonModal } from './components/ComparisonModal';
 import { RoadmapTimeline } from './components/RoadmapTimeline';
@@ -39,6 +41,11 @@ export const App: React.FC = () => {
   const [isCompareOpen, setIsCompareOpen] = useState<boolean>(false);
   const [roadmap, setRoadmap] = useState<RoadmapStep[]>([]);
 
+  // Diversity & AI Recommendations state
+  const [customUniversities, setCustomUniversities] = useState<UniversityProgram[]>([]);
+  const [shuffleSeed, setShuffleSeed] = useState<number>(0);
+  const [isAiGenerating, setIsAiGenerating] = useState<boolean>(false);
+
   // University Detail Modal state
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const [selectedDetailUni, setSelectedDetailUni] = useState<UniversityProgram | null>(null);
@@ -64,6 +71,7 @@ export const App: React.FC = () => {
   const handleProfileSubmit = (newProfile: UserProfile) => {
     setProfile(newProfile);
     setIsEditing(false);
+    setCustomUniversities([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -120,6 +128,7 @@ export const App: React.FC = () => {
 
     setProfile(chosenProfile);
     setIsEditing(false);
+    setCustomUniversities([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -128,6 +137,8 @@ export const App: React.FC = () => {
     setProfile(null);
     setIsEditing(false);
     setSelectedForCompare([]);
+    setCustomUniversities([]);
+    setShuffleSeed(0);
     localStorage.removeItem(STORAGE_KEY_PROFILE);
     localStorage.removeItem(STORAGE_KEY_ROADMAP);
   };
@@ -176,14 +187,67 @@ export const App: React.FC = () => {
     setEssayDraft(draft);
   };
 
+  // Rotation / Refresh handler
+  const handleRefreshVariants = () => {
+    setShuffleSeed(prev => prev + 1);
+  };
+
+  // Request fresh AI recommendations via Gemini
+  const handleRequestAiVariants = async () => {
+    if (!profile) return;
+    setIsAiGenerating(true);
+    try {
+      const existingIds = [
+        ...customUniversities.map(u => u.id),
+        ...UNIVERSITIES_DATABASE.map(u => u.id)
+      ];
+      const aiUnis = await generateAiUniversityRecommendations(profile, existingIds);
+      if (aiUnis && aiUnis.length > 0) {
+        setCustomUniversities(prev => [...aiUnis, ...prev]);
+      }
+    } finally {
+      setIsAiGenerating(false);
+    }
+  };
+
+  // Add custom university from Search component
+  const handleAddCustomUniversity = (uni: UniversityProgram) => {
+    setCustomUniversities(prev => [uni, ...prev.filter(u => u.id !== uni.id)]);
+  };
+
   // Calculated properties
   const diagnosis = profile ? calculateDiagnosis(profile) : null;
   const portfolioAudit = profile ? evaluatePortfolio(profile) : null;
-  const recommendedUnis = profile ? recommendUniversities(profile) : [];
+
+  // Base recommendations with anti-illusion calculation and rotation
+  const baseRecommendedUnis = profile ? recommendUniversities(profile, { shuffleSeed }) : [];
+  const recommendedUnis = [
+    ...customUniversities,
+    ...baseRecommendedUnis.filter(b => !customUniversities.some(c => c.id === b.id))
+  ];
+
   const nextUnfinishedStep = roadmap.find((s) => !s.completed) || null;
-  const comparedUniversities = recommendedUnis.filter((u) =>
-    selectedForCompare.includes(u.id)
-  );
+
+  // Build compared list from all possible sources (recommended, custom, or full DB)
+  const comparedUniversities = selectedForCompare
+    .map(id => {
+      const foundInRec = recommendedUnis.find(u => u.id === id);
+      if (foundInRec) return foundInRec;
+      const foundInDb = UNIVERSITIES_DATABASE.find(u => u.id === id);
+      if (foundInDb && profile) {
+        const ev = evaluateUniversityProgram(foundInDb, profile);
+        return {
+          ...foundInDb,
+          matchCategory: ev.matchCategory,
+          matchScore: ev.matchScore,
+          admissionChancePercentage: ev.admissionChancePercentage,
+          realityCheckWarning: ev.realityCheckWarning,
+          whyFits: ev.whyFits
+        };
+      }
+      return null;
+    })
+    .filter((u): u is UniversityProgram => u !== null);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans">
@@ -223,9 +287,9 @@ export const App: React.FC = () => {
             />
           </div>
         ) : (
-          /* FULL SCENARIO DASHBOARD (Stages 3 to 7 + Enhancements) */
+          /* FULL SCENARIO DASHBOARD (Stages 3 to 7 + Search + Enhancements) */
           <div className="space-y-10">
-            {/* Quick interactive banner to adjust inputs (Demonstrates Reactivity for Jury) */}
+            {/* Quick interactive banner to adjust inputs */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -278,7 +342,22 @@ export const App: React.FC = () => {
               />
             )}
 
-            {/* STAGE 4: University Recommendations (Target, Reach, Safety) */}
+            {/* CUSTOM SEARCH & EVALUATION COMPONENT */}
+            {profile && (
+              <UniversitySearch
+                profile={profile}
+                onSelectUniversity={(uni) => {
+                  setSelectedDetailUni(uni);
+                  setIsDetailModalOpen(true);
+                }}
+                onOpenEssayModal={handleOpenEssayModal}
+                selectedForCompare={selectedForCompare}
+                onToggleCompare={handleToggleCompare}
+                onAddCustomUniversity={handleAddCustomUniversity}
+              />
+            )}
+
+            {/* STAGE 4: University Recommendations (Target, Reach, Safety, Unlikely with Strict Reality Check) */}
             <Recommendations
               universities={recommendedUnis}
               selectedForCompare={selectedForCompare}
@@ -289,6 +368,9 @@ export const App: React.FC = () => {
                 setSelectedDetailUni(uni);
                 setIsDetailModalOpen(true);
               }}
+              onRefreshVariants={handleRefreshVariants}
+              onRequestAiVariants={handleRequestAiVariants}
+              isAiGenerating={isAiGenerating}
             />
 
             {/* SCHOLARSHIPS FINDER */}

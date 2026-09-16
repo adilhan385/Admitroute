@@ -78,82 +78,195 @@ export function calculateDiagnosis(profile: UserProfile): ProfileDiagnosis {
   };
 }
 
-export function recommendUniversities(profile: UserProfile): UniversityProgram[] {
-  // 1. Приоритетно выбираем вузы из региона, указанного пользователем!
-  const regionalPool = UNIVERSITIES_DATABASE.filter(u => u.region === profile.targetRegion);
-  const pool = regionalPool.length >= 3 ? regionalPool : UNIVERSITIES_DATABASE;
+/**
+ * Честная, строгая и реалистичная оценка шансов поступления в конкретную программу (No False Hopes)
+ */
+export function evaluateUniversityProgram(
+  uni: UniversityProgram,
+  profile: UserProfile
+): {
+  matchCategory: MatchCategory;
+  matchScore: number;
+  admissionChancePercentage: number;
+  realityCheckWarning?: string;
+  whyFits: string[];
+} {
+  const gpaDiff = profile.gpa - uni.avgGpa;
+  const isKZ = uni.region === 'kazakhstan';
+  const rawAcceptance = parseFloat(uni.acceptanceRate.replace('%', '')) || 25;
 
-  // Расчет релевантности программ
-  const scored = pool.map((uni) => {
-    let score = 70;
+  // Language check
+  const requiresHighLang =
+    uni.languageRequirement.toLowerCase().includes('6.5') ||
+    uni.languageRequirement.toLowerCase().includes('7.0') ||
+    uni.languageRequirement.toLowerCase().includes('7.5') ||
+    uni.languageRequirement.toLowerCase().includes('b2');
+  const missingLang = requiresHighLang && !profile.hasLanguageTest;
 
-    // Field match
-    if (uni.fields.includes(profile.field)) {
-      score += 20;
-    }
+  // Budget check
+  const isFreeOrFullGrant = uni.scholarshipAvailability === '100% гранты';
 
-    // Region preference
-    if (uni.region === profile.targetRegion) {
-      score += 25;
-    }
+  let category: MatchCategory = 'target';
+  let chance = 60;
+  let warning: string | undefined = undefined;
 
-    // Budget match
-    if (profile.budget === 'full_grant' && uni.scholarshipAvailability === '100% гранты') {
-      score += 10;
-    }
+  // --- Strict Anti-Illusion Rules ---
+  // Elite/Ultra-Reach: Harvard/MIT, NUS, KAIST, NU, Tsinghua, Tokyo Tech, TUM (acceptance <= 16%)
+  const isElite = rawAcceptance <= 16 || uni.id.includes('harvard') || uni.id.includes('nus') || uni.id.includes('tsinghua');
 
-    // Dynamic Category assignment based on GPA and Language
-    let dynamicCategory: MatchCategory = 'target';
-    const gpaDiff = profile.gpa - uni.avgGpa;
-
-    if (gpaDiff < -0.15 || (uni.languageRequirement.includes('6.5') && !profile.hasLanguageTest)) {
-      dynamicCategory = 'reach';
-      score = Math.max(75, Math.min(score, 88));
-    } else if (gpaDiff >= 0.25 || uni.acceptanceRate.includes('5') || uni.acceptanceRate.includes('6') || uni.acceptanceRate.includes('8')) {
-      dynamicCategory = 'safety';
-      score = Math.min(95, score + 5);
+  if (isElite) {
+    if (profile.gpa < 4.5 || missingLang || (isKZ && !profile.hasStateExam)) {
+      category = 'unlikely';
+      chance = Math.max(4, Math.min(12, Math.round(rawAcceptance * 0.5 + (profile.gpa / 5) * 5)));
+      warning = `Критический риск отказа: академический порог программы (GPA от ${uni.avgGpa.toFixed(1)}, ${uni.languageRequirement}) существенно выше текущих данных. Поступление маловероятно (<${chance}%) без побед на международных олимпиадах или резкого роста баллов.`;
+    } else if (profile.gpa < 4.85 || (!profile.hasStateExam && !isKZ)) {
+      category = 'reach';
+      chance = Math.min(32, Math.max(14, Math.round(rawAcceptance * 1.5 + gpaDiff * 25)));
+      warning = `Высокая селективность: конкурс ${uni.details.grantStats.competitionRatio}. Риск отказа оценивается в ${100 - chance}%. Требуется сильное эссе и олимпиадный профиль.`;
     } else {
-      dynamicCategory = 'target';
-      score = Math.min(96, score + 8);
+      category = 'reach';
+      chance = Math.min(48, Math.max(25, Math.round(rawAcceptance * 2.2 + 15)));
     }
+  } else if (rawAcceptance < 35) {
+    // Competitive Tier: KBTU, AITU, PoliMi, HKUST, UNIST, Purdue, etc. (acceptance 17-34%)
+    if (gpaDiff < -0.3 || missingLang) {
+      if (gpaDiff < -0.6) {
+        category = 'unlikely';
+        chance = 15;
+        warning = `Низкая вероятность зачисления: GPA отстает на ${Math.abs(gpaDiff).toFixed(1)} балла от среднего показателя (${uni.avgGpa}). Рекомендуется сосредоточиться на Target и Safety вузах.`;
+      } else {
+        category = 'reach';
+        chance = Math.max(22, Math.round(38 + gpaDiff * 30));
+        if (missingLang) {
+          warning = `Для допуска к конкурсу требуется обязательный сертификат: ${uni.languageRequirement}.`;
+        }
+      }
+    } else if (gpaDiff >= 0.2 && (!requiresHighLang || profile.hasLanguageTest)) {
+      category = 'target';
+      chance = Math.min(85, Math.round(68 + gpaDiff * 25));
+    } else {
+      category = 'target';
+      chance = Math.min(76, Math.round(58 + gpaDiff * 20));
+    }
+  } else {
+    // Accessible / Safety Tier: SDU, APU, Warsaw Tech, Satbayev, IITU, ASU, Charles Uni (acceptance 35%+)
+    if (gpaDiff < -0.4) {
+      category = 'reach';
+      chance = 45;
+    } else if (gpaDiff >= 0 || (profile.hasStateExam && isKZ)) {
+      category = 'safety';
+      chance = Math.min(95, Math.round(82 + gpaDiff * 15));
+    } else {
+      category = 'target';
+      chance = 72;
+    }
+  }
 
-    // Tailor "whyFits" dynamically
-    const dynamicWhyFits = [...uni.whyFits];
-    if (profile.budget === 'full_grant' && uni.scholarshipAvailability === '100% гранты') {
-      dynamicWhyFits.unshift(`Соответствует вашему запросу на 100% грантовое финансирование`);
-    }
-    if (profile.gpa >= uni.avgGpa) {
-      dynamicWhyFits.push(`Ваш GPA (${profile.gpa.toFixed(1)}) превышает средний проходной показатель программы (${uni.avgGpa})`);
-    }
+  // Calculate Match Score
+  let score = 65;
+  if (uni.fields.includes(profile.field)) score += 18;
+  if (uni.region === profile.targetRegion) score += 20;
+  if (isFreeOrFullGrant && profile.budget === 'full_grant') score += 12;
 
+  if (category === 'unlikely') score = Math.min(50, Math.max(30, chance + 15));
+  else if (category === 'reach') score = Math.min(76, Math.max(62, chance + 30));
+  else if (category === 'target') score = Math.min(95, Math.max(80, chance + 10));
+  else score = Math.min(97, Math.max(86, chance + 5));
+
+  // Dynamic whyFits tailored to candidate
+  const dynamicWhyFits: string[] = [];
+  if (category === 'safety') {
+    dynamicWhyFits.push(`Высокая надежность (Safety): ваши баллы выше среднего порога программы (${uni.avgGpa})`);
+  } else if (category === 'target') {
+    dynamicWhyFits.push(`Оптимальная цель (Target): высокая сходимость профиля с проходными баллами`);
+  } else if (category === 'reach') {
+    dynamicWhyFits.push(`Амбициозная цель (Reach): сильная школа, требуется мобилизация на экзаменах`);
+  } else {
+    dynamicWhyFits.push(`Критический риск: баллы существенно ниже проходного порога, не делайте ставку`);
+  }
+
+  if (profile.budget === 'full_grant' && isFreeOrFullGrant) {
+    dynamicWhyFits.push('100% возможность бесплатного обучения (госгрант / полная стипендия)');
+  }
+  dynamicWhyFits.push(uni.whyFits[0] || 'Высокая репутация диплома и востребованность выпускников');
+
+  return {
+    matchCategory: category,
+    matchScore: score,
+    admissionChancePercentage: chance,
+    realityCheckWarning: warning,
+    whyFits: dynamicWhyFits.slice(0, 3)
+  };
+}
+
+export function recommendUniversities(
+  profile: UserProfile,
+  options?: { shuffleSeed?: number }
+): UniversityProgram[] {
+  // Pool prioritizing requested region, but including global options if pool is small
+  const regionalPool = UNIVERSITIES_DATABASE.filter(u => u.region === profile.targetRegion);
+  const otherPool = UNIVERSITIES_DATABASE.filter(u => u.region !== profile.targetRegion);
+
+  // Score each university with our anti-illusion evaluator
+  const evaluatedPool = (regionalPool.length >= 4 ? regionalPool : [...regionalPool, ...otherPool]).map((uni) => {
+    const evaluation = evaluateUniversityProgram(uni, profile);
     return {
       ...uni,
-      matchCategory: dynamicCategory,
-      matchScore: score,
-      whyFits: dynamicWhyFits.slice(0, 3)
+      matchCategory: evaluation.matchCategory,
+      matchScore: evaluation.matchScore,
+      admissionChancePercentage: evaluation.admissionChancePercentage,
+      realityCheckWarning: evaluation.realityCheckWarning,
+      whyFits: evaluation.whyFits
     };
   });
 
-  // Sort by score
-  scored.sort((a, b) => b.matchScore - a.matchScore);
-
-  // Guarantee at least one Target, Reach, Safety for healthy strategy
-  const targets = scored.filter(u => u.matchCategory === 'target');
-  const reaches = scored.filter(u => u.matchCategory === 'reach');
-  const safeties = scored.filter(u => u.matchCategory === 'safety');
+  // Group by category
+  const targets = evaluatedPool.filter(u => u.matchCategory === 'target').sort((a, b) => b.matchScore - a.matchScore);
+  const safeties = evaluatedPool.filter(u => u.matchCategory === 'safety').sort((a, b) => b.matchScore - a.matchScore);
+  // In reach: exclude 'unlikely' from default reach unless no other reach exists
+  const reaches = evaluatedPool.filter(u => u.matchCategory === 'reach').sort((a, b) => b.matchScore - a.matchScore);
+  const unlikelies = evaluatedPool.filter(u => u.matchCategory === 'unlikely').sort((a, b) => b.matchScore - a.matchScore);
 
   const selected: UniversityProgram[] = [];
 
-  if (targets.length > 0) selected.push(targets[0]);
-  if (reaches.length > 0) selected.push(reaches[0]);
-  if (safeties.length > 0) selected.push(safeties[0]);
+  // Random rotation offset based on shuffleSeed
+  const seed = options?.shuffleSeed || 0;
 
-  // Fill up to 4-5 options from remainder
-  for (const item of scored) {
+  // 1. Pick 1-2 Targets (with rotation if available)
+  if (targets.length > 0) {
+    const targetIdx = seed % targets.length;
+    selected.push(targets[targetIdx]);
+    const secondTargetIdx = (targetIdx + 1) % targets.length;
+    if (targets.length > 1 && !selected.find(s => s.id === targets[secondTargetIdx].id)) {
+      selected.push(targets[secondTargetIdx]);
+    }
+  }
+
+  // 2. Pick 1-2 Safeties
+  if (safeties.length > 0) {
+    const safetyIdx = seed % safeties.length;
+    selected.push(safeties[safetyIdx]);
+    const secondSafetyIdx = (safetyIdx + 1) % safeties.length;
+    if (safeties.length > 1 && !selected.find(s => s.id === safeties[secondSafetyIdx].id)) {
+      selected.push(safeties[secondSafetyIdx]);
+    }
+  }
+
+  // 3. Pick 1 Reach (if candidate is weak, don't give false hope, mark honestly)
+  if (reaches.length > 0) {
+    const reachIdx = seed % reaches.length;
+    selected.push(reaches[reachIdx]);
+  } else if (unlikelies.length > 0) {
+    // Show one unlikely with prominent reality check warning so they see the gap
+    selected.push(unlikelies[0]);
+  }
+
+  // Fill up to 5-6 options if needed
+  for (const item of evaluatedPool.sort((a, b) => b.matchScore - a.matchScore)) {
     if (!selected.find(s => s.id === item.id)) {
       selected.push(item);
     }
-    if (selected.length >= 4) break;
+    if (selected.length >= 6) break;
   }
 
   return selected;

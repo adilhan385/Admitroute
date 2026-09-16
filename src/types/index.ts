@@ -27,7 +27,7 @@ export interface UserProfile {
   portfolioText?: string; // внеучебные активности, проекты, олимпиады
 }
 
-export type MatchCategory = 'target' | 'reach' | 'safety';
+export type MatchCategory = 'target' | 'reach' | 'safety' | 'unlikely';
 
 export interface AdmissionRoundItem {
   name: string;
@@ -78,6 +78,9 @@ export interface UniversityProgram {
   hasDormitory: boolean;
   matchCategory: MatchCategory;
   matchScore: number; // 0 - 100
+  admissionChancePercentage?: number; // 5 - 98%
+  realityCheckWarning?: string; // Honest warning if candidate does not meet minimums
+  isAiGenerated?: boolean;
   whyFits: string[];
   keyStrengths: string[];
   avgGraduateSalary: string;

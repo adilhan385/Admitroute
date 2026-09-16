@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { UniversityProgram, MatchCategory } from '../types';
-import { Target, ExternalLink, Check, Scale, Award, FileText, Info } from 'lucide-react';
+import { Target, ExternalLink, Check, Scale, Award, FileText, Info, AlertTriangle, RefreshCw, Sparkles, Loader2 } from 'lucide-react';
 
 interface RecommendationsProps {
   universities: UniversityProgram[];
@@ -9,6 +9,9 @@ interface RecommendationsProps {
   onOpenCompareModal: () => void;
   onOpenEssayModal?: (uni: UniversityProgram) => void;
   onSelectUniversity?: (uni: UniversityProgram) => void;
+  onRefreshVariants?: () => void;
+  onRequestAiVariants?: () => void;
+  isAiGenerating?: boolean;
 }
 
 export const Recommendations: React.FC<RecommendationsProps> = ({
@@ -17,7 +20,10 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
   onToggleCompare,
   onOpenCompareModal,
   onOpenEssayModal,
-  onSelectUniversity
+  onSelectUniversity,
+  onRefreshVariants,
+  onRequestAiVariants,
+  isAiGenerating
 }) => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -37,16 +43,23 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
         );
       case 'reach':
         return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-800">
+          <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
             <Award className="h-3 w-3" />
-            <span>Reach (Амбициозный вариант)</span>
+            <span>Reach (Амбициозный)</span>
           </span>
         );
       case 'safety':
         return (
           <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800">
             <Check className="h-3 w-3" />
-            <span>Safety (Страховочный вариант)</span>
+            <span>Safety (Надежный)</span>
+          </span>
+        );
+      case 'unlikely':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-700">
+            <AlertTriangle className="h-3 w-3" />
+            <span>Маловероятно (Высокий риск)</span>
           </span>
         );
     }
@@ -66,12 +79,46 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
             Рекомендованные университеты и программы
           </h2>
           <p className="text-xs text-slate-500">
-            Нажмите на карточку любого вуза, чтобы увидеть 3 раунда подачи, статистику грантов и детали кампуса
+            Честная оценка шансов без завышений: Target, Safety и Reach с дедлайнами 3 волн
           </p>
         </div>
 
-        {/* Filter Chips & Compare CTA */}
+        {/* Action Buttons: Refresh, AI, Filter, Compare */}
         <div className="flex flex-wrap items-center gap-2">
+          {onRefreshVariants && (
+            <button
+              type="button"
+              onClick={onRefreshVariants}
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+              title="Показать другие подходящие варианты из базы"
+            >
+              <RefreshCw className="h-3 w-3" />
+              <span>Обновить список</span>
+            </button>
+          )}
+
+          {onRequestAiVariants && (
+            <button
+              type="button"
+              onClick={onRequestAiVariants}
+              disabled={isAiGenerating}
+              className="inline-flex items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2.5 py-1.5 text-xs font-medium text-purple-700 hover:bg-purple-100 disabled:opacity-50 transition"
+              title="Сгенерировать свежие варианты через Gemini AI"
+            >
+              {isAiGenerating ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin text-purple-600" />
+                  <span>Поиск ИИ...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3 w-3 text-purple-600" />
+                  <span>Варианты через ИИ</span>
+                </>
+              )}
+            </button>
+          )}
+
           <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1 text-xs font-medium text-slate-600 shadow-xs">
             <button
               type="button"
@@ -97,17 +144,6 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setFilterCategory('reach')}
-              className={`rounded-md px-2.5 py-1 transition ${
-                filterCategory === 'reach'
-                  ? 'bg-slate-900 text-white'
-                  : 'hover:text-slate-900'
-              }`}
-            >
-              Reach
-            </button>
-            <button
-              type="button"
               onClick={() => setFilterCategory('safety')}
               className={`rounded-md px-2.5 py-1 transition ${
                 filterCategory === 'safety'
@@ -116,6 +152,17 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
               }`}
             >
               Safety
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterCategory('reach')}
+              className={`rounded-md px-2.5 py-1 transition ${
+                filterCategory === 'reach'
+                  ? 'bg-slate-900 text-white'
+                  : 'hover:text-slate-900'
+              }`}
+            >
+              Reach
             </button>
           </div>
 
@@ -136,6 +183,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {filteredUnis.map((uni) => {
           const isCompared = selectedForCompare.includes(uni.id);
+          const chance = uni.admissionChancePercentage ?? uni.matchScore;
 
           return (
             <div
@@ -147,9 +195,24 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     {getCategoryBadge(uni.matchCategory)}
-                    <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-mono font-medium text-slate-600">
-                      Совпадение: {uni.matchScore}%
+                    <span
+                      className={`rounded-md border px-2 py-0.5 text-xs font-mono font-medium ${
+                        chance >= 70
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                          : chance >= 40
+                          ? 'border-blue-200 bg-blue-50 text-blue-700'
+                          : chance >= 20
+                          ? 'border-amber-200 bg-amber-50 text-amber-700'
+                          : 'border-rose-200 bg-rose-50 text-rose-700'
+                      }`}
+                    >
+                      Шанс: {chance}%
                     </span>
+                    {uni.isAiGenerated && (
+                      <span className="rounded-md border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700">
+                        ИИ-подбор
+                      </span>
+                    )}
                   </div>
                   <span className="text-xs text-slate-500 font-medium">
                     {uni.city}, {uni.country}
@@ -170,6 +233,16 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                     {uni.programTitle}
                   </p>
                 </div>
+
+                {/* REALITY CHECK ALERT (if exists) */}
+                {uni.realityCheckWarning && (
+                  <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800 flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-rose-600" />
+                    <div className="text-[11px] leading-relaxed text-rose-700">
+                      <strong>Предупреждение приемной комиссии:</strong> {uni.realityCheckWarning}
+                    </div>
+                  </div>
+                )}
 
                 {/* 3 Application Waves Strip */}
                 <div className="mt-3.5 rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 text-xs space-y-1.5">
@@ -206,7 +279,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                   </p>
                 </div>
 
-                {/* Why it fits (Human explanation - Case requirement!) */}
+                {/* Why it fits */}
                 <div className="mt-4">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     Почему подходит именно вам:
