@@ -35,7 +35,7 @@ export const App: React.FC = () => {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {
+      } catch {
         return null;
       }
     }
@@ -45,7 +45,7 @@ export const App: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const [isCompareOpen, setIsCompareOpen] = useState<boolean>(false);
-  const [roadmap, setRoadmap] = useState<RoadmapStep[]>([]);
+  const [roadmap, setRoadmap] = useState<RoadmapStep[]>(() => profile ? generateRoadmap(profile) : []);
 
   // Diversity & AI Recommendations state
   const [customUniversities, setCustomUniversities] = useState<UniversityProgram[]>([]);
@@ -102,12 +102,10 @@ export const App: React.FC = () => {
     setIsAdminPanelOpen(false);
   };
 
-  // When profile updates, update roadmap and save to localStorage
+  // When profile updates, save to localStorage
   useEffect(() => {
     if (profile) {
       localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
-      const generated = generateRoadmap(profile);
-      setRoadmap(generated);
     } else {
       localStorage.removeItem(STORAGE_KEY_PROFILE);
       localStorage.removeItem(STORAGE_KEY_ROADMAP);
@@ -118,6 +116,7 @@ export const App: React.FC = () => {
   const handleProfileSubmit = (newProfile: UserProfile) => {
     recordActionUsage('recalculation');
     setProfile(newProfile);
+    setRoadmap(generateRoadmap(newProfile));
     setIsEditing(false);
     setCustomUniversities([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -175,6 +174,7 @@ export const App: React.FC = () => {
     }
 
     setProfile(chosenProfile);
+    setRoadmap(generateRoadmap(chosenProfile));
     setIsEditing(false);
     setCustomUniversities([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -183,6 +183,7 @@ export const App: React.FC = () => {
   // Reset all
   const handleReset = () => {
     setProfile(null);
+    setRoadmap([]);
     setIsEditing(false);
     setSelectedForCompare([]);
     setCustomUniversities([]);
@@ -417,6 +418,8 @@ export const App: React.FC = () => {
                 selectedForCompare={selectedForCompare}
                 onToggleCompare={handleToggleCompare}
                 onAddCustomUniversity={handleAddCustomUniversity}
+                onOpenAuth={handleOpenAuth}
+                onOpenSupport={handleOpenSupport}
               />
             )}
 

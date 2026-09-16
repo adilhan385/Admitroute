@@ -284,19 +284,20 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
   const current = getCurrentUser();
 
   if (current) {
+    const usage = current.usageStats || { searchesCount: 0, recalculationsCount: 0 };
     if (current.role === 'admin' || current.subscriptionTier === 'pro') {
       return {
         allowed: true,
         remaining: 999999,
         maxLimit: 999999,
-        currentCount: action === 'search' ? current.usageStats.searchesCount : current.usageStats.recalculationsCount,
+        currentCount: action === 'search' ? (usage.searchesCount ?? 0) : (usage.recalculationsCount ?? 0),
         role: current.role,
         isPro: true
       };
     }
 
     const maxLimit = action === 'search' ? FREE_CUSTOMER_MAX_SEARCHES : FREE_CUSTOMER_MAX_RECALCULATIONS;
-    const count = action === 'search' ? current.usageStats.searchesCount : current.usageStats.recalculationsCount;
+    const count = action === 'search' ? (usage.searchesCount ?? 0) : (usage.recalculationsCount ?? 0);
     const remaining = Math.max(0, maxLimit - count);
 
     return {
@@ -311,7 +312,7 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
 
   const stats = getGuestStats();
   const maxLimit = action === 'search' ? GUEST_MAX_SEARCHES : GUEST_MAX_RECALCULATIONS;
-  const count = action === 'search' ? stats.searchesCount : stats.recalculationsCount;
+  const count = action === 'search' ? (stats.searchesCount ?? 0) : (stats.recalculationsCount ?? 0);
   const remaining = Math.max(0, maxLimit - count);
 
   return {
@@ -334,8 +335,11 @@ export function recordActionUsage(action: 'search' | 'recalculation'): void {
     const users = getAllUsers();
     const found = users.find(u => u.id === current.id);
     if (found) {
-      if (action === 'search') found.usageStats.searchesCount++;
-      else found.usageStats.recalculationsCount++;
+      if (!found.usageStats) {
+        found.usageStats = { searchesCount: 0, recalculationsCount: 0 };
+      }
+      if (action === 'search') found.usageStats.searchesCount = (found.usageStats.searchesCount ?? 0) + 1;
+      else found.usageStats.recalculationsCount = (found.usageStats.recalculationsCount ?? 0) + 1;
       saveUsers(users);
       localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(found));
     }

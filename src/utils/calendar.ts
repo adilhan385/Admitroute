@@ -6,11 +6,13 @@ import type { RoadmapStep } from '../types';
  */
 export function exportRoadmapToIcs(steps: RoadmapStep[], applicantName: string): void {
   const events = steps.map((step, index) => {
-    // Generate approximate date string (YYYYMMDD)
+    // Generate valid sequential calendar date starting April 15, 2026
     const now = new Date();
-    const eventYear = 2026;
-    const eventMonth = String((index % 12) + 4).padStart(2, '0'); // April to August
-    const eventDay = String(Math.min(25, 10 + index * 3)).padStart(2, '0');
+    const baseDate = new Date(2026, 3, 15); // April 15, 2026 (month is 0-indexed)
+    const eventDate = new Date(baseDate.getTime() + index * 14 * 24 * 60 * 60 * 1000); // 2 weeks interval
+    const eventYear = eventDate.getFullYear();
+    const eventMonth = String(eventDate.getMonth() + 1).padStart(2, '0');
+    const eventDay = String(eventDate.getDate()).padStart(2, '0');
     const dateStr = `${eventYear}${eventMonth}${eventDay}`;
 
     return [

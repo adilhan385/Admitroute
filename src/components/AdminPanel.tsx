@@ -71,6 +71,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
     if (isOpen) {
       loadData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   useEffect(() => {
@@ -339,7 +340,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                           </span>
                         </td>
                         <td className="px-4 py-2.5 text-[11px] text-slate-600">
-                          {u.usageStats.searchesCount} поисков • {u.usageStats.recalculationsCount} расчетов
+                          {u.usageStats?.searchesCount ?? 0} поисков • {u.usageStats?.recalculationsCount ?? 0} расчетов
                         </td>
                         <td className="px-4 py-2.5">
                           {u.isBanned ? (

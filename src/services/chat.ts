@@ -233,7 +233,8 @@ export function getAllThreadSummaries(): ChatThreadSummary[] {
     const userMsg = msgs.find(m => m.senderRole === 'user') || lastMsg;
 
     // Check if user is pro
-    const matchedUser = allUsers.find(u => u.id === threadId || u.email.toLowerCase() === userMsg.userEmail.toLowerCase());
+    const userEmailClean = userMsg?.userEmail ? userMsg.userEmail.toLowerCase() : '';
+    const matchedUser = allUsers.find(u => u.id === threadId || (userEmailClean && u.email.toLowerCase() === userEmailClean));
     const isPro = matchedUser ? matchedUser.subscriptionTier === 'pro' : false;
 
     const unreadCount = msgs.filter(m => !m.isReadByAdmin && m.senderRole === 'user').length;

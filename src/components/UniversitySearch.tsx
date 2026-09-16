@@ -52,6 +52,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const [isTestingKey, setIsTestingKey] = useState(false);
   const [testStatus, setTestStatus] = useState<{ success: boolean; message: string } | null>(null);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+  const [isDropdownDismissed, setIsDropdownDismissed] = useState(false);
   const [, setUsageTick] = useState(0);
 
   const searchLimits = checkActionAllowed('search');
@@ -108,6 +109,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       realityCheckWarning: evaluated.realityCheckWarning,
       whyFits: evaluated.whyFits
     });
+    setIsDropdownDismissed(true);
   };
 
   // Handle Search submit or AI analysis
@@ -156,7 +158,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           onAddCustomUniversity(fallback);
         }
       }
-    } catch (err) {
+    } catch {
       const fallback = generateSmartFallbackUniversity(query, profile);
       setSelectedUni(fallback);
       if (onAddCustomUniversity) {
@@ -219,14 +221,20 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             <input
               type="text"
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setIsDropdownDismissed(false);
+              }}
               placeholder="Введите название любого вуза (напр. SDU, MIT, МУИТ, Университет Тренто, Bocconi)..."
               className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-4 text-xs text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 transition"
             />
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
+                onClick={() => {
+                  setSearchQuery('');
+                  setIsDropdownDismissed(true);
+                }}
                 className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 text-xs"
               >
                 ✕
@@ -254,7 +262,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
         </div>
 
         {/* Live Suggestions Dropdown */}
-        {suggestions.length > 0 && (
+        {suggestions.length > 0 && !isDropdownDismissed && (
           <div className="absolute z-20 mt-1 w-full rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
             <div className="px-2 py-1 text-[11px] font-semibold text-slate-400 uppercase">
               Найдено в базе (36 вузов):

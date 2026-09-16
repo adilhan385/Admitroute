@@ -8,8 +8,30 @@ import { UNIVERSITIES_DATABASE } from '../data/universities';
  * мгновенно формирует точную экспертную карточку любого вуза через встроенную базу знаний.
  */
 
-const PRIMARY_MODEL = 'gemini-3.6-flash';
-const FALLBACK_MODELS = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+const PRIMARY_MODEL = 'gemini-2.5-flash';
+const FALLBACK_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+
+/**
+ * Извлекает валидный JSON блок из ответа модели, отсекая любые обрамляющие комментарии или markdown
+ */
+function extractJsonBlock(raw: string): string {
+  let text = raw.trim();
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    return text.substring(firstBrace, lastBrace + 1).trim();
+  }
+  const firstBracket = text.indexOf('[');
+  const lastBracket = text.lastIndexOf(']');
+  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+    return text.substring(firstBracket, lastBracket + 1).trim();
+  }
+  return text;
+}
 
 /**
  * Надежный вызов Google Gemini API с поддержкой актуальных версий моделей
@@ -37,18 +59,16 @@ async function callGeminiApi(prompt: string, apiKey: string, responseMimeType: s
         const data = await response.json();
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) {
-          // Remove potential markdown fences ```json ... ```
-          const cleanText = text.replace(/^\s*```(json)?/i, '').replace(/```\s*$/, '').trim();
-          return cleanText;
+          return responseMimeType === 'application/json' ? extractJsonBlock(text) : text.trim();
         }
       } else {
         const errData = await response.json().catch(() => ({}));
         console.warn(`[Gemini API ${model}] Status ${response.status}:`, errData?.error?.message || response.statusText);
-        // If 404 (model unavailable), continue to next model
-        if (response.status !== 404) {
-          // Key error, quota, etc.
+        // Only stop if API key is invalid or forbidden (HTTP 401/403)
+        if (response.status === 401 || response.status === 403) {
           break;
         }
+        // For other errors (model 404, rate-limit 429, 500, etc.), continue to fallback model
       }
     } catch (err) {
       console.warn(`[Gemini API ${model}] Network error:`, err);

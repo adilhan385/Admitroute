@@ -75,6 +75,7 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
       window.removeEventListener('admitroute_chat_update', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threadId]);
 
   useEffect(() => {
