@@ -3,6 +3,7 @@ import type { UserProfile, UniversityProgram } from '../types';
 import { UNIVERSITIES_DATABASE } from '../data/universities';
 import { evaluateUniversityProgram } from '../utils/engine';
 import { searchOrGenerateUniversityWithAi, generateSmartFallbackUniversity, getGeminiApiKey, setGeminiApiKey, testGeminiConnection } from '../services/ai';
+import { checkActionAllowed, recordActionUsage } from '../services/auth';
 import {
   Search,
   Sparkles,
@@ -28,6 +29,8 @@ interface UniversitySearchProps {
   selectedForCompare: string[];
   onToggleCompare: (id: string) => void;
   onAddCustomUniversity?: (uni: UniversityProgram) => void;
+  onOpenAuth?: (mode?: 'login' | 'register') => void;
+  onOpenSupport?: (topic?: string) => void;
 }
 
 export const UniversitySearch: React.FC<UniversitySearchProps> = ({
@@ -36,7 +39,9 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   onOpenEssayModal,
   selectedForCompare,
   onToggleCompare,
-  onAddCustomUniversity
+  onAddCustomUniversity,
+  onOpenAuth,
+  onOpenSupport
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUni, setSelectedUni] = useState<UniversityProgram | null>(null);
@@ -46,6 +51,10 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const [hasCustomKey, setHasCustomKey] = useState(() => !!getGeminiApiKey());
   const [isTestingKey, setIsTestingKey] = useState(false);
   const [testStatus, setTestStatus] = useState<{ success: boolean; message: string } | null>(null);
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+  const [, setUsageTick] = useState(0);
+
+  const searchLimits = checkActionAllowed('search');
 
   const handleTestConnection = async () => {
     if (!apiKeyInput.trim()) return;
@@ -124,10 +133,17 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   };
 
   const handleAiSearch = async (query: string) => {
+    const limits = checkActionAllowed('search');
+    if (!limits.allowed) {
+      setIsLimitModalOpen(true);
+      return;
+    }
     setIsAiLoading(true);
     try {
       const result = await searchOrGenerateUniversityWithAi(query, profile);
       if (result) {
+        recordActionUsage('search');
+        setUsageTick(prev => prev + 1);
         setSelectedUni(result);
         if (onAddCustomUniversity) {
           onAddCustomUniversity(result);
@@ -514,6 +530,60 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               <span>Официальный сайт</span>
               <ExternalLink className="h-3 w-3" />
             </a>
+          </div>
+        </div>
+      )}
+
+      {/* Limit Reached Modal */}
+      {isLimitModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 mb-3">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <h4 className="text-base font-bold text-slate-900">
+              Бесплатный лимит поиска исчерпан
+            </h4>
+            <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+              Вы использовали доступные попытки AI-поиска ({searchLimits.currentCount} из {searchLimits.maxLimit}).
+              Зарегистрируйтесь бесплатно, чтобы увеличить лимит, или оформите подписку PRO для безлимитного доступа!
+            </p>
+
+            <div className="mt-5 space-y-2">
+              {onOpenAuth && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLimitModalOpen(false);
+                    onOpenAuth('register');
+                  }}
+                  className="w-full rounded-xl bg-blue-600 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition-colors"
+                >
+                  Создать бесплатный аккаунт (расширить лимит)
+                </button>
+              )}
+
+              {onOpenSupport && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLimitModalOpen(false);
+                    onOpenSupport('PRO');
+                  }}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
+                >
+                  Оформить безлимитный PRO (WhatsApp / Telegram)
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setIsLimitModalOpen(false)}
+                className="text-[11px] text-slate-400 hover:text-slate-600 pt-1 block mx-auto"
+              >
+                Закрыть
+              </button>
+            </div>
           </div>
         </div>
       )}

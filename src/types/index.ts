@@ -136,3 +136,46 @@ export interface EssayDraft {
   whyUniversity: string;
   futureImpact: string;
 }
+
+// -------------------------------------------------------------
+// USER ROLES, AUTH & ADMIN TYPES
+// -------------------------------------------------------------
+export type UserRole = 'guest' | 'customer' | 'admin';
+export type SubscriptionTier = 'free' | 'pro';
+
+export interface UserUsageStats {
+  searchesCount: number;
+  recalculationsCount: number;
+}
+
+export interface UserAccount {
+  id: string;
+  email: string;
+  name: string;
+  password?: string;
+  role: UserRole;
+  subscriptionTier: SubscriptionTier;
+  isBanned: boolean;
+  createdAt: string;
+  usageStats: UserUsageStats;
+  notes?: string;
+}
+
+export interface SupportMessage {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
+  reply?: string;
+  repliedAt?: string;
+}
+
+export interface SiteSettings {
+  announcementText: string;
+  isAnnouncementActive: boolean;
+  maintenanceMode: boolean;
+}
+

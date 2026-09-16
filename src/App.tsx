@@ -18,6 +18,12 @@ import { ScholarshipsSection } from './components/ScholarshipsSection';
 import { NextActionBanner } from './components/NextActionBanner';
 import { EssayAssistantModal } from './components/EssayAssistantModal';
 import { UniversityDetailModal } from './components/UniversityDetailModal';
+import { AuthModal } from './components/AuthModal';
+import { SupportChatModal } from './components/SupportChatModal';
+import { AdminPanel } from './components/AdminPanel';
+import { getCurrentUser, logout as authLogout, getSiteSettings, recordActionUsage } from './services/auth';
+import type { UserAccount, SiteSettings } from './types';
+import { Bell } from 'lucide-react';
 import { Sparkles, SlidersHorizontal } from 'lucide-react';
 
 const STORAGE_KEY_PROFILE = 'admitroute_profile_v1';
@@ -55,6 +61,31 @@ export const App: React.FC = () => {
   const [essayTargetUni, setEssayTargetUni] = useState<UniversityProgram | null>(null);
   const [essayDraft, setEssayDraft] = useState<EssayDraft | null>(null);
 
+  // Authentication and Roles State
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getCurrentUser());
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
+  const [supportTopic, setSupportTopic] = useState<string>('PRO');
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => getSiteSettings());
+
+  const handleOpenAuth = (mode: 'login' | 'register' = 'login') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleOpenSupport = (topic: string = 'PRO') => {
+    setSupportTopic(topic);
+    setIsSupportModalOpen(true);
+  };
+
+  const handleLogout = () => {
+    authLogout();
+    setCurrentUser(null);
+    setIsAdminPanelOpen(false);
+  };
+
   // When profile updates, update roadmap and save to localStorage
   useEffect(() => {
     if (profile) {
@@ -69,6 +100,7 @@ export const App: React.FC = () => {
 
   // Handle questionnaire submit
   const handleProfileSubmit = (newProfile: UserProfile) => {
+    recordActionUsage('recalculation');
     setProfile(newProfile);
     setIsEditing(false);
     setCustomUniversities([]);
@@ -256,7 +288,22 @@ export const App: React.FC = () => {
         onReset={handleReset}
         hasProfile={!!profile}
         onExportCalendar={profile ? handleExportCalendar : undefined}
+        currentUser={currentUser}
+        onOpenAuth={handleOpenAuth}
+        onOpenAdmin={() => setIsAdminPanelOpen(true)}
+        onOpenSupport={handleOpenSupport}
+        onLogout={handleLogout}
       />
+
+      {/* Global Announcement Banner from Admin Settings */}
+      {siteSettings.isAnnouncementActive && siteSettings.announcementText && (
+        <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 py-2 px-4 text-center text-xs font-semibold text-white shadow-xs">
+          <div className="mx-auto flex max-w-5xl items-center justify-center gap-2">
+            <Bell className="h-3.5 w-3.5 text-amber-300 shrink-0" />
+            <span>{siteSettings.announcementText}</span>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
@@ -410,6 +457,35 @@ export const App: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Auth Modal (Login / Register / Quick Demo Login) */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
+        onAuthSuccess={user => {
+          setCurrentUser(user);
+        }}
+      />
+
+      {/* Support Chat Modal (In-App Chat with Admin + WhatsApp & Telegram) */}
+      <SupportChatModal
+        isOpen={isSupportModalOpen}
+        onClose={() => setIsSupportModalOpen(false)}
+        defaultTopic={supportTopic}
+      />
+
+      {/* Admin Panel (Accessible by adilhananuar426@gmail.com) */}
+      {currentUser && (
+        <AdminPanel
+          isOpen={isAdminPanelOpen}
+          onClose={() => {
+            setIsAdminPanelOpen(false);
+            setSiteSettings(getSiteSettings());
+          }}
+          currentUser={currentUser}
+        />
+      )}
 
       {/* Footer */}
       <footer className="mt-16 border-t border-slate-200 bg-white py-8">
