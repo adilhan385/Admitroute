@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import type { UserProfile, UniversityProgram } from '../types';
 import { UNIVERSITIES_DATABASE } from '../data/universities';
 import { evaluateUniversityProgram } from '../utils/engine';
-import { searchOrGenerateUniversityWithAi } from '../services/ai';
+import { searchOrGenerateUniversityWithAi, generateSmartFallbackUniversity, getGeminiApiKey, setGeminiApiKey } from '../services/ai';
 import {
   Search,
   Sparkles,
@@ -16,7 +16,8 @@ import {
   ExternalLink,
   Plus,
   Loader2,
-  XCircle
+  Key,
+  X
 } from 'lucide-react';
 
 interface UniversitySearchProps {
@@ -39,7 +40,9 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUni, setSelectedUni] = useState<UniversityProgram | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState(() => getGeminiApiKey());
+  const [hasCustomKey, setHasCustomKey] = useState(() => !!getGeminiApiKey());
 
   // Popular quick-search presets
   const popularPresets = [
@@ -47,11 +50,12 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
     { label: 'NU (Назарбаев Ун-т)', name: 'Назарбаев Университет' },
     { label: 'КБТУ', name: 'КБТУ' },
     { label: 'МУИТ', name: 'МУИТ' },
+    { label: 'Университет Тренто (Италия)', name: 'Университет Тренто' },
     { label: 'KAIST (Корея)', name: 'KAIST' },
     { label: 'PoliMi (Италия)', name: 'Politecnico di Milano' },
     { label: 'TUM (Германия)', name: 'TUM' },
     { label: 'Harvard / MIT', name: 'Harvard' },
-    { label: 'Koç University', name: 'Koç University' }
+    { label: 'Bocconi (Милан)', name: 'Bocconi' }
   ];
 
   // Filter local database by query
@@ -78,7 +82,6 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       realityCheckWarning: evaluated.realityCheckWarning,
       whyFits: evaluated.whyFits
     });
-    setAiError(null);
   };
 
   // Handle Search submit or AI analysis
@@ -99,13 +102,12 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       return;
     }
 
-    // Otherwise trigger AI search
+    // Otherwise trigger dynamic search
     await handleAiSearch(query);
   };
 
   const handleAiSearch = async (query: string) => {
     setIsAiLoading(true);
-    setAiError(null);
     try {
       const result = await searchOrGenerateUniversityWithAi(query, profile);
       if (result) {
@@ -114,22 +116,35 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           onAddCustomUniversity(result);
         }
       } else {
-        setAiError(
-          'Не удалось получить данные через ИИ. Проверьте API ключ или выберите вуз из списка популярных.'
-        );
+        // Safe guaranteed fallback
+        const fallback = generateSmartFallbackUniversity(query, profile);
+        setSelectedUni(fallback);
+        if (onAddCustomUniversity) {
+          onAddCustomUniversity(fallback);
+        }
       }
     } catch (err) {
-      setAiError('Ошибка соединения при запросе к Gemini API.');
+      const fallback = generateSmartFallbackUniversity(query, profile);
+      setSelectedUni(fallback);
+      if (onAddCustomUniversity) {
+        onAddCustomUniversity(fallback);
+      }
     } finally {
       setIsAiLoading(false);
     }
+  };
+
+  const handleSaveKey = () => {
+    setGeminiApiKey(apiKeyInput);
+    setHasCustomKey(!!apiKeyInput.trim());
+    setIsKeyModalOpen(false);
   };
 
   const isCompared = selectedUni ? selectedForCompare.includes(selectedUni.id) : false;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700">
@@ -142,11 +157,24 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             </span>
           </div>
           <h3 className="mt-1 text-base font-semibold text-slate-900">
-            Проверьте шансы поступления в любой интересующий вас университет
+            Проверьте шансы поступления в любой университет
           </h3>
           <p className="text-xs text-slate-500">
-            Введите название любого вуза Казахстана или мира (SDU, Harvard, Тренто, МУИТ) — система рассчитает реальные шансы под ваш GPA и экзамены
+            Введите название любого вуза (SDU, Harvard, Тренто, МУИТ, Bocconi) — система рассчитает реальные шансы под ваш GPA и экзамены
           </p>
+        </div>
+
+        {/* API Key settings trigger */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsKeyModalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
+            title="Настроить ключ Google Gemini API"
+          >
+            <Key className="h-3.5 w-3.5 text-amber-500" />
+            <span>{hasCustomKey ? 'Gemini API активен' : 'Ключ Gemini API'}</span>
+          </button>
         </div>
       </div>
 
@@ -159,7 +187,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Введите название вуза (напр. SDU, MIT, МУИТ, Университет Болоньи)..."
+              placeholder="Введите название любого вуза (напр. SDU, MIT, МУИТ, Университет Тренто, Bocconi)..."
               className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-4 text-xs text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-600 transition"
             />
             {searchQuery && (
@@ -249,20 +277,12 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
         ))}
       </div>
 
-      {/* Error Message */}
-      {aiError && (
-        <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 flex items-start gap-2">
-          <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>{aiError}</span>
-        </div>
-      )}
-
       {/* AI Loading State */}
       {isAiLoading && (
         <div className="mt-6 rounded-2xl border border-purple-200 bg-purple-50/40 p-6 text-center">
           <Loader2 className="mx-auto h-7 w-7 animate-spin text-purple-600" />
           <h4 className="mt-2 text-xs font-semibold text-purple-900">
-            Gemini ИИ анализирует требования «{searchQuery}»
+            ИИ анализирует требования «{searchQuery}»
           </h4>
           <p className="mt-1 text-[11px] text-purple-700">
             Сопоставление вашего GPA ({profile.gpa.toFixed(1)}), экзаменов и бюджета с реальным конкурсом и волнами подачи...
@@ -304,7 +324,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
 
                 {selectedUni.isAiGenerated && (
                   <span className="rounded-md border border-purple-200 bg-purple-100/70 px-2 py-0.5 text-[11px] font-semibold text-purple-800">
-                    Найдено через Gemini ИИ
+                    Анализ AdmitRoute AI
                   </span>
                 )}
               </div>
@@ -477,6 +497,63 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               <span>Официальный сайт</span>
               <ExternalLink className="h-3 w-3" />
             </a>
+          </div>
+        </div>
+      )}
+
+      {/* Gemini API Key Modal */}
+      {isKeyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Key className="h-4 w-4 text-amber-500" />
+                <h4 className="text-sm font-semibold text-slate-900">
+                  Настройка Google Gemini API
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsKeyModalOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <p className="mt-3 text-xs text-slate-600">
+              Вы можете использовать свой ключ Gemini API для живых запросов. Если ключ не задан, AdmitRoute автоматически использует встроенный экспертный аналитический движок.
+            </p>
+
+            <div className="mt-4 space-y-1.5">
+              <label className="text-[11px] font-semibold text-slate-700">
+                Ваш API-ключ Gemini (начинается с AIzaSy...):
+              </label>
+              <input
+                type="password"
+                value={apiKeyInput}
+                onChange={e => setApiKeyInput(e.target.value)}
+                placeholder="Вставьте ключ или оставьте пустым"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+              />
+            </div>
+
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setIsKeyModalOpen(false)}
+                className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveKey}
+                className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+              >
+                Сохранить ключ
+              </button>
+            </div>
           </div>
         </div>
       )}
