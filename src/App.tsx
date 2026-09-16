@@ -15,6 +15,7 @@ import { RoadmapTimeline } from './components/RoadmapTimeline';
 import { ScholarshipsSection } from './components/ScholarshipsSection';
 import { NextActionBanner } from './components/NextActionBanner';
 import { EssayAssistantModal } from './components/EssayAssistantModal';
+import { UniversityDetailModal } from './components/UniversityDetailModal';
 import { Sparkles, SlidersHorizontal } from 'lucide-react';
 
 const STORAGE_KEY_PROFILE = 'admitroute_profile_v1';
@@ -37,6 +38,10 @@ export const App: React.FC = () => {
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const [isCompareOpen, setIsCompareOpen] = useState<boolean>(false);
   const [roadmap, setRoadmap] = useState<RoadmapStep[]>([]);
+
+  // University Detail Modal state
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
+  const [selectedDetailUni, setSelectedDetailUni] = useState<UniversityProgram | null>(null);
 
   // Essay Assistant state
   const [isEssayModalOpen, setIsEssayModalOpen] = useState<boolean>(false);
@@ -280,6 +285,10 @@ export const App: React.FC = () => {
               onToggleCompare={handleToggleCompare}
               onOpenCompareModal={() => setIsCompareOpen(true)}
               onOpenEssayModal={handleOpenEssayModal}
+              onSelectUniversity={(uni) => {
+                setSelectedDetailUni(uni);
+                setIsDetailModalOpen(true);
+              }}
             />
 
             {/* SCHOLARSHIPS FINDER */}
@@ -297,6 +306,16 @@ export const App: React.FC = () => {
               onClose={() => setIsCompareOpen(false)}
               selectedPrograms={comparedUniversities}
               onRemoveFromCompare={handleRemoveFromCompare}
+            />
+
+            {/* UNIVERSITY DETAIL MODAL (3 Waves, Grant Stats, Campus) */}
+            <UniversityDetailModal
+              isOpen={isDetailModalOpen}
+              onClose={() => setIsDetailModalOpen(false)}
+              university={selectedDetailUni}
+              onOpenEssayModal={handleOpenEssayModal}
+              isCompared={selectedDetailUni ? selectedForCompare.includes(selectedDetailUni.id) : false}
+              onToggleCompare={handleToggleCompare}
             />
 
             {/* ESSAY STRUCTURE ASSISTANT MODAL */}

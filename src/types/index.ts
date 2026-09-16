@@ -29,6 +29,36 @@ export interface UserProfile {
 
 export type MatchCategory = 'target' | 'reach' | 'safety';
 
+export interface AdmissionRoundItem {
+  name: string;
+  deadline: string;
+  description: string;
+  recommendedFor: string;
+}
+
+export interface AdmissionRounds {
+  early: AdmissionRoundItem;
+  regular: AdmissionRoundItem;
+  late: AdmissionRoundItem;
+}
+
+export interface GrantStatistics {
+  lastYearGrantsCount: string;
+  lastYearCutoff: string;
+  competitionRatio: string;
+  grantChanceSummary: string;
+}
+
+export interface UniversityDetails {
+  aboutCampus: string;
+  studentLife: string;
+  livingCostsPerMonth: string;
+  dormitoryDetails: string;
+  topEmployers: string[];
+  rounds: AdmissionRounds;
+  grantStats: GrantStatistics;
+}
+
 export interface UniversityProgram {
   id: string;
   name: string;
@@ -53,6 +83,7 @@ export interface UniversityProgram {
   avgGraduateSalary: string;
   applicationDeadline: string;
   officialSiteUrl: string;
+  details: UniversityDetails;
 }
 
 export interface RoadmapStep {

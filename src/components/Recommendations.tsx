@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { UniversityProgram, MatchCategory } from '../types';
-import { Target, ExternalLink, Check, Scale, Award, FileText } from 'lucide-react';
+import { Target, ExternalLink, Check, Scale, Award, FileText, Info } from 'lucide-react';
 
 interface RecommendationsProps {
   universities: UniversityProgram[];
@@ -8,6 +8,7 @@ interface RecommendationsProps {
   onToggleCompare: (id: string) => void;
   onOpenCompareModal: () => void;
   onOpenEssayModal?: (uni: UniversityProgram) => void;
+  onSelectUniversity?: (uni: UniversityProgram) => void;
 }
 
 export const Recommendations: React.FC<RecommendationsProps> = ({
@@ -15,7 +16,8 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
   selectedForCompare,
   onToggleCompare,
   onOpenCompareModal,
-  onOpenEssayModal
+  onOpenEssayModal,
+  onSelectUniversity
 }) => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -64,7 +66,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
             Рекомендованные университеты и программы
           </h2>
           <p className="text-xs text-slate-500">
-            Сбалансированная стратегия поступления с распределением по вероятности и обоснованием
+            Нажмите на карточку любого вуза, чтобы увидеть 3 раунда подачи, статистику грантов и детали кампуса
           </p>
         </div>
 
@@ -138,7 +140,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
           return (
             <div
               key={uni.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs transition hover:border-slate-300"
+              className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs transition hover:border-slate-300 hover:shadow-sm"
             >
               <div>
                 {/* Badges row */}
@@ -154,34 +156,54 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                   </span>
                 </div>
 
-                {/* Title */}
-                <div className="mt-4">
-                  <h3 className="text-base font-semibold text-slate-900">
-                    {uni.name}
+                {/* Clickable Title & Program */}
+                <div
+                  onClick={() => onSelectUniversity && onSelectUniversity(uni)}
+                  className="mt-4 cursor-pointer group"
+                  title="Нажмите для открытия всех деталей вуза"
+                >
+                  <h3 className="text-base font-semibold text-slate-900 group-hover:text-blue-700 transition flex items-center justify-between">
+                    <span>{uni.name}</span>
+                    <Info className="h-4 w-4 text-slate-400 group-hover:text-blue-600 transition shrink-0 ml-2" />
                   </h3>
                   <p className="mt-0.5 text-xs font-medium text-blue-700">
                     {uni.programTitle}
                   </p>
                 </div>
 
-                {/* Key Metrics Grid */}
-                <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-3 text-xs">
-                  <div>
-                    <span className="text-[11px] text-slate-500">Экзамены:</span>
-                    <p className="font-medium text-slate-800 line-clamp-1">{uni.examRequirement}</p>
+                {/* 3 Application Waves Strip */}
+                <div className="mt-3.5 rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 text-xs space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] text-slate-700">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                      <strong>Ранняя подача:</strong>
+                    </span>
+                    <span className="font-mono text-slate-600">{uni.details.rounds.early.deadline}</span>
                   </div>
-                  <div>
-                    <span className="text-[11px] text-slate-500">Языковые требования:</span>
-                    <p className="font-medium text-slate-800 line-clamp-1">{uni.languageRequirement}</p>
+                  <div className="flex items-center justify-between text-[11px] text-slate-700">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-blue-500" />
+                      <strong>Основная подача:</strong>
+                    </span>
+                    <span className="font-mono text-slate-600">{uni.details.rounds.regular.deadline}</span>
                   </div>
-                  <div>
-                    <span className="text-[11px] text-slate-500">Финансирование:</span>
-                    <p className="font-medium text-slate-800 line-clamp-1">{uni.scholarshipAvailability}</p>
+                  <div className="flex items-center justify-between text-[11px] text-slate-700">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-amber-500" />
+                      <strong>Поздний добор:</strong>
+                    </span>
+                    <span className="font-mono text-slate-600">{uni.details.rounds.late.deadline}</span>
                   </div>
-                  <div>
-                    <span className="text-[11px] text-slate-500">Дедлайн подачи:</span>
-                    <p className="font-medium text-slate-800 font-mono">{uni.applicationDeadline}</p>
-                  </div>
+                </div>
+
+                {/* Last year grants banner */}
+                <div className="mt-2.5 rounded-xl border border-blue-100 bg-blue-50/40 p-2.5 text-[11px] text-blue-950">
+                  <span className="font-semibold block text-blue-800">
+                    Гранты и проходной порог прошлого года:
+                  </span>
+                  <p className="mt-0.5 text-slate-700">
+                    {uni.details.grantStats.lastYearCutoff} • {uni.details.grantStats.lastYearGrantsCount}
+                  </p>
                 </div>
 
                 {/* Why it fits (Human explanation - Case requirement!) */}
@@ -216,6 +238,16 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                     <span>{isCompared ? 'В сравнении' : 'К сравнению'}</span>
                   </button>
 
+                  <button
+                    type="button"
+                    onClick={() => onSelectUniversity && onSelectUniversity(uni)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+                    title="Открыть все раунды подачи и детали кампуса"
+                  >
+                    <Info className="h-3.5 w-3.5 text-slate-500" />
+                    <span>Все детали</span>
+                  </button>
+
                   {onOpenEssayModal && (
                     <button
                       type="button"
@@ -224,7 +256,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                       title="Сгенерировать структуру мотивационного письма"
                     >
                       <FileText className="h-3.5 w-3.5 text-blue-600" />
-                      <span>План эссе</span>
+                      <span className="hidden sm:inline">План эссе</span>
                     </button>
                   )}
                 </div>
@@ -235,7 +267,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition"
                 >
-                  <span>Официальный сайт</span>
+                  <span>Сайт</span>
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
