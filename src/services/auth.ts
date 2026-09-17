@@ -5,10 +5,28 @@ const STORAGE_CURRENT_USER_KEY = 'admitroute_auth_user_v1';
 const STORAGE_GUEST_STATS_KEY = 'admitroute_guest_usage_v1';
 const STORAGE_SETTINGS_KEY = 'admitroute_site_settings_v1';
 
-export const GUEST_MAX_SEARCHES = 2;
-export const GUEST_MAX_RECALCULATIONS = 3;
+export const GUEST_MAX_SEARCHES = 1;
+export const GUEST_MAX_RECALCULATIONS = 2;
 export const FREE_CUSTOMER_MAX_SEARCHES = 6;
 export const FREE_CUSTOMER_MAX_RECALCULATIONS = 12;
+
+export const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  announcementText: '🔥 Стартовал прием на осенний семестр 2026! Проверьте дедлайны ранней подачи.',
+  isAnnouncementActive: true,
+  maintenanceMode: false,
+  guestMaxSearches: 1,
+  guestMaxRecalculations: 2,
+  freeCustomerMaxSearches: 6,
+  freeCustomerMaxRecalculations: 12,
+  allowGuestChat: false
+};
+
+export const SUPER_ADMIN_EMAIL = 'adilhananuar426@gmail.com';
+
+export function isSuperAdmin(user?: UserAccount | null): boolean {
+  if (!user) return false;
+  return user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() || !!user.isSuperAdmin;
+}
 
 // Seed initial database
 const SEED_USERS: UserAccount[] = [
@@ -16,13 +34,14 @@ const SEED_USERS: UserAccount[] = [
     id: 'user-admin-01',
     email: 'adilhananuar426@gmail.com',
     name: 'Адильхан (Главный Администратор)',
-    password: 'Adilhan0404',
+    password: 'Lolkek4ik',
     role: 'admin',
     subscriptionTier: 'pro',
+    isSuperAdmin: true,
     isBanned: false,
     createdAt: '2026-09-01T10:00:00Z',
     usageStats: { searchesCount: 0, recalculationsCount: 0 },
-    notes: 'Создатель платформы AdmitRoute'
+    notes: 'Создатель и Главный Супер-Администратор платформы AdmitRoute'
   },
   {
     id: 'user-demo-02',
@@ -47,14 +66,15 @@ export function initializeAuthDatabase(): void {
   } else {
     try {
       const users: UserAccount[] = JSON.parse(rawUsers);
-      const adminIndex = users.findIndex(u => u.email.toLowerCase() === 'adilhananuar426@gmail.com');
+      const adminIndex = users.findIndex(u => u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
       if (adminIndex === -1) {
         users.unshift(SEED_USERS[0]);
         localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
       } else {
         users[adminIndex].role = 'admin';
-        users[adminIndex].password = 'Adilhan0404';
+        users[adminIndex].password = 'Lolkek4ik';
         users[adminIndex].subscriptionTier = 'pro';
+        users[adminIndex].isSuperAdmin = true;
         users[adminIndex].isBanned = false;
         localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
       }
@@ -63,13 +83,17 @@ export function initializeAuthDatabase(): void {
     }
   }
 
-  if (!localStorage.getItem(STORAGE_SETTINGS_KEY)) {
-    const defaultSettings: SiteSettings = {
-      announcementText: '🔥 Стартовал прием на осенний семестр 2026! Проверьте дедлайны ранней подачи.',
-      isAnnouncementActive: true,
-      maintenanceMode: false
-    };
-    localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(defaultSettings));
+  const rawSettings = localStorage.getItem(STORAGE_SETTINGS_KEY);
+  if (!rawSettings) {
+    localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(DEFAULT_SITE_SETTINGS));
+  } else {
+    try {
+      const parsed = JSON.parse(rawSettings);
+      const merged: SiteSettings = { ...DEFAULT_SITE_SETTINGS, ...parsed };
+      localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(merged));
+    } catch {
+      localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(DEFAULT_SITE_SETTINGS));
+    }
   }
 }
 
@@ -253,12 +277,53 @@ export function updateUserRole(userId: string, role: UserRole): { success: boole
   return { success: true, user: target };
 }
 
+/**
+ * Назначить или отозвать права администратора (только для Супер-Администратора)
+ */
+export function toggleAdminRole(targetUserId: string): { success: boolean; message: string; user?: UserAccount } {
+  const current = getCurrentUser();
+  if (!isSuperAdmin(current)) {
+    return { success: false, message: 'Только Главный Супер-Администратор может назначать администраторов!' };
+  }
+
+  const users = getAllUsers();
+  const target = users.find(u => u.id === targetUserId);
+  if (!target) {
+    return { success: false, message: 'Пользователь не найден' };
+  }
+
+  if (target.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+    return { success: false, message: 'Нельзя изменить права Главного Супер-Администратора!' };
+  }
+
+  const newRole: UserRole = target.role === 'admin' ? 'customer' : 'admin';
+  target.role = newRole;
+  if (newRole === 'admin') {
+    target.subscriptionTier = 'pro';
+  }
+
+  saveUsers(users);
+
+  // If target is currently logged in, update storage
+  if (current && current.id === target.id) {
+    localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(target));
+  }
+
+  return {
+    success: true,
+    user: target,
+    message: newRole === 'admin'
+      ? `Пользователю ${target.name} (${target.email}) успешно выданы права Администратора!`
+      : `Права администратора у пользователя ${target.name} отозваны.`
+  };
+}
+
 export function deleteUser(userId: string): { success: boolean } {
   const users = getAllUsers();
   const target = users.find(u => u.id === userId);
   if (!target) return { success: false };
 
-  if (target.email.toLowerCase() === 'adilhananuar426@gmail.com') {
+  if (target.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
     return { success: false };
   }
 
@@ -282,6 +347,7 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
   isPro: boolean;
 } {
   const current = getCurrentUser();
+  const settings = getSiteSettings();
 
   if (current) {
     const usage = current.usageStats || { searchesCount: 0, recalculationsCount: 0 };
@@ -296,7 +362,9 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
       };
     }
 
-    const maxLimit = action === 'search' ? FREE_CUSTOMER_MAX_SEARCHES : FREE_CUSTOMER_MAX_RECALCULATIONS;
+    const maxLimit = action === 'search'
+      ? (settings.freeCustomerMaxSearches ?? FREE_CUSTOMER_MAX_SEARCHES)
+      : (settings.freeCustomerMaxRecalculations ?? FREE_CUSTOMER_MAX_RECALCULATIONS);
     const count = action === 'search' ? (usage.searchesCount ?? 0) : (usage.recalculationsCount ?? 0);
     const remaining = Math.max(0, maxLimit - count);
 
@@ -311,7 +379,9 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
   }
 
   const stats = getGuestStats();
-  const maxLimit = action === 'search' ? GUEST_MAX_SEARCHES : GUEST_MAX_RECALCULATIONS;
+  const maxLimit = action === 'search'
+    ? (settings.guestMaxSearches ?? GUEST_MAX_SEARCHES)
+    : (settings.guestMaxRecalculations ?? GUEST_MAX_RECALCULATIONS);
   const count = action === 'search' ? (stats.searchesCount ?? 0) : (stats.recalculationsCount ?? 0);
   const remaining = Math.max(0, maxLimit - count);
 
@@ -354,25 +424,13 @@ export function recordActionUsage(action: 'search' | 'recalculation'): void {
 
 export function getSiteSettings(): SiteSettings {
   if (typeof window === 'undefined') {
-    return {
-      announcementText: '',
-      isAnnouncementActive: false,
-      maintenanceMode: false
-    };
+    return DEFAULT_SITE_SETTINGS;
   }
   try {
     const raw = localStorage.getItem(STORAGE_SETTINGS_KEY);
-    return raw ? JSON.parse(raw) : {
-      announcementText: '🔥 Стартовал прием на осенний семестр 2026! Проверьте дедлайны ранней подачи.',
-      isAnnouncementActive: true,
-      maintenanceMode: false
-    };
+    return raw ? { ...DEFAULT_SITE_SETTINGS, ...JSON.parse(raw) } : DEFAULT_SITE_SETTINGS;
   } catch {
-    return {
-      announcementText: '',
-      isAnnouncementActive: false,
-      maintenanceMode: false
-    };
+    return DEFAULT_SITE_SETTINGS;
   }
 }
 
@@ -381,6 +439,8 @@ export function updateSiteSettings(settings: Partial<SiteSettings>): SiteSetting
   const updated = { ...current, ...settings };
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('admitroute_chat_update'));
   }
   return updated;
 }

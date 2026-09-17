@@ -21,6 +21,7 @@ import { UniversityDetailModal } from './components/UniversityDetailModal';
 import { AuthModal } from './components/AuthModal';
 import { LiveChatWidget } from './components/LiveChatWidget';
 import { AdminPanel } from './components/AdminPanel';
+import { PricingModal } from './components/PricingModal';
 import { getCurrentUser, logout as authLogout, getSiteSettings, recordActionUsage } from './services/auth';
 import type { UserAccount, SiteSettings } from './types';
 import { Bell } from 'lucide-react';
@@ -68,6 +69,7 @@ export const App: React.FC = () => {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
   const [supportTopic, setSupportTopic] = useState<string>('PRO');
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState<boolean>(false);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => getSiteSettings());
 
   // Listen to live chat and auth updates (e.g. when admin activates PRO)
@@ -232,7 +234,7 @@ export const App: React.FC = () => {
     if (!profile) return;
     setEssayTargetUni(uni);
     setIsEssayModalOpen(true);
-    const draft = await generateEssayStructure(profile, uni);
+    const draft = await generateEssayStructure(uni, profile);
     setEssayDraft(draft);
   };
 
@@ -309,6 +311,7 @@ export const App: React.FC = () => {
         onOpenAuth={handleOpenAuth}
         onOpenAdmin={() => setIsAdminPanelOpen(true)}
         onOpenSupport={handleOpenSupport}
+        onOpenPricing={() => setIsPricingModalOpen(true)}
         onLogout={handleLogout}
       />
 
@@ -420,6 +423,7 @@ export const App: React.FC = () => {
                 onAddCustomUniversity={handleAddCustomUniversity}
                 onOpenAuth={handleOpenAuth}
                 onOpenSupport={handleOpenSupport}
+                onOpenPricing={() => setIsPricingModalOpen(true)}
               />
             )}
 
@@ -494,6 +498,18 @@ export const App: React.FC = () => {
         isOpenExternal={isSupportModalOpen}
         onCloseExternal={() => setIsSupportModalOpen(false)}
         initialTopic={supportTopic}
+      />
+
+      {/* Pricing Comparison Modal */}
+      <PricingModal
+        isOpen={isPricingModalOpen}
+        onClose={() => setIsPricingModalOpen(false)}
+        onProceedToChat={() => {
+          setIsPricingModalOpen(false);
+          setSupportTopic('PRO');
+          setIsSupportModalOpen(true);
+        }}
+        isPro={currentUser?.subscriptionTier === 'pro'}
       />
 
       {/* Admin Panel (Accessible by adilhananuar426@gmail.com) */}

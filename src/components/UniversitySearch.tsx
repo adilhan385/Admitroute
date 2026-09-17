@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import type { UserProfile, UniversityProgram } from '../types';
 import { UNIVERSITIES_DATABASE } from '../data/universities';
 import { evaluateUniversityProgram } from '../utils/engine';
-import { searchOrGenerateUniversityWithAi, generateSmartFallbackUniversity, getGeminiApiKey, setGeminiApiKey, testGeminiConnection } from '../services/ai';
+import { searchOrGenerateUniversityWithAi, generateSmartFallbackUniversity } from '../services/ai';
 import { checkActionAllowed, recordActionUsage } from '../services/auth';
 import {
   Search,
@@ -16,10 +16,7 @@ import {
   Info,
   ExternalLink,
   Plus,
-  Loader2,
-  Key,
-  X,
-  RefreshCw
+  Loader2
 } from 'lucide-react';
 
 interface UniversitySearchProps {
@@ -31,6 +28,7 @@ interface UniversitySearchProps {
   onAddCustomUniversity?: (uni: UniversityProgram) => void;
   onOpenAuth?: (mode?: 'login' | 'register') => void;
   onOpenSupport?: (topic?: string) => void;
+  onOpenPricing?: () => void;
 }
 
 export const UniversitySearch: React.FC<UniversitySearchProps> = ({
@@ -41,35 +39,17 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   onToggleCompare,
   onAddCustomUniversity,
   onOpenAuth,
-  onOpenSupport
+  onOpenSupport,
+  onOpenPricing
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUni, setSelectedUni] = useState<UniversityProgram | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState(() => getGeminiApiKey());
-  const [hasCustomKey, setHasCustomKey] = useState(() => !!getGeminiApiKey());
-  const [isTestingKey, setIsTestingKey] = useState(false);
-  const [testStatus, setTestStatus] = useState<{ success: boolean; message: string } | null>(null);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
   const [isDropdownDismissed, setIsDropdownDismissed] = useState(false);
   const [, setUsageTick] = useState(0);
 
   const searchLimits = checkActionAllowed('search');
-
-  const handleTestConnection = async () => {
-    if (!apiKeyInput.trim()) return;
-    setIsTestingKey(true);
-    setTestStatus(null);
-    try {
-      const res = await testGeminiConnection(apiKeyInput);
-      setTestStatus(res);
-    } catch (e: any) {
-      setTestStatus({ success: false, message: e.message || 'Ошибка проверки' });
-    } finally {
-      setIsTestingKey(false);
-    }
-  };
 
   // Popular quick-search presets
   const popularPresets = [
@@ -169,12 +149,6 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
     }
   };
 
-  const handleSaveKey = () => {
-    setGeminiApiKey(apiKeyInput);
-    setHasCustomKey(!!apiKeyInput.trim());
-    setIsKeyModalOpen(false);
-  };
-
   const isCompared = selectedUni ? selectedForCompare.includes(selectedUni.id) : false;
 
   return (
@@ -197,19 +171,6 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           <p className="text-xs text-slate-500">
             Введите название любого вуза (SDU, Harvard, Тренто, МУИТ, Bocconi) — система рассчитает реальные шансы под ваш GPA и экзамены
           </p>
-        </div>
-
-        {/* API Key settings trigger */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsKeyModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
-            title="Настроить ключ Google Gemini API"
-          >
-            <Key className="h-3.5 w-3.5 text-amber-500" />
-            <span>{hasCustomKey ? 'Gemini API активен' : 'Ключ Gemini API'}</span>
-          </button>
         </div>
       </div>
 
@@ -571,18 +532,20 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 </button>
               )}
 
-              {onOpenSupport && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsLimitModalOpen(false);
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLimitModalOpen(false);
+                  if (onOpenPricing) {
+                    onOpenPricing();
+                  } else if (onOpenSupport) {
                     onOpenSupport('PRO');
-                  }}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
-                >
-                  Оформить безлимитный PRO (WhatsApp / Telegram)
-                </button>
-              )}
+                  }
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
+              >
+                Сравнить тарифы и оформить PRO
+              </button>
 
               <button
                 type="button"
@@ -590,91 +553,6 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 className="text-[11px] text-slate-400 hover:text-slate-600 pt-1 block mx-auto"
               >
                 Закрыть
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Gemini API Key Modal */}
-      {isKeyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs">
-          <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <Key className="h-4 w-4 text-amber-500" />
-                <h4 className="text-sm font-semibold text-slate-900">
-                  Настройка Google Gemini API
-                </h4>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsKeyModalOpen(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <p className="mt-3 text-xs text-slate-600">
-              Вы можете использовать свой ключ Gemini API для живых запросов. Если ключ не задан, AdmitRoute автоматически использует встроенный экспертный аналитический движок.
-            </p>
-
-            <div className="mt-4 space-y-2">
-              <label className="text-[11px] font-semibold text-slate-700">
-                Ваш API-ключ Gemini (из Google AI Studio):
-              </label>
-              <input
-                type="password"
-                value={apiKeyInput}
-                onChange={e => {
-                  setApiKeyInput(e.target.value);
-                  setTestStatus(null);
-                }}
-                placeholder="AQ.Ab8RN6... или AIzaSy..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
-              />
-
-              <div className="flex items-center justify-between pt-1">
-                <button
-                  type="button"
-                  disabled={isTestingKey || !apiKeyInput.trim()}
-                  onClick={handleTestConnection}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50"
-                >
-                  {isTestingKey ? (
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin text-blue-600" />
-                  ) : (
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                  )}
-                  <span>{isTestingKey ? 'Проверка...' : 'Проверить ключ'}</span>
-                </button>
-
-                {testStatus && (
-                  <span className={`text-xs font-medium ${testStatus.success ? 'text-emerald-700' : 'text-rose-600'}`}>
-                    {testStatus.message}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-5 flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsKeyModalOpen(false);
-                  setTestStatus(null);
-                }}
-                className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-              >
-                Отмена
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveKey}
-                className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
-              >
-                Сохранить ключ
               </button>
             </div>
           </div>

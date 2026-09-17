@@ -11,7 +11,9 @@ import {
   Send,
   Sparkles,
   CheckCircle2,
-  CreditCard
+  CreditCard,
+  Crown,
+  ShieldCheck
 } from 'lucide-react';
 import {
   getAllUsers,
@@ -19,7 +21,10 @@ import {
   setSubscriptionTier,
   deleteUser,
   getSiteSettings,
-  updateSiteSettings
+  updateSiteSettings,
+  toggleAdminRole,
+  isSuperAdmin,
+  SUPER_ADMIN_EMAIL
 } from '../services/auth';
 import {
   getAllThreadSummaries,
@@ -135,6 +140,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
       if (res.success) {
         loadData();
         showNotification('Пользователь удален');
+      }
+    }
+  };
+
+  const handleToggleAdminRole = (userId: string, currentRole: string, userName: string) => {
+    const isTargetAdmin = currentRole === 'admin';
+    const confirmMessage = isTargetAdmin
+      ? `Отозвать статус администратора у пользователя ${userName}?`
+      : `Назначить пользователя ${userName} Администратором сервиса с доступом к админ-панели?`;
+
+    if (window.confirm(confirmMessage)) {
+      const res = toggleAdminRole(userId);
+      if (res.success) {
+        loadData();
+        showNotification(res.message);
+      } else {
+        alert(res.message);
       }
     }
   };
@@ -313,7 +335,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredUsers.map(u => {
-                    const isAdmin = u.email.toLowerCase() === 'adilhananuar426@gmail.com';
+                    const isSuperAccount = u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+                    const currentIsSuper = isSuperAdmin(currentUser);
 
                     return (
                       <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
@@ -322,13 +345,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                           <div className="text-[11px] text-slate-500">{u.email}</div>
                         </td>
                         <td className="px-4 py-2.5">
-                          <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
-                            u.role === 'admin'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-slate-100 text-slate-700'
-                          }`}>
-                            {u.role === 'admin' ? '👑 Admin' : '🎓 Customer'}
-                          </span>
+                          {isSuperAccount ? (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[11px] font-bold text-amber-900">
+                              <Crown className="h-3 w-3 text-amber-600" />
+                              <span>Супер-Админ</span>
+                            </span>
+                          ) : u.role === 'admin' ? (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-purple-100 text-purple-800 px-2 py-0.5 text-[11px] font-semibold">
+                              <ShieldCheck className="h-3 w-3 text-purple-600" />
+                              <span>Администратор</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 text-slate-700 px-2 py-0.5 text-[11px] font-medium">
+                              <span>🎓 Студент</span>
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-2.5">
                           <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
@@ -354,10 +385,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                           )}
                         </td>
                         <td className="px-4 py-2.5 text-right">
-                          {isAdmin ? (
-                            <span className="text-[11px] font-medium text-slate-400">Главный аккаунт</span>
+                          {isSuperAccount ? (
+                            <span className="text-[11px] font-bold text-amber-700">Владелец системы</span>
                           ) : (
                             <div className="flex items-center justify-end gap-1.5">
+                              {/* Super admin can grant/revoke admin roles */}
+                              {currentIsSuper && (
+                                u.role === 'admin' ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleAdminRole(u.id, u.role, u.name)}
+                                    className="rounded-lg border border-purple-200 bg-purple-50 px-2 py-1 text-[11px] font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
+                                    title="Отозвать права администратора"
+                                  >
+                                    Снять админку
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleAdminRole(u.id, u.role, u.name)}
+                                    className="rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 transition-colors shadow-2xs"
+                                    title="Выдать права администратора"
+                                  >
+                                    + Выдать админку
+                                  </button>
+                                )
+                              )}
+
                               {u.subscriptionTier === 'pro' ? (
                                 <button
                                   type="button"
@@ -392,6 +446,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                                 type="button"
                                 onClick={() => handleDeleteUser(u.id, u.email)}
                                 className="rounded-lg p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                                title="Удалить пользователя"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </button>
@@ -582,11 +637,133 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
           </div>
         )}
 
-        {/* Tab 3: Site Settings */}
+        {/* Tab 3: Site Settings & Quotas */}
         {activeTab === 'settings' && (
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            <div className="max-w-xl space-y-4">
-              <div>
+            <div className="max-w-2xl space-y-6">
+              {/* Guest Access Settings */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700">
+                    👤 Гостевой доступ (Guest)
+                  </span>
+                </div>
+                <h4 className="text-sm font-bold text-slate-900">Ограничения и права для неавторизованных гостей</h4>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Управляйте лимитами пользователей, которые заходят на сайт без создания аккаунта.
+                </p>
+
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                      Лимит AI-поисков для гостя:
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={siteSettings.guestMaxSearches ?? 1}
+                      onChange={e =>
+                        setSiteSettings({ ...siteSettings, guestMaxSearches: Math.max(0, parseInt(e.target.value) || 0) })
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                    />
+                    <span className="text-[10px] text-slate-400">По умолчанию: 1</span>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                      Лимит пересчетов анкеты для гостя:
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="20"
+                      value={siteSettings.guestMaxRecalculations ?? 2}
+                      onChange={e =>
+                        setSiteSettings({ ...siteSettings, guestMaxRecalculations: Math.max(0, parseInt(e.target.value) || 0) })
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                    />
+                    <span className="text-[10px] text-slate-400">По умолчанию: 2</span>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-100">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={siteSettings.allowGuestChat ?? false}
+                      onChange={e =>
+                        setSiteSettings({ ...siteSettings, allowGuestChat: e.target.checked })
+                      }
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div>
+                      <span className="text-xs font-semibold text-slate-800">
+                        Разрешить гостям писать в Live-чат
+                      </span>
+                      <p className="text-[11px] text-slate-500 leading-snug">
+                        {siteSettings.allowGuestChat
+                          ? 'Гости могут свободно отправлять сообщения в чат без регистрации.'
+                          : 'Отключено (Рекомендуется): гости могут читать чат и видеть контакты, но отправлять сообщения могут только зарегистрированные пользователи.'}
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Free Customer Settings */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
+                    🎓 Зарегистрированный пользователь (Free Customer)
+                  </span>
+                </div>
+                <h4 className="text-sm font-bold text-slate-900">Лимиты для пользователей с бесплатным аккаунтом</h4>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Базовые квоты для абитуриентов, создавших бесплатный профиль.
+                </p>
+
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                      Лимит AI-поисков (Free):
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="30"
+                      value={siteSettings.freeCustomerMaxSearches ?? 6}
+                      onChange={e =>
+                        setSiteSettings({ ...siteSettings, freeCustomerMaxSearches: Math.max(1, parseInt(e.target.value) || 1) })
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                    />
+                    <span className="text-[10px] text-slate-400">По умолчанию: 6</span>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                      Лимит пересчетов анкеты (Free):
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={siteSettings.freeCustomerMaxRecalculations ?? 12}
+                      onChange={e =>
+                        setSiteSettings({ ...siteSettings, freeCustomerMaxRecalculations: Math.max(1, parseInt(e.target.value) || 1) })
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                    />
+                    <span className="text-[10px] text-slate-400">По умолчанию: 12</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Announcement Banner */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
                 <h4 className="text-sm font-bold text-slate-900">Информационный баннер для всех посетителей</h4>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Текст баннера будет отображаться в верхней части сайта.
@@ -602,7 +779,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                     }
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <label htmlFor="banner-toggle" className="text-xs font-semibold text-slate-700">
+                  <label htmlFor="banner-toggle" className="text-xs font-semibold text-slate-700 cursor-pointer">
                     Показывать баннер на сайте
                   </label>
                 </div>
@@ -618,13 +795,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-100">
+              <div className="pt-2 flex items-center justify-between">
+                <p className="text-[11px] text-slate-400">
+                  Все изменения сохраняются в базу данных платформы и применяются мгновенно.
+                </p>
                 <button
                   type="button"
                   onClick={handleSaveSettings}
-                  className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 shadow-xs"
+                  className="rounded-xl bg-blue-600 px-5 py-2 text-xs font-semibold text-white hover:bg-blue-700 shadow-xs transition-colors shrink-0"
                 >
-                  Сохранить настройки
+                  Сохранить настройки платформы
                 </button>
               </div>
             </div>

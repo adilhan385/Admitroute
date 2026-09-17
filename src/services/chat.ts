@@ -1,4 +1,4 @@
-import { setSubscriptionTier, getAllUsers } from './auth';
+import { setSubscriptionTier, getAllUsers, getSiteSettings } from './auth';
 
 export interface ChatMessage {
   id: string;
@@ -127,6 +127,11 @@ export function sendUserMessage(
   text: string,
   isPaymentRequest: boolean = false
 ): ChatMessage {
+  const settings = getSiteSettings();
+  if (threadId === 'guest-session' && !settings.allowGuestChat) {
+    throw new Error('Гостевой чат отключен администратором. Пожалуйста, войдите в аккаунт.');
+  }
+
   const all = getAllChatMessages();
   const newMsg: ChatMessage = {
     id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,

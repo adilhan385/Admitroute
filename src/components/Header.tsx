@@ -11,6 +11,7 @@ interface HeaderProps {
   onOpenAuth: (mode?: 'login' | 'register') => void;
   onOpenAdmin: () => void;
   onOpenSupport: (topic?: string) => void;
+  onOpenPricing?: () => void;
   onLogout: () => void;
 }
 
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuth,
   onOpenAdmin,
   onOpenSupport,
+  onOpenPricing,
   onLogout
 }) => {
   const handlePrint = () => {
@@ -73,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
           {!isPro && !isAdmin && (
             <button
               type="button"
-              onClick={() => onOpenSupport('PRO')}
+              onClick={onOpenPricing || (() => onOpenSupport('PRO'))}
               className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:from-blue-700 hover:to-indigo-700 transition-all"
             >
               <Sparkles className="h-3.5 w-3.5" />

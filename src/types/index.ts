@@ -159,6 +159,7 @@ export interface UserAccount {
   createdAt: string;
   usageStats: UserUsageStats;
   notes?: string;
+  isSuperAdmin?: boolean;
 }
 
 export interface SupportMessage {
@@ -177,5 +178,10 @@ export interface SiteSettings {
   announcementText: string;
   isAnnouncementActive: boolean;
   maintenanceMode: boolean;
+  guestMaxSearches: number;
+  guestMaxRecalculations: number;
+  freeCustomerMaxSearches: number;
+  freeCustomerMaxRecalculations: number;
+  allowGuestChat: boolean;
 }
 
