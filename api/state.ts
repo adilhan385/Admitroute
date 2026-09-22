@@ -2,7 +2,8 @@ type Request = { method?: string; body?: unknown };
 type Response = { status: (code: number) => Response; json: (data: unknown) => void; setHeader: (name: string, value: string) => void };
 const KEY = 'admitroute:shared-state:v1';
 async function redis(command: string, ...args: unknown[]) {
-  const url = process.env.STORAGE_URL, token = process.env.STORAGE_TOKEN;
+  const url = process.env.STORAGE_URL || process.env.KV_REST_API_URL || process.env.UPSTASH_KV_REST_API_URL;
+  const token = process.env.STORAGE_TOKEN || process.env.KV_REST_API_TOKEN || process.env.UPSTASH_KV_REST_API_TOKEN;
   if (!url || !token) throw new Error('Redis storage is not configured');
   const path = args.map(v => encodeURIComponent(typeof v === 'string' ? v : JSON.stringify(v))).join('/');
   const response = await fetch(`${url}/${command}/${path}`, { headers: { Authorization: `Bearer ${token}` } });
