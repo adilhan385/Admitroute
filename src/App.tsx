@@ -24,6 +24,7 @@ import { LiveChatWidget } from './components/LiveChatWidget';
 import { AdminPanel } from './components/AdminPanel';
 import { PricingModal } from './components/PricingModal';
 import { getCurrentUser, logout as authLogout, getSiteSettings, recordActionUsage, saveUserProfileForUser } from './services/auth';
+import { startSharedSync } from './services/remoteSync';
 import type { UserAccount, SiteSettings } from './types';
 import { Bell } from 'lucide-react';
 import { Sparkles, SlidersHorizontal } from 'lucide-react';
@@ -32,6 +33,7 @@ const STORAGE_KEY_PROFILE = 'admitroute_profile_v1';
 const STORAGE_KEY_ROADMAP = 'admitroute_roadmap_v1';
 
 export const App: React.FC = () => {
+  useEffect(() => { startSharedSync(); }, []);
   const [profile, setProfile] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_PROFILE);
     if (saved) {

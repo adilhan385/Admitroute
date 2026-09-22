@@ -1,4 +1,5 @@
 import type { UserAccount, UserRole, SubscriptionTier, SiteSettings, UserProfile } from '../types';
+import { pushSharedState } from './remoteSync';
 
 const STORAGE_USERS_KEY = 'admitroute_users_db_v1';
 const STORAGE_CURRENT_USER_KEY = 'admitroute_auth_user_v1';
@@ -187,6 +188,7 @@ function saveUsers(users: UserAccount[]): void {
   localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
   window.dispatchEvent(new Event('admitroute_chat_update'));
   window.dispatchEvent(new Event('storage'));
+  void pushSharedState();
 }
 
 export function getCurrentUser(): UserAccount | null {
@@ -532,7 +534,7 @@ export function updateSiteSettings(settings: Partial<SiteSettings>): SiteSetting
     localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(updated));
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new Event('admitroute_chat_update'));
+    void pushSharedState();
   }
   return updated;
 }
-

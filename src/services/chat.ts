@@ -1,4 +1,5 @@
 import { setSubscriptionTier, getAllUsers, SUPER_ADMIN_EMAIL } from './auth';
+import { pushSharedState } from './remoteSync';
 
 export interface ChatMessage {
   id: string;
@@ -77,6 +78,7 @@ function saveAllChatMessages(msgs: ChatMessage[]): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_CHAT_KEY, JSON.stringify(msgs));
   notifyChatChange();
+  void pushSharedState();
 }
 
 /**

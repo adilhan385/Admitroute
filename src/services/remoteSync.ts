@@ -1,0 +1,7 @@
+const USERS = 'admitroute_users_db_v1', CHAT = 'admitroute_live_chat_threads_v2', SETTINGS = 'admitroute_site_settings_v1';
+let active = false;
+const state = () => ({ users: JSON.parse(localStorage.getItem(USERS) || '[]'), messages: JSON.parse(localStorage.getItem(CHAT) || '[]'), settings: JSON.parse(localStorage.getItem(SETTINGS) || '{}') });
+function apply(remote: any) { if (!remote) return; if (Array.isArray(remote.users)) localStorage.setItem(USERS, JSON.stringify(remote.users)); if (Array.isArray(remote.messages)) localStorage.setItem(CHAT, JSON.stringify(remote.messages)); if (remote.settings) localStorage.setItem(SETTINGS, JSON.stringify(remote.settings)); window.dispatchEvent(new Event('admitroute_chat_update')); window.dispatchEvent(new Event('storage')); }
+export async function pullSharedState() { if (!active || !navigator.onLine) return; try { const r = await fetch('/api/state', { cache: 'no-store' }); const { state: remote } = await r.json(); if (remote) apply(remote); } catch {} }
+export async function pushSharedState() { if (!active || !navigator.onLine) return; try { const r = await fetch('/api/state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state()) }); const { state: remote } = await r.json(); if (remote) apply(remote); } catch {} }
+export function startSharedSync() { if (typeof window === 'undefined' || active) return; active = true; void pullSharedState(); window.setInterval(() => void pullSharedState(), 4000); }
