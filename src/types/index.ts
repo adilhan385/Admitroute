@@ -63,6 +63,7 @@ export interface UniversityProgram {
   id: string;
   name: string;
   shortName: string;
+  aliases?: string[];
   city: string;
   country: string;
   region: TargetRegion;

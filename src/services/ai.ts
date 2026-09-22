@@ -1,6 +1,7 @@
 import type { UserProfile, UniversityProgram, EssayDraft } from '../types';
 import { evaluateUniversityProgram } from '../utils/engine';
 import { UNIVERSITIES_DATABASE } from '../data/universities';
+import { findUniversityByAliasOrName, generateRealisticUnknownUniversity } from '../utils/universityMatcher';
 
 /**
  * Сервис интеграции с Google Gemini API (gemini-3.6-flash) + Автономный аналитический движок (No-Fail Engine)
@@ -185,35 +186,7 @@ export async function generateEssayStructure(
  * Поиск университета в верифицированной базе данных по ключевым словам и алиасам
  */
 export function findUniversityInDatabase(query: string): UniversityProgram | null {
-  const q = query.trim().toLowerCase();
-  if (!q) return null;
-
-  for (const u of UNIVERSITIES_DATABASE) {
-    const nameLower = u.name.toLowerCase();
-    const shortLower = u.shortName.toLowerCase();
-
-    if (shortLower === q) return u;
-    if (nameLower.includes(q)) return u;
-    if (shortLower.includes(q)) return u;
-
-    // Aliases
-    if (q === 'сду' && (shortLower.includes('sdu') || nameLower.includes('демирел'))) return u;
-    if (q === 'кбту' && (shortLower.includes('kbtu') || nameLower.includes('британ'))) return u;
-    if (q === 'муит' && (shortLower.includes('iitu') || nameLower.includes('информацион'))) return u;
-    if (q === 'аиту' && (shortLower.includes('aitu') || nameLower.includes('astana it'))) return u;
-    if (q === 'политех' && (shortLower.includes('satbayev') || nameLower.includes('сатпаев'))) return u;
-    if (q === 'казну' && nameLower.includes('аль-фараби')) return u;
-    if (q === 'ену' && nameLower.includes('гумилев')) return u;
-    if (q === 'кимэп' && (shortLower.includes('kimep') || nameLower.includes('кимэп'))) return u;
-    if ((q === 'казгюу' || q === 'мну') && (shortLower.includes('mnu') || nameLower.includes('нарикбаев'))) return u;
-    if ((q === 'ну' || q === 'nu') && (shortLower === 'nu' || nameLower.includes('назарбаев'))) return u;
-    if ((q === 'тум' || q === 'tum') && shortLower === 'tum') return u;
-    if (q.includes('милан') && nameLower.includes('milano')) return u;
-    if (q.includes('болон') && nameLower.includes('bologna')) return u;
-    if ((q.includes('каист') || q === 'kaist') && shortLower === 'kaist') return u;
-  }
-
-  return null;
+  return findUniversityByAliasOrName(query);
 }
 
 /**
@@ -665,91 +638,8 @@ export function generateSmartFallbackUniversity(
     return { ...raw, ...ev, isAiGenerated: true };
   }
 
-  // Dynamic Tailored Heuristic for ANY other typed university
-  const isKazakhstan =
-    q.includes('каз') || q.includes('астана') || q.includes('алматы') ||
-    q.includes('каргу') || q.includes('юку') || q.includes('ауэзов') ||
-    q.includes('семей') || q.includes('актобе') || q.includes('костанай') ||
-    q.includes('павлодар') || q.includes('шымкент') || q.includes('караганд') ||
-    q.includes('кызылорд') || q.includes('тараз');
-
-  const isUSA = q.includes('сша') || q.includes('usa') || q.includes('стэнфорд') || q.includes('stanford') || q.includes('yale') || q.includes('berkeley') || q.includes('гарвард') || q.includes('harvard') || q.includes('mit');
-  const isAsia = q.includes('ази') || q.includes('asia') || q.includes('коре') || q.includes('korea') || q.includes('япон') || q.includes('japan') || q.includes('кита') || q.includes('china') || q.includes('сеул');
-
-  const region = isKazakhstan ? 'kazakhstan' : isUSA ? 'usa' : isAsia ? 'asia' : 'europe';
-  const cleanTitle = query.trim().charAt(0).toUpperCase() + query.trim().slice(1);
-
-  const raw: UniversityProgram = {
-    id: `custom-${Date.now()}`,
-    name: cleanTitle,
-    shortName: cleanTitle.split(/[\s(]/)[0] || cleanTitle,
-    city: isKazakhstan ? 'Казахстан' : isEuropeOrCity(q),
-    country: isKazakhstan ? 'Казахстан' : isUSA ? 'США' : isAsia ? 'Азия' : 'Европа',
-    region: region,
-    fields: [profile.field],
-    programTitle: getProgramByField(profile.field),
-    degrees: ['Бакалавриат (4 года)'],
-    acceptanceRate: isKazakhstan ? '35%' : '24%',
-    avgGpa: isKazakhstan ? 4.3 : 4.6,
-    languageRequirement: isKazakhstan ? 'Русский / Казахский (или IELTS 5.5 для англоязычных групп)' : 'IELTS 6.5 / B2',
-    examRequirement: isKazakhstan ? 'ЕНТ профильные (от 75+ платное, от 105+ грант)' : 'Аттестат + международные экзамены',
-    tuitionYearKztOrUsd: isKazakhstan ? 'Гос. грант РК или от 1 350 000 ₸/год' : 'Доступны грантовые стипендиальные программы',
-    scholarshipAvailability: '100% гранты',
-    hasDormitory: true,
-    matchCategory: 'target',
-    matchScore: 86,
-    whyFits: [
-      `Специализированная программа обучения по профилю «${getProgramByField(profile.field)}»`,
-      'Возможность участия в конкурсе государственных грантов и университетских скидок',
-      'Практические стажировки и признание диплома работодателями региона'
-    ],
-    keyStrengths: ['Профильная кафедра', 'Современные лаборатории', 'Индустриальные партнеры'],
-    avgGraduateSalary: isKazakhstan ? 'от 480 000 ₸/мес' : '$45 000 / год',
-    applicationDeadline: '20 июля 2026',
-    officialSiteUrl: 'https://google.com/search?q=' + encodeURIComponent(query + ' admissions'),
-    details: {
-      aboutCampus: `Учебные корпуса ${cleanTitle} с профильными аудиториями, научной библиотекой и компьютерными классами.`,
-      studentLife: 'Студенческий совет, дебатные клубы, спортивные секции и участие в профильных кейс-турнирах.',
-      livingCostsPerMonth: isKazakhstan ? '~130 000 – 160 000 ₸/мес' : '~$700 – 1 000 / мес',
-      dormitoryDetails: 'Студенческое общежитие на территории студгородка для иногородних первокурсников.',
-      topEmployers: isKazakhstan ? ['Kaspi.kz', 'Halyk Bank', 'КазМунайГаз', 'Казахтелеком', 'IT-холдинги'] : ['Международные технологические и консалтинговые компании'],
-      rounds: {
-        early: { name: 'Ранний прием', deadline: 'Апрель — Май 2026', description: 'Консультации и сбор предварительных пакетов документов.', recommendedFor: 'Выпускникам с готовыми баллами.' },
-        regular: { name: 'Основной конкурс', deadline: 'Июль 2026', description: 'Основная подача на грантовые места и бюджетные квоты.', recommendedFor: 'Большинству абитуриентов.' },
-        late: { name: 'Поздний добор', deadline: 'Август 2026', description: 'Зачисление на вакантные контрактные места.', recommendedFor: 'Запасной поток.' }
-      },
-      grantStats: {
-        lastYearGrantsCount: 'Выделяются квоты государственных грантов',
-        lastYearCutoff: isKazakhstan ? 'ЕНТ от 105 баллов' : 'GPA от 4.5+ / IELTS 6.5',
-        competitionRatio: '2.5 человека на 1 грант',
-        grantChanceSummary: 'Своевременная подача документов существенно повышает шансы на грантовое финансирование.'
-      }
-    }
-  };
-
-  const ev = evaluateUniversityProgram(raw, profile);
-  return { ...raw, ...ev, isAiGenerated: true };
-}
-
-function getProgramByField(field: string): string {
-  switch (field) {
-    case 'cs_it': return 'B.Sc. Computer Science & Software Engineering';
-    case 'engineering': return 'B.Eng. Robotics & Automation Systems';
-    case 'business_econ': return 'B.Sc. International Business & Digital Finance';
-    case 'medicine_bio': return 'B.Sc. Biomedical Sciences & Healthcare';
-    case 'design_media': return 'B.A. Digital Media & Product Design';
-    case 'social_law': return 'B.A. International Relations & Corporate Law';
-    default: return 'Bachelor of Science';
-  }
-}
-
-function isEuropeOrCity(q: string): string {
-  if (q.includes('герман') || q.includes('berlin') || q.includes('munich')) return 'Германия';
-  if (q.includes('италь') || q.includes('rome') || q.includes('milan')) return 'Италия';
-  if (q.includes('франц') || q.includes('paris')) return 'Франция';
-  if (q.includes('польш') || q.includes('warsaw')) return 'Польша';
-  if (q.includes('чехи') || q.includes('prague')) return 'Чехия';
-  return 'Международный кампус';
+  // Dynamic Realistic Fallback for any unlisted university
+  return generateRealisticUnknownUniversity(query, profile);
 }
 
 /**

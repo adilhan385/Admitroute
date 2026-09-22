@@ -8,6 +8,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     id: 'nu-cs',
     name: 'Назарбаев Университет (Nazarbayev University)',
     shortName: 'NU',
+    aliases: ['ну','nu','назарбаев','nazarbayev','nazarbayev university','назарбаев университет','nu kz','нует'],
     city: 'Астана',
     country: 'Казахстан',
     region: 'kazakhstan',
@@ -70,6 +71,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     id: 'kbtu-it',
     name: 'Казахстанско-Британский технический университет',
     shortName: 'КБТУ',
+    aliases: ['кбту','kbtu','казахстанско-британский','казахско-британский','кбту алматы'],
     city: 'Алматы',
     country: 'Казахстан',
     region: 'kazakhstan',
@@ -132,6 +134,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     id: 'aitu-cs',
     name: 'Astana IT University',
     shortName: 'AITU',
+    aliases: ['аиту','aitu','astana it','астана ит','astana it university','астана айти'],
     city: 'Астана',
     country: 'Казахстан',
     region: 'kazakhstan',
@@ -194,6 +197,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     id: 'sdu-it',
     name: 'SDU University (Университет имени Сулеймана Демиреля)',
     shortName: 'SDU',
+    aliases: ['сду','sdu','сулейман демирель','suleyman demirel','демирель','демирел','сду каскелен'],
     city: 'Каскелен / Алматы',
     country: 'Казахстан',
     region: 'kazakhstan',
@@ -318,6 +322,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     id: 'iitu-cs',
     name: 'Международный университет информационных технологий (МУИТ)',
     shortName: 'МУИТ (IITU)',
+    aliases: ['муит','iitu','международный ит','международный университет информационных технологий'],
     city: 'Алматы',
     country: 'Казахстан',
     region: 'kazakhstan',
@@ -380,6 +385,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     id: 'satbayev-eng',
     name: 'Satbayev University (КазНИТУ им. К.И. Сатпаева / Политех)',
     shortName: 'Политех (Satbayev)',
+    aliases: ['политех','сатпаев','satbayev','казниту','казпти','satbayev university','политех алматы'],
     city: 'Алматы',
     country: 'Казахстан',
     region: 'kazakhstan',
@@ -2066,6 +2072,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     id: 'utoronto-ca',
     name: 'University of Toronto (Университет Торонто)',
     shortName: 'U of T',
+    aliases: ['торонто','utoronto','u of t','университет торонто'],
     city: 'Торонто',
     country: 'Канада',
     region: 'usa',
@@ -2121,6 +2128,1948 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
         lastYearCutoff: 'GPA 4.95+ / выдающееся лидерское портфолио',
         competitionRatio: 'Очень высокий конкурс на 100% грант, умеренный на платное зачисление',
         grantChanceSummary: 'Поступление на программу CS требует высокого GPA. Шанс на стипендию Пирсона требует исключительного портфолио.'
+      }
+    }
+  }
+,
+  {
+    id: 'narxoz-biz',
+    name: 'Университет Нархоз (Narxoz University)',
+    shortName: 'Нархоз',
+    aliases: [
+      'нархоз',
+      'narxoz',
+      'казэу',
+      'рыскулов',
+      'narxoz university'
+    ],
+    city: 'Алматы',
+    country: 'Казахстан',
+    region: 'kazakhstan',
+    fields: [
+      'business_econ',
+      'social_law',
+      'cs_it'
+    ],
+    programTitle: 'BSc in Finance, Audit & FinTech',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '38%',
+    avgGpa: 4.3,
+    languageRequirement: 'Русский / Казахский / Английский (IELTS 5.5+)',
+    examRequirement: 'ЕНТ: Математика + География/Информатика (от 70+ платное, 110-125 грант)',
+    tuitionYearKztOrUsd: 'Гос. грант РК или ~1 850 000 ₸/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'target',
+    matchScore: 91,
+    whyFits: [
+      'Европейские аккредитации FIBAA и CEEMAN высокого уровня',
+      'Новейший эко-кампус в Алматы с цифровыми лабораториями и парковой зоной',
+      'Программы двойного диплома с ведущими университетами Европы'
+    ],
+    keyStrengths: [
+      'Европейские аккредитации',
+      'Современный эко-кампус',
+      'Трудоустройство в Big 4'
+    ],
+    avgGraduateSalary: 'от 600 000 ₸/мес',
+    applicationDeadline: '20 июля 2026',
+    officialSiteUrl: 'https://narxoz.edu.kz',
+    details: {
+      aboutCampus: 'Инновационный кампус на ул. Жандосова в Алматы: открытые амфитеатры, библиотека 24/7, фитнес-центр и коворкинги.',
+      studentLife: 'Инвестиционный клуб Narxoz Capital, бизнес-инкубатор Most, кейс-чемпионаты и фестивали.',
+      livingCostsPerMonth: '~130 000 – 160 000 ₸/мес',
+      dormitoryDetails: 'Современный Дом студентов Narxoz Residence с отельным уровнем сервиса.',
+      topEmployers: [
+        'Ernst & Young',
+        'PwC',
+        'KPMG',
+        'Deloitte',
+        'Halyk Bank',
+        'ForteBank',
+        'Air Astana'
+      ],
+      rounds: {
+        early: {
+          name: 'Гранты Ректора Нархоз',
+          deadline: 'Апрель — Июнь 2026',
+          description: 'Конкурс олимпиад и лидерских портфолио с полным грантом.',
+          recommendedFor: 'Отличникам и активистам.'
+        },
+        regular: {
+          name: 'Государственный конкурс грантов',
+          deadline: '13 — 20 июля 2026',
+          description: 'Распределение госгрантов РК.',
+          recommendedFor: 'Всем абитуриентам с ЕНТ 108+.'
+        },
+        late: {
+          name: 'Платное зачисление со скидками',
+          deadline: 'Август 2026',
+          description: 'Скидки за высокий балл ЕНТ и аттестат.',
+          recommendedFor: 'Контрактной основе.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 650 государственных и внутренних грантов',
+        lastYearCutoff: '110 баллов ЕНТ на Финансы и IT',
+        competitionRatio: '3.1 человека на место',
+        grantChanceSummary: 'Высокие шансы на получение гранта при крепкой математике.'
+      }
+    }
+  },
+  {
+    id: 'aues-eng',
+    name: 'АУЭС им. Гумарбека Даукеева (Энергетика и Связь)',
+    shortName: 'АУЭС',
+    aliases: [
+      'ауэс',
+      'aues',
+      'даукеев',
+      'энерго',
+      'daukeyev',
+      'энергетический'
+    ],
+    city: 'Алматы',
+    country: 'Казахстан',
+    region: 'kazakhstan',
+    fields: [
+      'engineering',
+      'cs_it'
+    ],
+    programTitle: 'BEng Электроэнергетика, Кибербезопасность & Телекоммуникации',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '45%',
+    avgGpa: 4.2,
+    languageRequirement: 'Русский / Казахский / Английский',
+    examRequirement: 'ЕНТ: Математика + Физика/Информатика (от 65+ платное, 95-115 грант)',
+    tuitionYearKztOrUsd: 'Гос. грант РК или ~1 350 000 ₸/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'safety',
+    matchScore: 93,
+    whyFits: [
+      'Главный профильный вуз страны по энергетике, электротехнике и сетевой безопасности',
+      'Огромная квота государственных грантов (отличные шансы даже со средним ЕНТ)',
+      '100% востребованность инженеров в телеком- и энерго-секторе Казахстана'
+    ],
+    keyStrengths: [
+      '№1 в энергетике и телекоме',
+      'Высокая доступность грантов',
+      'Связь с Samruk-Energy и KEGOC'
+    ],
+    avgGraduateSalary: 'от 520 000 ₸/мес',
+    applicationDeadline: '20 июля 2026',
+    officialSiteUrl: 'https://aues.edu.kz',
+    details: {
+      aboutCampus: 'Кампус на ул. Байтурсынова в Алматы с уникальными микропроцессорными лабораториями и высоковольтными стендами.',
+      studentLife: 'Инженерные кружки, робототехника, спортивные лиги, профсоюзные студенческие инициативы.',
+      livingCostsPerMonth: '~120 000 – 150 000 ₸/мес',
+      dormitoryDetails: 'Несколько корпусов студенческих общежитий рядом с университетом.',
+      topEmployers: [
+        'KEGOC',
+        'Казахтелеком',
+        'Samruk-Energy',
+        'Beeline Казахстан',
+        'Schneider Electric'
+      ],
+      rounds: {
+        early: {
+          name: 'День открытых дверей и предварительная регистрация',
+          deadline: 'Май — Июнь 2026',
+          description: 'Консультации по выбору инженерных профилей.',
+          recommendedFor: 'Всем абитуриентам.'
+        },
+        regular: {
+          name: 'Конкурс госгрантов МНВО РК',
+          deadline: '13 — 20 июля 2026',
+          description: 'Основная подача на государственные гранты.',
+          recommendedFor: 'Кандидатам с ЕНТ от 90+.'
+        },
+        late: {
+          name: 'Зачисление на платное',
+          deadline: 'Август 2026',
+          description: 'Платный контракт.',
+          recommendedFor: 'При ЕНТ от 65 баллов.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Более 1 500 государственных целевых грантов',
+        lastYearCutoff: 'ЕНТ 95 баллов на электроэнергетику, 112 на кибербезопасность',
+        competitionRatio: '1.8 человека на грантовое место',
+        grantChanceSummary: 'Один из самых надежных вариантов для получения 100% госгранта.'
+      }
+    }
+  },
+  {
+    id: 'kaznmu-med',
+    name: 'КазНМУ им. С.Д. Асфендиярова (Ведущий медицинский университет)',
+    shortName: 'КазНМУ',
+    aliases: [
+      'казнму',
+      'kaznmu',
+      'асфендияров',
+      'asfendiyarov',
+      'мед алматы'
+    ],
+    city: 'Алматы',
+    country: 'Казахстан',
+    region: 'kazakhstan',
+    fields: [
+      'medicine_bio'
+    ],
+    programTitle: 'Общая медицина / Педиатрия / Фармация',
+    degrees: [
+      'Бакалавриат (5-6 лет)'
+    ],
+    acceptanceRate: '22%',
+    avgGpa: 4.75,
+    languageRequirement: 'Русский / Казахский / Английский',
+    examRequirement: 'ЕНТ: Биология + Химия (от 85+ платное, 126-138 грант) + Психометрический экзамен',
+    tuitionYearKztOrUsd: 'Гос. грант РК или от 1 650 000 ₸/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'target',
+    matchScore: 89,
+    whyFits: [
+      'Старейший и наиболее авторитетный медицинский вуз Казахстана с вековой школой',
+      'Собственные университетские клиники и клинические базы по всему Алматы',
+      'Международная аккредитация медицинского диплома'
+    ],
+    keyStrengths: [
+      'Ведущий медвуз Казахстана',
+      'Собственные клинические базы',
+      'Высокий престиж'
+    ],
+    avgGraduateSalary: 'от 450 000 ₸/мес',
+    applicationDeadline: '20 июля 2026',
+    officialSiteUrl: 'https://kaznmu.edu.kz',
+    details: {
+      aboutCampus: 'Исторический кампус в центре Алматы на ул. Толе би с симуляционными центрами хирургии и анатомическим музеем.',
+      studentLife: 'Ассоциация студентов-медиков KazMSA, научные секции, медицинское волонтерство.',
+      livingCostsPerMonth: '~150 000 ₸/мес',
+      dormitoryDetails: '7 общежитий университета, 100% приоритет первокурсникам.',
+      topEmployers: [
+        'Национальные научные медицинские центры',
+        'Клиника им. Сызганова',
+        'Densaulyk',
+        'Фармхолдинги'
+      ],
+      rounds: {
+        early: {
+          name: 'Психометрический тест',
+          deadline: 'Июнь — Июль 2026',
+          description: 'Обязательный квалификационный допуск к медицине.',
+          recommendedFor: 'Всем абитуриентам медвузов.'
+        },
+        regular: {
+          name: 'Конкурс госгрантов',
+          deadline: '13 — 20 июля 2026',
+          description: 'Подача на целевые медицинские гранты.',
+          recommendedFor: 'ЕНТ от 125+ баллов.'
+        },
+        late: {
+          name: 'Платный контракт',
+          deadline: 'Август 2026',
+          description: 'Договорное обучение.',
+          recommendedFor: 'ЕНТ от 85 баллов.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 2 800 грантов по направлению «Здравоохранение»',
+        lastYearCutoff: '126 баллов ЕНТ (общий конкурс), 118 (сельская квота)',
+        competitionRatio: '4.2 человека на грант',
+        grantChanceSummary: 'Требуется отличный результат по Биологии и Химии.'
+      }
+    }
+  },
+  {
+    id: 'mua-med',
+    name: 'Медицинский университет Астана (МУА)',
+    shortName: 'МУА',
+    aliases: [
+      'муа',
+      'mua',
+      'мед астана',
+      'астана мед',
+      'медицинский университет астана'
+    ],
+    city: 'Астана',
+    country: 'Казахстан',
+    region: 'kazakhstan',
+    fields: [
+      'medicine_bio'
+    ],
+    programTitle: 'Общая медицина & Стоматология',
+    degrees: [
+      'Бакалавриат (5-6 лет)'
+    ],
+    acceptanceRate: '25%',
+    avgGpa: 4.7,
+    languageRequirement: 'Русский / Казахский / Английский',
+    examRequirement: 'ЕНТ: Биология + Химия (от 80+ платное, 124-135 грант) + Психометрический экзамен',
+    tuitionYearKztOrUsd: 'Гос. грант РК или от 1 500 000 ₸/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'target',
+    matchScore: 88,
+    whyFits: [
+      'Главный медицинский университет столицы с доступом к передовым республиканским НИИ',
+      'Сотрудничество с Национальным научным кардиохирургическим центром и UMC',
+      'Большие квоты столичных и республиканских грантов'
+    ],
+    keyStrengths: [
+      'Столичные клинические базы',
+      'Современные симуляционные центры',
+      'Государственные гранты'
+    ],
+    avgGraduateSalary: 'от 480 000 ₸/мес',
+    applicationDeadline: '20 июля 2026',
+    officialSiteUrl: 'https://amu.edu.kz',
+    details: {
+      aboutCampus: 'Кампус на ул. Сарыарка и Бейбитшилик в Астане с современными симуляционными клиниками.',
+      studentLife: 'Студенческие научные общества, волонтеры-медики, спортивные секции.',
+      livingCostsPerMonth: '~140 000 – 170 000 ₸/мес',
+      dormitoryDetails: 'Несколько благоустроенных общежитий в Астане.',
+      topEmployers: [
+        'University Medical Center (UMC)',
+        'Национальный центр нейрохирургии',
+        'Городские больницы Астаны'
+      ],
+      rounds: {
+        early: {
+          name: 'Психометрическое тестирование',
+          deadline: 'Июнь — Июль 2026',
+          description: 'Сдача психометрии для допуска к конкурсу.',
+          recommendedFor: 'Всем поступающим на медицину.'
+        },
+        regular: {
+          name: 'Республиканский конкурс грантов',
+          deadline: '13 — 20 июля 2026',
+          description: 'Подача сертификатов ЕНТ.',
+          recommendedFor: 'ЕНТ 122+.'
+        },
+        late: {
+          name: 'Платное зачисление',
+          deadline: 'Август 2026',
+          description: 'Заключение договоров на коммерческую форму.',
+          recommendedFor: 'ЕНТ от 80 баллов.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Около 1 200 грантов зачислено в МУА',
+        lastYearCutoff: '124 балла ЕНТ',
+        competitionRatio: '3.8 человека на грант',
+        grantChanceSummary: 'Хорошие шансы при упорной подготовке к профильным предметам.'
+      }
+    }
+  },
+  {
+    id: 'almau-biz',
+    name: 'Almaty Management University (AlmaU)',
+    shortName: 'AlmaU',
+    aliases: [
+      'almau',
+      'алмаю',
+      'алмау',
+      'маб',
+      'iab'
+    ],
+    city: 'Алматы',
+    country: 'Казахстан',
+    region: 'kazakhstan',
+    fields: [
+      'business_econ',
+      'design_media',
+      'cs_it'
+    ],
+    programTitle: 'BBA Предпринимательство, Маркетинг & Data Management',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '42%',
+    avgGpa: 4.2,
+    languageRequirement: 'Русский / Казахский / Английский',
+    examRequirement: 'ЕНТ профильные (от 65+ платное, 108+ грант)',
+    tuitionYearKztOrUsd: 'Гос. грант РК или ~1 950 000 ₸/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'safety',
+    matchScore: 90,
+    whyFits: [
+      'Первая частная бизнес-школа Казахстана с аккредитациями AMBA и CEEMAN',
+      'Фокус на реальное предпринимательство, студенческие стартапы и бизнес-инкубатор',
+      'Программы обмена с вузами Европы, США и Азии'
+    ],
+    keyStrengths: [
+      'Предпринимательская экосистема',
+      'Международные обмены',
+      'Креативный кампус'
+    ],
+    avgGraduateSalary: 'от 550 000 ₸/мес',
+    applicationDeadline: '20 июля 2026',
+    officialSiteUrl: 'https://almau.edu.kz',
+    details: {
+      aboutCampus: 'Кампус в верхней части Алматы на ул. Розыбакиева с коворкингами, инкубатором и творческими студиями.',
+      studentLife: 'AlmaU Startup Day, кейс-клубы, спортивные лиги, студенческий медиа-центр.',
+      livingCostsPerMonth: '~140 000 – 180 000 ₸/мес',
+      dormitoryDetails: 'Дом студентов гостиничного типа с уютными комнатами.',
+      topEmployers: [
+        'Chocofamily',
+        'Kolesa Group',
+        'Halyk Bank',
+        'ForteBank',
+        'Red Jolbors'
+      ],
+      rounds: {
+        early: {
+          name: 'Конкурс грантов AlmaU Мегашанс',
+          deadline: 'Апрель — Май 2026',
+          description: 'Внутренний грантовый конкурс для креативных абитуриентов.',
+          recommendedFor: 'Лидерам и активистам.'
+        },
+        regular: {
+          name: 'Госгрант МНВО РК',
+          deadline: '13 — 20 июля 2026',
+          description: 'Подача через республиканский конкурс.',
+          recommendedFor: 'Всем абитуриентам.'
+        },
+        late: {
+          name: 'Платное зачисление',
+          deadline: 'Август 2026',
+          description: 'Контрактное обучение.',
+          recommendedFor: 'При ЕНТ от 65.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 450 грантов и скидок',
+        lastYearCutoff: '108 баллов ЕНТ',
+        competitionRatio: '2.4 человека на место',
+        grantChanceSummary: 'Прекрасный выбор для будущих лидеров бизнеса и маркетинга.'
+      }
+    }
+  },
+  {
+    id: 'msu-ru',
+    name: 'МГУ им. М.В. Ломоносова (Московский государственный университет)',
+    shortName: 'МГУ',
+    aliases: [
+      'мгу',
+      'msu',
+      'ломоносов',
+      'московский государственный',
+      'мгу ломоносова'
+    ],
+    city: 'Москва',
+    country: 'Россия',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'engineering',
+      'business_econ',
+      'medicine_bio',
+      'social_law'
+    ],
+    programTitle: 'Прикладная математика и информатика (ВМК) / Экономика',
+    degrees: [
+      'Бакалавриат / Специалитет (4-6 лет)'
+    ],
+    acceptanceRate: '12%',
+    avgGpa: 4.9,
+    languageRequirement: 'Русский язык (свободно)',
+    examRequirement: 'ЕГЭ / ДВИ (Дополнительное вступительное испытание МГУ) или квота Россотрудничества',
+    tuitionYearKztOrUsd: 'Квота Правительства РФ (100% бесплатно) или ~450 000 ₽/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 84,
+    whyFits: [
+      'Главный университет СНГ с мировым фундаментальным образованием',
+      'Факультет ВМК и мехмат — легендарные кузницы кадров для науки и IT',
+      'Возможность 100% бесплатного поступления по олимпиадам «Ломоносов» и квоте Россотрудничества'
+    ],
+    keyStrengths: [
+      '№1 университет СНГ',
+      'Фундаментальная научная база',
+      'Легендарное Главное здание на Воробьевых горах'
+    ],
+    avgGraduateSalary: 'от 200 000 ₽/мес',
+    applicationDeadline: '10 июля 2026',
+    officialSiteUrl: 'https://msu.ru',
+    details: {
+      aboutCampus: 'Знаменитый ансамбль МГУ на Воробьевых горах: Главное Здание со шпилем, ботанический сад, суперкомпьютер «Ломоносов-2».',
+      studentLife: 'Студенческий совет, олимпиады по программированию, научные общества, культурный центр МГУ.',
+      livingCostsPerMonth: '~45 000 – 65 000 ₽/мес в Москве',
+      dormitoryDetails: 'Общежития в Главном Здании (ГЗ) и ДАС/ДСВ для иногородних бюджетников.',
+      topEmployers: [
+        'Яндекс',
+        'Сбер',
+        'Т-Банк',
+        'VK',
+        'Лаборатория Касперского',
+        'Росатом'
+      ],
+      rounds: {
+        early: {
+          name: 'Олимпиада «Ломоносов» и «Покори Воробьевы горы»',
+          deadline: 'Ноябрь 2025 — Март 2026',
+          description: 'Дает поступление БВИ (без вступительных испытаний).',
+          recommendedFor: 'Олимпиадникам.'
+        },
+        regular: {
+          name: 'Квота Россотрудничества для Казахстана',
+          deadline: 'Октябрь 2025 — Февраль 2026',
+          description: 'Подача через сайт Education in Russia на 100% бесплатное обучение.',
+          recommendedFor: 'Всем абитуриентам из Казахстана.'
+        },
+        late: {
+          name: 'Общий конкурс с ДВИ',
+          deadline: '20 июня — 10 июля 2026',
+          description: 'Сдача ДВИ по математике в МГУ.',
+          recommendedFor: 'Уверенным в своих силах кандидатам.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Сотни мест по межправительственным квотам для граждан РК',
+        lastYearCutoff: 'Сумма баллов 370+ из 400 (с учетом ДВИ)',
+        competitionRatio: '6.2 человека на бюджетное место',
+        grantChanceSummary: 'Очень престижно и конкурентно. Квота Россотрудничества — главный путь для казахстанцев.'
+      }
+    }
+  },
+  {
+    id: 'hse-ru',
+    name: 'НИУ ВШЭ (Национальный исследовательский университет «Высшая школа экономики»)',
+    shortName: 'ВШЭ',
+    aliases: [
+      'вшэ',
+      'hse',
+      'вышка',
+      'высшая школа экономики',
+      'hse university'
+    ],
+    city: 'Москва',
+    country: 'Россия',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'business_econ',
+      'social_law',
+      'design_media'
+    ],
+    programTitle: 'Прикладной анализ данных & Программная инженерия (ФКН) / МИЭФ',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '15%',
+    avgGpa: 4.85,
+    languageRequirement: 'Русский язык / Английский язык (IELTS 6.0+ для англоязычных программ)',
+    examRequirement: 'Международная олимпиада молодежи (МОМ) / Квота Россотрудничества / Вступительные ВШЭ',
+    tuitionYearKztOrUsd: '100% грант (квота РФ) или от 490 000 ₽/год (со скидками до 70%)',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 92,
+    whyFits: [
+      'Факультет компьютерных наук (ФКН, создан совместно с Яндексом) — лидер в Data Science и машинном обучении',
+      'Международная олимпиада молодежи (МОМ) проводится прямо в Казахстане и дает 100% бесплатное обучение',
+      'Сильнейший нетворкинг и лидерство по стартовым зарплатам выпускников в FinTech'
+    ],
+    keyStrengths: [
+      'ФКН совместно с Яндексом',
+      'Олимпиада МОМ прямо в РК',
+      '№1 в экономике и IT'
+    ],
+    avgGraduateSalary: 'от 220 000 ₽/мес',
+    applicationDeadline: '15 июля 2026',
+    officialSiteUrl: 'https://hse.ru',
+    details: {
+      aboutCampus: 'Современный кампус на Покровском бульваре (Покровка) в центре Москвы с атриумами, коворкингами и зонами отдыха.',
+      studentLife: 'Более 150 студенческих организаций, кейс-клубы, хакатоны, активная жизнь без формализма.',
+      livingCostsPerMonth: '~50 000 – 70 000 ₽/мес',
+      dormitoryDetails: 'Студенческие городки ВШЭ («Дубки», Одинцово) квартирного типа.',
+      topEmployers: [
+        'Яндекс',
+        'Т-Банк',
+        'Сбер',
+        'Авито',
+        'McKinsey',
+        'Kept',
+        'Ozon'
+      ],
+      rounds: {
+        early: {
+          name: 'Международная олимпиада молодежи (МОМ ВШЭ)',
+          deadline: 'Октябрь — Декабрь 2025',
+          description: 'Очные и онлайн туры в Казахстане со 100% грантами.',
+          recommendedFor: 'Всем школьникам 10-11 классов.'
+        },
+        regular: {
+          name: 'Отбор по квоте Правительства РФ',
+          deadline: 'Январь — Март 2026',
+          description: 'Портфолио и внутренние тесты ВШЭ.',
+          recommendedFor: 'Всем иностранным гражданам.'
+        },
+        late: {
+          name: 'Контрактное зачисление со скидкой',
+          deadline: 'Июль — Август 2026',
+          description: 'Скидки от 25% до 70% по результатам тестов.',
+          recommendedFor: 'При недоборе на 100% грант.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 800 грантов выделено иностранным гражданам',
+        lastYearCutoff: 'Победа/призерство в МОМ или 85+ баллов на внутренних экзаменах',
+        competitionRatio: '5.1 человека на место',
+        grantChanceSummary: 'Олимпиада МОМ — самый реальный и прямой путь получить 100% грант в Вышку.'
+      }
+    }
+  },
+  {
+    id: 'mipt-ru',
+    name: 'МФТИ (Московский физико-технический институт — Физтех)',
+    shortName: 'МФТИ',
+    aliases: [
+      'мфти',
+      'mipt',
+      'физтех'
+    ],
+    city: 'Долгопрудный / Москва',
+    country: 'Россия',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'engineering'
+    ],
+    programTitle: 'Прикладная математика и информатика (ФПМИ) / Квантовые технологии',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '10%',
+    avgGpa: 4.95,
+    languageRequirement: 'Русский язык',
+    examRequirement: 'Олимпиада «Физтех» / Квота РФ / Экзамены МФТИ',
+    tuitionYearKztOrUsd: '100% бюджет (квота) или ~480 000 ₽/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 89,
+    whyFits: [
+      'Легендарная «Система Физтеха»: базовые кафедры в ведущих НИИ и топ-IT компаниях',
+      'ФПМИ (Физтех-школа прикладной математики и информатики) — сильнейший IT-факультет региона',
+      'Абсолютный лидер международных соревнований по спортивному программированию ICPC'
+    ],
+    keyStrengths: [
+      'Мировая элита физики и AI',
+      'Победы на ICPC',
+      'Базовые кафедры в Яндексе и Сбере'
+    ],
+    avgGraduateSalary: 'от 250 000 ₽/мес',
+    applicationDeadline: '10 июля 2026',
+    officialSiteUrl: 'https://mipt.ru',
+    details: {
+      aboutCampus: 'Уютный автономный кампус в Долгопрудном (15 мин до Москвы) со всеми корпусами и общежитиями в едином кластере.',
+      studentLife: 'Атмосфера культа науки, хакатоны, традиционные «Дни Физика», посвящения.',
+      livingCostsPerMonth: '~40 000 – 55 000 ₽/мес',
+      dormitoryDetails: '100% гарантия общежития на кампусе в 5 минутах пешком от аудиторий.',
+      topEmployers: [
+        'Яндекс',
+        'Сбер AI Lab',
+        'Huawei Russian Research',
+        'Т-Банк',
+        'VK'
+      ],
+      rounds: {
+        early: {
+          name: 'Олимпиада «Физтех»',
+          deadline: 'Февраль — Март 2026',
+          description: 'Олимпиада 1-го уровня по физике и математике.',
+          recommendedFor: 'Сильным олимпиадникам.'
+        },
+        regular: {
+          name: 'Международный отбор МФТИ',
+          deadline: 'Март — Май 2026',
+          description: 'Собеседование и онлайн-тестирование для Казахстана.',
+          recommendedFor: 'Отличникам с высоким GPA.'
+        },
+        late: {
+          name: 'Финальный приказ',
+          deadline: 'Июль 2026',
+          description: 'Зачисление на бюджетные квоты.',
+          recommendedFor: 'Прошедшим отбор.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Около 200 мест по квотам для иностранцев',
+        lastYearCutoff: 'Балл олимпиады Физтех или 90+ на собеседовании',
+        competitionRatio: '7.4 человека на грант',
+        grantChanceSummary: 'Сложный отбор, но абсолютно лучший трамплин в мировую Big Tech индустрию.'
+      }
+    }
+  },
+  {
+    id: 'spbu-ru',
+    name: 'СПбГУ (Санкт-Петербургский государственный университет)',
+    shortName: 'СПбГУ',
+    aliases: [
+      'спбгу',
+      'spbu',
+      'spbsu',
+      'петербургский государственный'
+    ],
+    city: 'Санкт-Петербург',
+    country: 'Россия',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'social_law',
+      'business_econ',
+      'medicine_bio'
+    ],
+    programTitle: 'Программирование и Искусственный Интеллект / Юриспруденция',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '16%',
+    avgGpa: 4.8,
+    languageRequirement: 'Русский язык',
+    examRequirement: 'Конкурс портфолио СПбГУ для иностранцев / Квота РФ',
+    tuitionYearKztOrUsd: '100% бюджет (квота Правительства РФ) или ~380 000 ₽/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'target',
+    matchScore: 88,
+    whyFits: [
+      'Старейший университет России (основан в 1724 году Петром I)',
+      'Удобнейший онлайн-конкурс портфолио для казахстанцев (поступление без выезда)',
+      'Академическая атмосфера культурной столицы Санкт-Петербурга'
+    ],
+    keyStrengths: [
+      'Старейший вуз',
+      'Поступление по онлайн-портфолио',
+      'Санкт-Петербург'
+    ],
+    avgGraduateSalary: 'от 170 000 ₽/мес',
+    applicationDeadline: '20 июня 2026',
+    officialSiteUrl: 'https://spbu.ru',
+    details: {
+      aboutCampus: 'Исторические здания Двенадцати коллегий на Васильевском острове и современный кампус в Петергофе.',
+      studentLife: 'Богатейшие традиции, балы, научные общества, музеи СПбГУ.',
+      livingCostsPerMonth: '~40 000 – 55 000 ₽/мес',
+      dormitoryDetails: 'Общежития в Санкт-Петербурге (В.О.) и студгородок в Петергофе.',
+      topEmployers: [
+        'Газпром нефть',
+        'Яндекс',
+        'Биокад',
+        'ВТБ',
+        'VK'
+      ],
+      rounds: {
+        early: {
+          name: 'Конкурс документов СПбГУ для иностранцев',
+          deadline: 'Ноябрь 2025 — 20 февраля 2026',
+          description: 'Загрузка грамот, олимпиад и мотивационного письма онлайн.',
+          recommendedFor: 'Абсолютно всем кандидатам из РК.'
+        },
+        regular: {
+          name: 'Публикация ранжированных списков',
+          deadline: 'Март — Апрель 2026',
+          description: 'Объявление обладателей 100% госгрантов.',
+          recommendedFor: 'Подавшим портфолио.'
+        },
+        late: {
+          name: 'Договорная основа со скидками',
+          deadline: 'Июль — Август 2026',
+          description: 'Зачисление на платное.',
+          recommendedFor: 'При необходимости.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 500 бюджетных мест для иностранцев',
+        lastYearCutoff: '85+ баллов по шкале оценки портфолио',
+        competitionRatio: '3.6 претендента на место',
+        grantChanceSummary: 'Один из самых комфортных способов получить 100% бесплатное обучение в РФ через онлайн-портфолио.'
+      }
+    }
+  },
+  {
+    id: 'harvard-usa',
+    name: 'Harvard University (Гарвардский университет)',
+    shortName: 'Harvard',
+    aliases: [
+      'harvard',
+      'гарвард',
+      'харвард'
+    ],
+    city: 'Кембридж / Бостон',
+    country: 'США',
+    region: 'usa',
+    fields: [
+      'business_econ',
+      'social_law',
+      'medicine_bio',
+      'cs_it'
+    ],
+    programTitle: 'BA in Computer Science / Economics / Government',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '3.4%',
+    avgGpa: 4.98,
+    languageRequirement: 'TOEFL 105+ / IELTS 7.5+',
+    examRequirement: 'SAT (1520 – 1580) + глубокое лидерское портфолио мирового уровня',
+    tuitionYearKztOrUsd: 'Need-Blind 100% Financial Aid (бесплатно при доходе семьи < $85 000/год)',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 68,
+    whyFits: [
+      'Самый узнаваемый и влиятельный университет планеты, элита Лиги Плюща',
+      'Политика Need-Blind: Гарвард оплачивает 100% учебы, проживания и питания иностранцам при подтвержденной финансовой потребности',
+      'Глобальная сеть выпускников — президенты стран, основатели технологических гигантов, лауреаты Нобелевской премии'
+    ],
+    keyStrengths: [
+      '№1 бренд в мире',
+      'Need-Blind 100% финансирование',
+      'Элитный нетворкинг'
+    ],
+    avgGraduateSalary: '$98 000 / год',
+    applicationDeadline: '1 января 2026',
+    officialSiteUrl: 'https://harvard.edu',
+    details: {
+      aboutCampus: 'Исторический Гарвардский двор (Harvard Yard) в Кембридже, монументальная библиотека Widener Library и кампус Гарвардской школы бизнеса вдоль реки Чарльз.',
+      studentLife: 'Система домов (Harvard Houses), дебаты, финальные клубы, Crimson, международные конференции.',
+      livingCostsPerMonth: 'Полностью покрывается стипендией финансовой помощи Гарварда',
+      dormitoryDetails: '100% студентов бакалавриата проживают на территории кампуса в исторических резиденциях.',
+      topEmployers: [
+        'McKinsey',
+        'Goldman Sachs',
+        'Google',
+        'Microsoft',
+        'Bridgewater',
+        'Harvard Medical'
+      ],
+      rounds: {
+        early: {
+          name: 'Restrictive Early Action (REA)',
+          deadline: '1 ноября 2025',
+          description: 'Ранняя подача (не связывающая, но без подачи в другие частные вузы США).',
+          recommendedFor: 'Исключительным кандидатам с готовым SAT 1540+.'
+        },
+        regular: {
+          name: 'Regular Decision',
+          deadline: '1 января 2026',
+          description: 'Основная подача через Common Application.',
+          recommendedFor: 'Всем абитуриентам.'
+        },
+        late: {
+          name: 'Ivy Day Decision Release',
+          deadline: 'Конец марта 2026',
+          description: 'Единый день объявления результатов Лиги Плюща.',
+          recommendedFor: 'Всем подавшим.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Более 55% студентов получают полную финансовую помощь от фонда $50+ млрд',
+        lastYearCutoff: 'SAT 1530+ / GPA 5.0 / национальные или международные достижения',
+        competitionRatio: '29 человек на 1 место',
+        grantChanceSummary: 'Анти-иллюзия: конкурс жесточайший. Даже при SAT 1550+ гарантий нет, требуется уникальный личный вклад.'
+      }
+    }
+  },
+  {
+    id: 'mit-usa',
+    name: 'Massachusetts Institute of Technology (MIT)',
+    shortName: 'MIT',
+    aliases: [
+      'mit',
+      'мит',
+      'массачусетский технологический'
+    ],
+    city: 'Кембридж / Бостон',
+    country: 'США',
+    region: 'usa',
+    fields: [
+      'cs_it',
+      'engineering'
+    ],
+    programTitle: 'BSc in Computer Science, Artificial Intelligence & Robotics (Course 6-3)',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '3.9%',
+    avgGpa: 4.99,
+    languageRequirement: 'TOEFL 105+ / IELTS 7.5+',
+    examRequirement: 'SAT Math 800 (общий 1530 – 1590) + олимпиады IMO/IOI/IPhO',
+    tuitionYearKztOrUsd: 'Need-Blind 100% Financial Aid (полное покрытие при доходе < $90 000)',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 66,
+    whyFits: [
+      '№1 технологический и инженерный институт мира в рейтингах QS и THE',
+      'Политика Need-Blind для всех международных студентов (включая Казахстан)',
+      'Центр мировых инноваций, родина открытий в робототехнике, криптографии и нейросетях'
+    ],
+    keyStrengths: [
+      '№1 в мире по STEM и AI',
+      'Need-Blind гранты',
+      'Беспрецедентная инженерная мощь'
+    ],
+    avgGraduateSalary: '$115 000 / год',
+    applicationDeadline: '5 января 2026',
+    officialSiteUrl: 'https://mit.edu',
+    details: {
+      aboutCampus: 'Кампус вдоль реки Чарльз: знаменитый Большой Купол (Great Dome), медиа-лаборатория MIT Media Lab, робототехнические полигоны Stata Center.',
+      studentLife: 'Инженерные хаки (MIT Hacks), круглосуточные лаборатории хакерспейсов, состязания роботов BattleCode.',
+      livingCostsPerMonth: '100% покрывается стипендией финансовой помощи MIT',
+      dormitoryDetails: 'Тематические резиденции (Next House, Simmons, Baker) со своими традициями.',
+      topEmployers: [
+        'Google DeepMind',
+        'OpenAI',
+        'Jane Street',
+        'NASA JPL',
+        'Apple',
+        'NVIDIA'
+      ],
+      rounds: {
+        early: {
+          name: 'Early Action (Non-binding)',
+          deadline: '1 ноября 2025',
+          description: 'Ранняя подача документов.',
+          recommendedFor: 'Призерам международных олимпиад.'
+        },
+        regular: {
+          name: 'Regular Action',
+          deadline: '5 января 2026',
+          description: 'Основная подача через собственный портал MIT MyMIT.',
+          recommendedFor: 'Всем абитуриентам.'
+        },
+        late: {
+          name: 'Pi Day Decisions',
+          deadline: '14 марта 2026 (День числа Пи)',
+          description: 'Традиционное объявление результатов приема.',
+          recommendedFor: 'Ожидающим вердикта.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: '100% принятых студентов получают необходимое финансирование',
+        lastYearCutoff: 'SAT 1550+ / победы на республиканских или международных научных конкурсах',
+        competitionRatio: '25 человек на место',
+        grantChanceSummary: 'Анти-иллюзия: требуется сверхсильная база по математике и программированию.'
+      }
+    }
+  },
+  {
+    id: 'stanford-usa',
+    name: 'Stanford University (Стэнфордский университет)',
+    shortName: 'Stanford',
+    aliases: [
+      'stanford',
+      'стэнфорд',
+      'стенфорд'
+    ],
+    city: 'Стэнфорд, Калифорния',
+    country: 'США',
+    region: 'usa',
+    fields: [
+      'cs_it',
+      'engineering',
+      'business_econ'
+    ],
+    programTitle: 'BSc in Computer Science (AI & Systems track)',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '3.6%',
+    avgGpa: 4.98,
+    languageRequirement: 'TOEFL 105+ / IELTS 7.5',
+    examRequirement: 'SAT (1510 – 1570) + венчурные и стартап-проекты',
+    tuitionYearKztOrUsd: 'Need-Based Financial Aid (до 100% покрытия) или $65 000/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 67,
+    whyFits: [
+      'Эпицентр Кремниевой долины: выпускники Стэнфорда создали Google, HP, Netflix, Instagram',
+      'Уникальная экосистема стартапов, венчурных инвестиций и технологического предпринимательства',
+      'Солнечная Калифорния и колоссальные исследовательские ресурсы'
+    ],
+    keyStrengths: [
+      'Сердце Silicon Valley',
+      'Венчурный нетворкинг №1',
+      'Мировой топ по AI'
+    ],
+    avgGraduateSalary: '$112 000 / год',
+    applicationDeadline: '5 января 2026',
+    officialSiteUrl: 'https://stanford.edu',
+    details: {
+      aboutCampus: 'Огромный кампус «The Farm» в 33 кв.км с пальмовыми аллеями, архитектурой в стиле миссии и легендарной башней Hoover Tower.',
+      studentLife: 'Стартап-акселераторы StartX, велосипедная культура, хакатоны TreeHacks, солнечный калифорнийский стиль жизни.',
+      livingCostsPerMonth: 'Покрывается пакетом финансовой помощи Стэнфорда',
+      dormitoryDetails: 'Гарантированное 4-летнее проживание на кампусе.',
+      topEmployers: [
+        'Google',
+        'Apple',
+        'Meta',
+        'NVIDIA',
+        'Sequoia Capital',
+        'Andreessen Horowitz'
+      ],
+      rounds: {
+        early: {
+          name: 'Restrictive Early Action',
+          deadline: '1 ноября 2025',
+          description: 'Ранний отбор.',
+          recommendedFor: 'Сильнейшим кандидатам.'
+        },
+        regular: {
+          name: 'Regular Decision',
+          deadline: '5 января 2026',
+          description: 'Основной поток через Common App.',
+          recommendedFor: 'Всем поступающим.'
+        },
+        late: {
+          name: 'Decision Release',
+          deadline: 'Апрель 2026',
+          description: 'Решение приемной комиссии.',
+          recommendedFor: 'Принятым.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Сотни полных стипендий для семей с доходом до $100k',
+        lastYearCutoff: 'SAT 1520+ / выдающиеся проекты и инновации',
+        competitionRatio: '27 человек на 1 место',
+        grantChanceSummary: 'Конкурс колоссальный. Ищут новаторов и будущих создателей индустрий.'
+      }
+    }
+  },
+  {
+    id: 'trento-it',
+    name: 'University of Trento (Университет Тренто)',
+    shortName: 'UniTrento',
+    aliases: [
+      'trento',
+      'тренто',
+      'unitn',
+      'университет тренто'
+    ],
+    city: 'Тренто',
+    country: 'Италия',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'engineering'
+    ],
+    programTitle: 'BSc in Computer, Communications & Electronic Engineering',
+    degrees: [
+      'Бакалавриат (3 года)'
+    ],
+    acceptanceRate: '32%',
+    avgGpa: 4.4,
+    languageRequirement: 'IELTS 6.0 / B2',
+    examRequirement: 'TOLC-I (английский поток) или SAT (1180+)',
+    tuitionYearKztOrUsd: 'Стипендия Opera Universitaria: 100% грант (€0) + стипендия до €7 200/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'target',
+    matchScore: 94,
+    whyFits: [
+      '№1 университет Италии по качеству исследований и уровню жизни среди студентов',
+      'Полная региональная стипендия Opera Universitaria: бесплатная учеба, жилье и карманные деньги',
+      'Обучение полностью на английском языке в безопасном альпийском городе'
+    ],
+    keyStrengths: [
+      '100% стипендия Opera Universitaria',
+      'Качество жизни в Альпах',
+      'Англоязычный бакалавриат'
+    ],
+    avgGraduateSalary: '€38 000 / год',
+    applicationDeadline: '8 марта 2026',
+    officialSiteUrl: 'https://www.unitn.it',
+    details: {
+      aboutCampus: 'Кампус в Доломитовых Альпах (Povo Campus) с современными дата-центрами и биоинженерными лабораториями.',
+      studentLife: 'Горные лыжи, хайкинг, международное студенческое сообщество, европейские стажировки.',
+      livingCostsPerMonth: 'Полностью компенсируется стипендией Opera Universitaria',
+      dormitoryDetails: 'Студенческие резиденции Opera Universitaria с приоритетом для стипендиатов.',
+      topEmployers: [
+        'FBK (Fondazione Bruno Kessler)',
+        'Ferrari',
+        'STMicroelectronics',
+        'Siemens Italy'
+      ],
+      rounds: {
+        early: {
+          name: 'Non-EU Call (Основной для РК)',
+          deadline: '15 декабря 2025 — 8 марта 2026',
+          description: 'Основное окно подачи для граждан стран вне ЕС.',
+          recommendedFor: 'Всем абитуриентам из Казахстана.'
+        },
+        regular: {
+          name: 'Рейтинговый список и Universitaly',
+          deadline: 'Апрель — Май 2026',
+          description: 'Оформление визовой процедуры через Universitaly.',
+          recommendedFor: 'Принятым кандидатам.'
+        },
+        late: {
+          name: 'Подача на стипендию Opera Universitaria',
+          deadline: 'Июнь — Август 2026',
+          description: 'Сбор справок ISEE Parificato на освобождение от оплаты.',
+          recommendedFor: 'Всем поступившим.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 1 200 региональных грантов',
+        lastYearCutoff: 'TOLC-I от 19+ баллов + финансовый критерий',
+        competitionRatio: '2.6 человека на место',
+        grantChanceSummary: 'Отличные и очень реалистичные шансы на 100% финансирование в Европе.'
+      }
+    }
+  },
+  {
+    id: 'bocconi-it',
+    name: 'Bocconi University (Университет Боккони)',
+    shortName: 'Bocconi',
+    aliases: [
+      'bocconi',
+      'боккони',
+      'бокони',
+      'университет боккони'
+    ],
+    city: 'Милан',
+    country: 'Италия',
+    region: 'europe',
+    fields: [
+      'business_econ',
+      'social_law',
+      'cs_it'
+    ],
+    programTitle: 'BSc in International Economics and Finance (BIEF) / Data Science',
+    degrees: [
+      'Бакалавриат (3 года)'
+    ],
+    acceptanceRate: '18%',
+    avgGpa: 4.8,
+    languageRequirement: 'IELTS 6.5 / TOEFL 90+',
+    examRequirement: 'Bocconi Online Test или SAT (1380+)',
+    tuitionYearKztOrUsd: 'Bocconi ISU Scholarship: 100% грант (€0 + стипендия) или €15 000/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 89,
+    whyFits: [
+      '№1 бизнес- и финансовый университет континентальной Европы (в топ-5 мира по финансам)',
+      'Прямой наем ведущими инвестбанками (Goldman Sachs, Morgan Stanley) и консалтингом (McKinsey, Bain)',
+      'Стипендия ISU Bocconi обеспечивает 100% бесплатное обучение для талантливых студентов'
+    ],
+    keyStrengths: [
+      '№1 по финансам в Европе',
+      'Миланский кампус SANAA',
+      'Офферы в лондонский Сити'
+    ],
+    avgGraduateSalary: '€55 000 / год',
+    applicationDeadline: '25 января 2026',
+    officialSiteUrl: 'https://www.unibocconi.eu',
+    details: {
+      aboutCampus: 'Ультрасовременный городской кампус в центре Милана, спроектированный лауреатами Притцкеровской премии SANAA.',
+      studentLife: 'Элитные инвестиционные клубы, недели высокой моды и финансов, международные кейс-чемпионаты.',
+      livingCostsPerMonth: 'Покрывается грантом ISU Bocconi',
+      dormitoryDetails: '7 кампусных резиденций Bocconi Residence Halls в центре Милана.',
+      topEmployers: [
+        'Goldman Sachs',
+        'McKinsey',
+        'Bain & Company',
+        'J.P. Morgan',
+        'BCG',
+        'Google'
+      ],
+      rounds: {
+        early: {
+          name: 'Early Session',
+          deadline: 'Июль — Сентябрь 2025',
+          description: 'Ранний отбор для школьников.',
+          recommendedFor: 'SAT 1420+.'
+        },
+        regular: {
+          name: 'Winter Session (Главная)',
+          deadline: '15 ноября 2025 — 25 января 2026',
+          description: 'Основное международное окно.',
+          recommendedFor: 'Большинству кандидатов.'
+        },
+        late: {
+          name: 'Spring Session',
+          deadline: 'Март — Апрель 2026',
+          description: 'Добор на оставшиеся места.',
+          recommendedFor: 'Запасной поток.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Около 300 полных стипендий ISU Bocconi',
+        lastYearCutoff: 'SAT 1400+ / высокий GPA',
+        competitionRatio: '5.5 человек на 1 грант',
+        grantChanceSummary: 'Высокая конкуренция, но диплом окупается многократно в первый же год работы.'
+      }
+    }
+  },
+  {
+    id: 'oxford-uk',
+    name: 'University of Oxford (Оксфордский университет)',
+    shortName: 'Oxford',
+    aliases: [
+      'oxford',
+      'оксфорд',
+      'оксфордский университет'
+    ],
+    city: 'Оксфорд',
+    country: 'Великобритания',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'engineering',
+      'business_econ',
+      'medicine_bio',
+      'social_law'
+    ],
+    programTitle: 'BA in Computer Science / Philosophy, Politics and Economics (PPE)',
+    degrees: [
+      'Бакалавриат (3-4 года)'
+    ],
+    acceptanceRate: '13.7%',
+    avgGpa: 4.98,
+    languageRequirement: 'IELTS 7.5 (min 7.0 по всем блокам)',
+    examRequirement: 'Вступительный тест MAT / TSA + сложнейшие академические интервью',
+    tuitionYearKztOrUsd: 'Стипендии Reach Oxford / Clarendon или £38 000/год',
+    scholarshipAvailability: 'Частичные стипендии',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 69,
+    whyFits: [
+      'Старейший университет в англоязычном мире с легендарной тьюторской системой (1-на-1 с профессором)',
+      'Абсолютный мировой авторитет в науке, политике и технологиях',
+      'Безупречный статус диплома в любой стране мира'
+    ],
+    keyStrengths: [
+      'Тьюторская система',
+      'Культовый статус',
+      '№1 в рейтингах'
+    ],
+    avgGraduateSalary: '£58 000 / год',
+    applicationDeadline: '15 октября 2025',
+    officialSiteUrl: 'https://www.ox.ac.uk',
+    details: {
+      aboutCampus: '39 средневековых колледжей Оксфорда, Бодлианская библиотека, ультрасовременные институты квантовых вычислений.',
+      studentLife: 'Вековые традиции, гребля, Oxford Union, костюмированные формальные ужины (Formal Hall).',
+      livingCostsPerMonth: '~£1 300 – 1 700 / мес',
+      dormitoryDetails: 'Гарантированное проживание в своем колледже на первом курсе.',
+      topEmployers: [
+        'DeepMind',
+        'Jane Street',
+        'Oxford Science Enterprises',
+        'McKinsey',
+        'Goldman Sachs'
+      ],
+      rounds: {
+        early: {
+          name: 'Единый строгий дедлайн UCAS',
+          deadline: '15 октября 2025 (18:00 UK)',
+          description: 'Подача через единую британскую систему UCAS.',
+          recommendedFor: 'Обязателен для всех.'
+        },
+        regular: {
+          name: 'Вступительные экзамены (MAT, PAT, TSA)',
+          deadline: 'Конец октября 2025',
+          description: 'Письменные тесты по высшей математике и логике.',
+          recommendedFor: 'Всем абитуриентам.'
+        },
+        late: {
+          name: 'Интервью колледжей (Interviews)',
+          deadline: 'Декабрь 2025',
+          description: 'Серия глубоких академических собеседований.',
+          recommendedFor: 'Отобранным кандидатам.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Стипендии Reach Oxford (2-3 места на развивающиеся страны)',
+        lastYearCutoff: 'GPA 5.0 / MAT 80+ / блестящие интервью',
+        competitionRatio: '7.8 человека на место',
+        grantChanceSummary: 'Анти-иллюзия: вероятность поступления без олимпиадного уровня и идеального MAT минимальна.'
+      }
+    }
+  },
+  {
+    id: 'snu-kr',
+    name: 'Seoul National University (Сеульский национальный университет)',
+    shortName: 'SNU',
+    aliases: [
+      'snu',
+      'сну',
+      'сеульский',
+      'сеульский национальный'
+    ],
+    city: 'Сеул',
+    country: 'Южная Корея',
+    region: 'asia',
+    fields: [
+      'cs_it',
+      'engineering',
+      'business_econ',
+      'medicine_bio'
+    ],
+    programTitle: 'BSc in Computer Science & Engineering',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '14%',
+    avgGpa: 4.85,
+    languageRequirement: 'IELTS 6.5+ или TOPIK 4+',
+    examRequirement: 'Школьный аттестат с отличием + олимпиады / SAT (1420+)',
+    tuitionYearKztOrUsd: '100% стипендия GKS (Global Korea Scholarship) или SNU Global Scholarship',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 86,
+    whyFits: [
+      '№1 университет Южной Кореи (вершина элитной группы SKY)',
+      '100% правительственная стипендия GKS покрывает учебу, жилье, перелет и дает ежемесячную стипендию',
+      'Прямой карьерный старт в Samsung, Hyundai, LG, Naver'
+    ],
+    keyStrengths: [
+      '№1 в Южной Корее',
+      'Стипендия GKS 100%',
+      'Элита технологической Азии'
+    ],
+    avgGraduateSalary: '₩52 000 000 / год',
+    applicationDeadline: '10 марта 2026',
+    officialSiteUrl: 'https://en.snu.ac.kr',
+    details: {
+      aboutCampus: 'Огромный кампус Gwanak у подножия горы Гванаксан в Сеуле со своими исследовательскими центрами и шаттлами.',
+      studentLife: 'Яркая студенческая жизнь в Сеуле, фестивали, K-pop клубы, передовые лаборатории робототехники.',
+      livingCostsPerMonth: 'Полностью компенсируется стипендией GKS',
+      dormitoryDetails: 'Студенческий городок Gwanak Residence Halls прямо на территории университета.',
+      topEmployers: [
+        'Samsung Electronics',
+        'SK Hynix',
+        'Hyundai Motor',
+        'Naver',
+        'Kakao',
+        'LG Chem'
+      ],
+      rounds: {
+        early: {
+          name: 'Подача на стипендию GKS (Посольство)',
+          deadline: 'Сентябрь — Октябрь 2025',
+          description: 'Подача через Посольство Республики Корея в Казахстане.',
+          recommendedFor: 'Всем абитуриентам с высоким GPA.'
+        },
+        regular: {
+          name: 'SNU International Admissions I',
+          deadline: 'Февраль — Март 2026',
+          description: 'Прямая подача в университет.',
+          recommendedFor: 'Кандидатам с готовыми документами.'
+        },
+        late: {
+          name: 'Результаты и виза D-2',
+          deadline: 'Июнь 2026',
+          description: 'Зачисление и оформление.',
+          recommendedFor: 'Поступившим.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Около 40 стипендий GKS выделено для граждан Казахстана',
+        lastYearCutoff: 'GPA 4.85+ / крепкое мотивационное эссе',
+        competitionRatio: '4.9 человека на 1 грант',
+        grantChanceSummary: 'Превосходный шанс получить престижное азиатское образование мирового уровня бесплатно.'
+      }
+    }
+  }
+,
+  {
+    id: 'kartu-eng',
+    name: 'КарТУ им. Абылкаса Сагинова (Карагандинский технический университет)',
+    shortName: 'КарТУ',
+    aliases: [
+      'карту',
+      'каргту',
+      'сагинов',
+      'политех караганда',
+      'карту караганда'
+    ],
+    city: 'Караганда',
+    country: 'Казахстан',
+    region: 'kazakhstan',
+    fields: [
+      'engineering',
+      'cs_it'
+    ],
+    programTitle: 'BEng Горное дело, Металлургия & Роботизированные комплексы',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '52%',
+    avgGpa: 4.1,
+    languageRequirement: 'Русский / Казахский',
+    examRequirement: 'ЕНТ: Математика + Физика (от 65+ платное, 85-105 грант)',
+    tuitionYearKztOrUsd: 'Гос. грант РК или ~1 150 000 ₸/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'safety',
+    matchScore: 92,
+    whyFits: [
+      'Ведущий инженерно-технический университет Центрального Казахстана',
+      'Сотни государственных грантов на горно-металлургические и машиностроительные специальности',
+      'Прямое трудоустройство на предприятия АрселорМиттал (Qarmet), Казахмыс, ERG'
+    ],
+    keyStrengths: [
+      '№1 по тяжелой промышленности',
+      'Доступные гранты',
+      'Трудоустройство в ERG и Qarmet'
+    ],
+    avgGraduateSalary: 'от 550 000 ₸/мес',
+    applicationDeadline: '20 июля 2026',
+    officialSiteUrl: 'https://kstu.kz',
+    details: {
+      aboutCampus: 'Масштабный студгородок на бульваре Мира в Караганде с уникальными горными полигонами и цехами.',
+      studentLife: 'Инженерные клубы, студенческое конструкторское бюро, спортивные секции.',
+      livingCostsPerMonth: '~90 000 – 120 000 ₸/мес',
+      dormitoryDetails: 'Несколько корпусов студенческих общежитий, доступные цены.',
+      topEmployers: [
+        'Qarmet (АрселорМиттал Темиртау)',
+        'Корпорация Казахмыс',
+        'ERG Kazakhstan',
+        'Kazakhmys Smelting'
+      ],
+      rounds: {
+        early: {
+          name: 'День открытых дверей',
+          deadline: 'Апрель — Май 2026',
+          description: 'Консультации по инженерным профилям.',
+          recommendedFor: 'Всем абитуриентам.'
+        },
+        regular: {
+          name: 'Конкурс госгрантов',
+          deadline: '13 — 20 июля 2026',
+          description: 'Основная подача ЕНТ.',
+          recommendedFor: 'ЕНТ от 85+.'
+        },
+        late: {
+          name: 'Платное зачисление',
+          deadline: 'Август 2026',
+          description: 'Договорная основа.',
+          recommendedFor: 'ЕНТ от 65.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 2 200 грантов выделено КарТУ',
+        lastYearCutoff: 'ЕНТ 85 баллов на металлургию и горное дело, 106 на IT',
+        competitionRatio: '1.5 человека на грант',
+        grantChanceSummary: 'Превосходные шансы на 100% грант и гарантированное трудоустройство.'
+      }
+    }
+  },
+  {
+    id: 'kargu-law',
+    name: 'КарУ им. Е.А. Букетова (Карагандинский университет)',
+    shortName: 'КарУ',
+    aliases: [
+      'каргу',
+      'букетов',
+      'buketov',
+      'кару',
+      'карагандинский университет'
+    ],
+    city: 'Караганда',
+    country: 'Казахстан',
+    region: 'kazakhstan',
+    fields: [
+      'social_law',
+      'business_econ',
+      'medicine_bio',
+      'cs_it'
+    ],
+    programTitle: 'Юриспруденция & Международное право / Биология',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '48%',
+    avgGpa: 4.2,
+    languageRequirement: 'Русский / Казахский',
+    examRequirement: 'ЕНТ: История Казахстана + Человек.Общество.Право (от 75+ платное, 115+ грант)',
+    tuitionYearKztOrUsd: 'Гос. грант РК или ~1 200 000 ₸/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'safety',
+    matchScore: 89,
+    whyFits: [
+      'Старейший классический университет региона с сильнейшим юридическим факультетом',
+      'Широкий спектр специальностей: от биохимии и IT до судебной экспертизы',
+      'Доступная стоимость жизни и обучения в Караганде'
+    ],
+    keyStrengths: [
+      'Сильная юриспруденция',
+      'Классический университет',
+      'Собственный студгородок'
+    ],
+    avgGraduateSalary: 'от 450 000 ₸/мес',
+    applicationDeadline: '20 июля 2026',
+    officialSiteUrl: 'https://buketov.edu.kz',
+    details: {
+      aboutCampus: 'Кампус в Караганде с научной библиотекой, криминалистическими полигонами и оранжереей.',
+      studentLife: 'Дебатные клубы «Парасат», юридическая клиника для населения, спортивные турниры.',
+      livingCostsPerMonth: '~90 000 – 120 000 ₸/мес',
+      dormitoryDetails: '6 общежитий для студентов с комфортными условиями.',
+      topEmployers: [
+        'Органы юстиции и суды РК',
+        'Коллегия адвокатов',
+        'Банки',
+        'Акиматы'
+      ],
+      rounds: {
+        early: {
+          name: 'Профориентация',
+          deadline: 'Май 2026',
+          description: 'Консультации абитуриентов.',
+          recommendedFor: 'Всем.'
+        },
+        regular: {
+          name: 'Госгрант РК',
+          deadline: '13 — 20 июля 2026',
+          description: 'Республиканский конкурс.',
+          recommendedFor: 'ЕНТ 105+.'
+        },
+        late: {
+          name: 'Зачисление',
+          deadline: 'Август 2026',
+          description: 'Платное отделение.',
+          recommendedFor: 'ЕНТ от 70.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 1 400 грантов',
+        lastYearCutoff: '115 на право, 98 на педагогику',
+        competitionRatio: '2.1 человека на место',
+        grantChanceSummary: 'Хорошие шансы на получение гранта.'
+      }
+    }
+  },
+  {
+    id: 'sksu-eng',
+    name: 'ЮКУ им. М. Ауэзова (Южно-Казахстанский университет)',
+    shortName: 'ЮКУ',
+    aliases: [
+      'юку',
+      'sksu',
+      'ауэзов',
+      'auezov',
+      'шымкент'
+    ],
+    city: 'Шымкент',
+    country: 'Казахстан',
+    region: 'kazakhstan',
+    fields: [
+      'engineering',
+      'medicine_bio',
+      'cs_it',
+      'business_econ'
+    ],
+    programTitle: 'Химическая технология & Автоматизация производств',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '50%',
+    avgGpa: 4.2,
+    languageRequirement: 'Казахский / Русский',
+    examRequirement: 'ЕНТ профильные (от 65+ платное, 85-110 грант)',
+    tuitionYearKztOrUsd: 'Гос. грант РК или ~1 100 000 ₸/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'safety',
+    matchScore: 91,
+    whyFits: [
+      'Крупнейший многопрофильный вуз юга Казахстана (третий мегаполис страны)',
+      'Сильнейшие кафедры нефтехимии, биотехнологий и текстильной инженерии',
+      'Большая квота государственных грантов «Серпін» и сельских квот'
+    ],
+    keyStrengths: [
+      'Флагман южного региона',
+      'Программа «Серпін»',
+      'Нефтехимический кластер'
+    ],
+    avgGraduateSalary: 'от 480 000 ₸/мес',
+    applicationDeadline: '20 июля 2026',
+    officialSiteUrl: 'https://auezov.edu.kz',
+    details: {
+      aboutCampus: 'Масштабный кампус в Шымкенте с агропарком, технологическими центрами и спорткомплексом.',
+      studentLife: 'Активизм «Жас Отан», национальные ансамбли, студенческий театр, КВН.',
+      livingCostsPerMonth: '~80 000 – 110 000 ₸/мес (самый доступный мегаполис Казахстана)',
+      dormitoryDetails: 'Благоустроенные общежития в студенческом городке.',
+      topEmployers: [
+        'Шымкентский НПЗ (ПетроКазахстан)',
+        'Химфарм (SANTO)',
+        'Ferrum Vtor',
+        'Шымкентмай'
+      ],
+      rounds: {
+        early: {
+          name: 'Прием документов Серпін',
+          deadline: 'Июнь 2026',
+          description: 'Подача на целевую программу переселения.',
+          recommendedFor: 'Выпускникам южных регионов.'
+        },
+        regular: {
+          name: 'Конкурс грантов',
+          deadline: '13 — 20 июля 2026',
+          description: 'Основная подача.',
+          recommendedFor: 'Всем.'
+        },
+        late: {
+          name: 'Контракт',
+          deadline: 'Август 2026',
+          description: 'Платное зачисление.',
+          recommendedFor: 'ЕНТ 65+.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 3 000 грантов зачислено в ЮКУ',
+        lastYearCutoff: '88 баллов ЕНТ на химические технологии',
+        competitionRatio: '1.9 человека на место',
+        grantChanceSummary: 'Очень высокие шансы на 100% грант.'
+      }
+    }
+  },
+  {
+    id: 'itmo-ru',
+    name: 'Университет ИТМО (Национальный исследовательский университет ИТМО)',
+    shortName: 'ИТМО',
+    aliases: [
+      'итмо',
+      'itmo',
+      'итмо спб'
+    ],
+    city: 'Санкт-Петербург',
+    country: 'Россия',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'engineering'
+    ],
+    programTitle: 'Прикладная математика и информатика / Искусственный интеллект',
+    degrees: [
+      'Бакалавриат (4 года)'
+    ],
+    acceptanceRate: '12%',
+    avgGpa: 4.9,
+    languageRequirement: 'Русский язык',
+    examRequirement: 'Олимпиады РСОШ / Квота РФ / Вступительные испытания ИТМО',
+    tuitionYearKztOrUsd: '100% бюджет (квота Правительства РФ) или ~420 000 ₽/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 93,
+    whyFits: [
+      '7-кратный абсолютный чемпион мира по программированию ICPC (мировой рекорд)',
+      'Лидер в области AI, генеративных сетей и фотоники в Восточной Европе',
+      'Уникальная творческая атмосфера «ITMO.Family» в самом центре Санкт-Петербурга'
+    ],
+    keyStrengths: [
+      '7 побед на ICPC',
+      'Мировой топ по AI и машинному обучению',
+      'Санкт-Петербург'
+    ],
+    avgGraduateSalary: 'от 240 000 ₽/мес',
+    applicationDeadline: '15 июля 2026',
+    officialSiteUrl: 'https://itmo.ru',
+    details: {
+      aboutCampus: 'Кампусы на Кронверкском проспекте и ул. Ломоносова рядом с Петропавловской крепостью + строящийся ИТМО Хайпарк.',
+      studentLife: 'Хакатоны, киберспорт, фаблабы, рок-фестивали ITMO.PUNK, открытая неформальная культура.',
+      livingCostsPerMonth: '~45 000 – 60 000 ₽/мес',
+      dormitoryDetails: 'Несколько благоустроенных общежитий в Санкт-Петербурге.',
+      topEmployers: [
+        'Яндекс',
+        'VK',
+        'Сбер AI',
+        'Т-Банк',
+        'JetBrains',
+        'Ozon'
+      ],
+      rounds: {
+        early: {
+          name: 'Открытая олимпиада школьников ИТМО',
+          deadline: 'Ноябрь 2025 — Март 2026',
+          description: 'Победа дает БВИ.',
+          recommendedFor: 'Программистам и математикам.'
+        },
+        regular: {
+          name: 'Международный отбор по квоте РФ',
+          deadline: 'Январь — Апрель 2026',
+          description: 'Подача документов онлайн.',
+          recommendedFor: 'Всем абитуриентам из Казахстана.'
+        },
+        late: {
+          name: 'Платное зачисление',
+          deadline: 'Июль — Август 2026',
+          description: 'Контрактное обучение со скидками.',
+          recommendedFor: 'При недоборе на бюджет.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 350 квот для иностранцев',
+        lastYearCutoff: '300+ баллов ЕГЭ / дипломы 1 уровня олимпиад',
+        competitionRatio: '6.5 человек на место',
+        grantChanceSummary: 'Высокая конкуренция, идеальный выбор для сильных олимпиадников.'
+      }
+    }
+  },
+  {
+    id: 'bmstu-ru',
+    name: 'МГТУ им. Н.Э. Баумана (Московский государственный технический университет)',
+    shortName: 'Бауманка',
+    aliases: [
+      'мгту',
+      'бауманка',
+      'баумана',
+      'bmstu'
+    ],
+    city: 'Москва',
+    country: 'Россия',
+    region: 'europe',
+    fields: [
+      'engineering',
+      'cs_it'
+    ],
+    programTitle: 'BEng Робототехника, Ракетно-космические комплексы & ИУ (Информатика и системы управления)',
+    degrees: [
+      'Бакалавриат / Специалитет (4-6 лет)'
+    ],
+    acceptanceRate: '18%',
+    avgGpa: 4.75,
+    languageRequirement: 'Русский язык',
+    examRequirement: 'Олимпиада «Шаг в будущее» / Квота РФ / Вступительные МГТУ',
+    tuitionYearKztOrUsd: '100% бюджет (квота) или ~380 000 ₽/год',
+    scholarshipAvailability: '100% гранты',
+    hasDormitory: true,
+    matchCategory: 'target',
+    matchScore: 90,
+    whyFits: [
+      'Главный инженерный университет России с мировым авторитетом в ракетостроении и робототехнике',
+      '«Русский метод обучения ремеслу» — сочетание глубокой теории с реальным проектированием в КБ',
+      'Новый ультрасовременный научно-технологический квартал МГТУ на берегу реки Яузы'
+    ],
+    keyStrengths: [
+      '№1 инженерный вуз',
+      'Новый квартал на Яузе',
+      'Космические и оборонные технологии'
+    ],
+    avgGraduateSalary: 'от 190 000 ₽/мес',
+    applicationDeadline: '12 июля 2026',
+    officialSiteUrl: 'https://bmstu.ru',
+    details: {
+      aboutCampus: 'Исторический Дворец на Яузе и новый кампус с квантовыми центрами, куполом и конгресс-холлами.',
+      studentLife: 'Формула Студент (создание гоночных болидов), робототехнические полигоны, яхт-клуб МГТУ.',
+      livingCostsPerMonth: '~45 000 – 60 000 ₽/мес в Москве',
+      dormitoryDetails: 'Общежития на Госпитальной и Измайловском студгородке.',
+      topEmployers: [
+        'Роскосмос',
+        'Росатом',
+        'Сухой',
+        'Лаборатория Касперского',
+        'Алмаз-Антей',
+        'Яндекс'
+      ],
+      rounds: {
+        early: {
+          name: 'Олимпиада «Шаг в будущее»',
+          deadline: 'Октябрь 2025 — Март 2026',
+          description: 'Научные проекты и защита.',
+          recommendedFor: 'Школьникам-изобретателям.'
+        },
+        regular: {
+          name: 'Квота Правительства РФ',
+          deadline: 'Январь — Март 2026',
+          description: 'Отбор через Россотрудничество.',
+          recommendedFor: 'Всем абитуриентам из РК.'
+        },
+        late: {
+          name: 'Общий конкурс',
+          deadline: 'Июль 2026',
+          description: 'Вступительные экзамены МГТУ.',
+          recommendedFor: 'Уверенным кандидатам.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Свыше 400 бюджетных мест для граждан СНГ',
+        lastYearCutoff: '275+ баллов суммарно',
+        competitionRatio: '4.2 человека на бюджет',
+        grantChanceSummary: 'Надежный выбор для глубокого фундаментального инженерного образования.'
+      }
+    }
+  },
+  {
+    id: 'eth-ch',
+    name: 'ETH Zurich (Швейцарская высшая техническая школа Цюриха)',
+    shortName: 'ETH Zurich',
+    aliases: [
+      'eth',
+      'этх',
+      'eth zurich',
+      'цюрих',
+      'политех цюриха'
+    ],
+    city: 'Цюрих',
+    country: 'Швейцария',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'engineering'
+    ],
+    programTitle: 'BSc in Computer Science / Mechanical Engineering',
+    degrees: [
+      'Бакалавриат (3 года)'
+    ],
+    acceptanceRate: '21%',
+    avgGpa: 4.95,
+    languageRequirement: 'Немецкий C1 (бакалавриат на немецком, магистратура на английском)',
+    examRequirement: 'Экзамен ETH Entrance Exam (комплексный тест по математике, физике и химии)',
+    tuitionYearKztOrUsd: 'CHF 1 460 / год (~$1 650/год — государственная цена для всех)',
+    scholarshipAvailability: 'Частичные стипендии',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 82,
+    whyFits: [
+      '№1 континентальный университет Европы, альма-матер Альберта Эйнштейна и Джона фон Неймана',
+      'Смехотворно низкая стоимость обучения (всего ~$1650/год) при топ-7 мировом уровне',
+      'Эпицентр европейских технологических разработок и суперкомпьютеров'
+    ],
+    keyStrengths: [
+      'Топ-7 мира',
+      'Альма-матер Эйнштейна',
+      'Доступная плата за учебу'
+    ],
+    avgGraduateSalary: 'CHF 110 000 / год',
+    applicationDeadline: '30 апреля 2026',
+    officialSiteUrl: 'https://ethz.ch',
+    details: {
+      aboutCampus: 'Исторический кампус Zentrum в центре Цюриха и ультрасовременный кампус Hönggerberg с чистыми комнатами и физическими хабами.',
+      studentLife: 'Ассоциация VSETH, горные походы по Швейцарским Альпам, вечеринки Polyball, стартап-хаб.',
+      livingCostsPerMonth: '~CHF 1 800 – 2 400 в месяц (Цюрих — один из самых дорогих городов мира)',
+      dormitoryDetails: 'Студенческие ассоциации жилья WOKO и Woko Zurich.',
+      topEmployers: [
+        'Google Zurich Engineering',
+        'IBM Research Zurich',
+        'ABB',
+        'Credit Suisse / UBS',
+        'Roche'
+      ],
+      rounds: {
+        early: {
+          name: 'Регистрация на вступительный экзамен',
+          deadline: 'Ноябрь 2025 — Январь 2026',
+          description: 'Подача заявки на сдачу комплексного экзамена ETH.',
+          recommendedFor: 'Кандидатам с отличным немецким C1.'
+        },
+        regular: {
+          name: 'Сдача ETH Reduced Entrance Exam',
+          deadline: 'Октябрь 2026',
+          description: 'Очный экзамен в Цюрихе.',
+          recommendedFor: 'Всем абитуриентам без признанного швейцарского аттестата.'
+        },
+        late: {
+          name: 'Начало семестра',
+          deadline: 'Сентябрь 2026',
+          description: 'Старт занятий.',
+          recommendedFor: 'Сдавшим экзамен.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Бакалавриат практически без вступительных стипендий, но стоимость учебы субсидируется правительством Швейцарии',
+        lastYearCutoff: 'Успешная сдача экзамена ETH (проходной балл 4.0 из 6.0)',
+        competitionRatio: 'Высокий отсев на первой сессии («Basisprüfung» сдают около 55%)',
+        grantChanceSummary: 'Анти-иллюзия: поступить возможно, но удержаться на 1 курсе требует титанического труда.'
+      }
+    }
+  },
+  {
+    id: 'cambridge-uk',
+    name: 'University of Cambridge (Кембриджский университет)',
+    shortName: 'Cambridge',
+    aliases: [
+      'cambridge',
+      'кембридж',
+      'кембриджский университет'
+    ],
+    city: 'Кембридж',
+    country: 'Великобритания',
+    region: 'europe',
+    fields: [
+      'cs_it',
+      'engineering',
+      'medicine_bio'
+    ],
+    programTitle: 'BA in Computer Science (Computer Science Tripos) / Engineering',
+    degrees: [
+      'Бакалавриат (3-4 года)'
+    ],
+    acceptanceRate: '14.2%',
+    avgGpa: 4.98,
+    languageRequirement: 'IELTS 7.5 (min 7.0) / TOEFL 110',
+    examRequirement: 'Тест TMUA (Test of Mathematics for University Admission) + очные/онлайн интервью',
+    tuitionYearKztOrUsd: 'Cambridge Trust Scholarships или £39 000/год',
+    scholarshipAvailability: 'Частичные стипендии',
+    hasDormitory: true,
+    matchCategory: 'reach',
+    matchScore: 68,
+    whyFits: [
+      'Родина современного компьютинга: здесь учился Чарльз Бэббидж и Алан Тьюринг',
+      'Система супервизий (Supervisions) — занятия в парах с ведущими мировыми учеными',
+      '«Кембриджский феномен» (Silicon Fen) — крупнейший кластер высокотехнологичных компаний Европы'
+    ],
+    keyStrengths: [
+      'Родина Алана Тьюринга',
+      'Супервизии 2-на-1',
+      'Silicon Fen'
+    ],
+    avgGraduateSalary: '£62 000 / год',
+    applicationDeadline: '15 октября 2025',
+    officialSiteUrl: 'https://www.cam.ac.uk',
+    details: {
+      aboutCampus: '31 средневековый колледж вдоль реки Кем: готическая часовня King’s College Chapel, Кавендишская лаборатория (открытие структуры ДНК и электрона).',
+      studentLife: 'Катание на плоскодонках (punting), гребная регата Cambridge-Oxford, балы May Balls.',
+      livingCostsPerMonth: '~£1 200 – 1 500 / мес',
+      dormitoryDetails: '100% гарантия проживания в своем колледже на весь период бакалавриата.',
+      topEmployers: [
+        'Apple Cambridge',
+        'ARM Holdings',
+        'Amazon Development Centre',
+        'DeepMind',
+        'Jane Street'
+      ],
+      rounds: {
+        early: {
+          name: 'Дедлайн UCAS для Кембриджа',
+          deadline: '15 октября 2025 (18:00 UK)',
+          description: 'Единая подача через портал UCAS + форма My Cambridge Application.',
+          recommendedFor: 'Строго обязателен.'
+        },
+        regular: {
+          name: 'Письменный тест TMUA',
+          deadline: 'Октябрь 2025',
+          description: 'Тестирование математического мышления.',
+          recommendedFor: 'Кандидатам на CS.'
+        },
+        late: {
+          name: 'Коллегиальные интервью',
+          deadline: 'Декабрь 2025',
+          description: 'Глубокие математические задачи у доски онлайн.',
+          recommendedFor: 'Прошедшим порог TMUA.'
+        }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Cambridge Trust выделяет ограниченное количество грантов иностранцам',
+        lastYearCutoff: 'GPA 5.0 / TMUA от 7.0 из 9.0',
+        competitionRatio: '7.1 человека на место',
+        grantChanceSummary: 'Очень престижно. Решающую роль играют результаты теста TMUA и интервью.'
       }
     }
   }

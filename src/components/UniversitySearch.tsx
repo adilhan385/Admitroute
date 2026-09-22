@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { UserProfile, UniversityProgram } from '../types';
-import { UNIVERSITIES_DATABASE } from '../data/universities';
+import { findUniversityByAliasOrName, searchUniversitiesWithAliases } from '../utils/universityMatcher';
 import { evaluateUniversityProgram } from '../utils/engine';
 import { searchOrGenerateUniversityWithAi, generateSmartFallbackUniversity } from '../services/ai';
 import { checkActionAllowed, recordActionUsage } from '../services/auth';
@@ -53,31 +53,28 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
 
   const searchLimits = checkActionAllowed('search');
 
-  // Popular quick-search presets
+  // Popular quick-search presets with real abbreviations and international universities
   const popularPresets = [
-    { label: 'SDU', name: 'SDU' },
-    { label: 'NU (Назарбаев Ун-т)', name: 'Назарбаев Университет' },
-    { label: 'КБТУ', name: 'КБТУ' },
-    { label: 'МУИТ', name: 'МУИТ' },
-    { label: 'Университет Тренто (Италия)', name: 'Университет Тренто' },
+    { label: 'SDU (СДУ)', name: 'SDU' },
+    { label: 'NU (Назарбаев Ун-т)', name: 'NU' },
+    { label: 'КБТУ (KBTU)', name: 'КБТУ' },
+    { label: 'МУИТ (IITU)', name: 'МУИТ' },
+    { label: 'AITU (Астана IT)', name: 'AITU' },
+    { label: 'МГУ им. Ломоносова', name: 'МГУ' },
+    { label: 'ВШЭ (Вышка)', name: 'ВШЭ' },
+    { label: 'МФТИ (Физтех)', name: 'МФТИ' },
+    { label: 'Harvard (Гарвард)', name: 'Harvard' },
+    { label: 'MIT', name: 'MIT' },
+    { label: 'Stanford (Стэнфорд)', name: 'Stanford' },
+    { label: 'UniTrento (Италия)', name: 'UniTrento' },
     { label: 'KAIST (Корея)', name: 'KAIST' },
-    { label: 'PoliMi (Италия)', name: 'Politecnico di Milano' },
     { label: 'TUM (Германия)', name: 'TUM' },
-    { label: 'Harvard / MIT', name: 'Harvard' },
     { label: 'Bocconi (Милан)', name: 'Bocconi' }
   ];
 
-  // Filter local database by query
+  // Filter local database by query with smart alias and abbreviation resolution
   const suggestions = useMemo(() => {
-    const trimmed = searchQuery.trim().toLowerCase();
-    if (!trimmed) return [];
-    return UNIVERSITIES_DATABASE.filter(
-      u =>
-        u.name.toLowerCase().includes(trimmed) ||
-        u.shortName.toLowerCase().includes(trimmed) ||
-        u.city.toLowerCase().includes(trimmed) ||
-        u.country.toLowerCase().includes(trimmed)
-    ).slice(0, 5);
+    return searchUniversitiesWithAliases(searchQuery, 6);
   }, [searchQuery]);
 
   // Handle selection from local DB
@@ -100,12 +97,8 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
     const query = searchQuery.trim();
     if (!query) return;
 
-    // Check if exact or close match exists in DB
-    const match = UNIVERSITIES_DATABASE.find(
-      u =>
-        u.name.toLowerCase().includes(query.toLowerCase()) ||
-        u.shortName.toLowerCase() === query.toLowerCase()
-    );
+    // Check if exact or alias match exists in verified DB
+    const match = findUniversityByAliasOrName(query);
 
     if (match) {
       handleSelectFromDb(match);
@@ -228,7 +221,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
         {suggestions.length > 0 && !isDropdownDismissed && (
           <div className="absolute z-20 mt-1 w-full rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
             <div className="px-2 py-1 text-[11px] font-semibold text-slate-400 uppercase">
-              Найдено в базе (36 вузов):
+              Найдено в верифицированной базе:
             </div>
             {suggestions.map(uni => (
               <button
@@ -264,10 +257,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             type="button"
             onClick={() => {
               setSearchQuery(preset.name);
-              const found = UNIVERSITIES_DATABASE.find(u =>
-                u.name.toLowerCase().includes(preset.name.toLowerCase()) ||
-                u.shortName.toLowerCase() === preset.name.toLowerCase()
-              );
+              const found = findUniversityByAliasOrName(preset.name);
               if (found) {
                 handleSelectFromDb(found);
               } else {
