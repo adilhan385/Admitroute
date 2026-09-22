@@ -31,6 +31,7 @@ import {
   toggleAdminRole,
   isSuperAdmin,
   saveUserProfileForUser,
+  resetSeedUsers,
   SUPER_ADMIN_EMAIL
 } from '../services/auth';
 import {
@@ -474,8 +475,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-1.5 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                 />
               </div>
-              <div className="text-xs text-slate-500">
-                Найдено пользователей: {filteredUsers.length}
+              <div className="flex items-center gap-3">
+                <div className="text-xs text-slate-500">
+                  Всего: <strong className="font-bold text-slate-800">{users.length}</strong> абитуриентов (PRO: {totalPro})
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const refreshed = resetSeedUsers();
+                    setUsers(refreshed);
+                    showNotification(`База синхронизирована! В системе ${refreshed.length} пользователей.`);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-blue-600 transition-colors"
+                  title="Синхронизировать базу и восстановить всех абитуриентов с анкетами"
+                >
+                  <Users className="h-3.5 w-3.5 text-blue-600" />
+                  <span>Синхронизировать базу</span>
+                </button>
               </div>
             </div>
 

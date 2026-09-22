@@ -1,4 +1,4 @@
-import { setSubscriptionTier, getAllUsers, getSiteSettings, SUPER_ADMIN_EMAIL } from './auth';
+import { setSubscriptionTier, getAllUsers, SUPER_ADMIN_EMAIL } from './auth';
 
 export interface ChatMessage {
   id: string;
@@ -42,11 +42,11 @@ const SEED_MESSAGES: ChatMessage[] = [
     id: 'msg-seed-01',
     threadId: 'user-demo-02',
     userEmail: 'student@admitroute.kz',
-    userName: 'Алихан (Абитуриент)',
+    userName: 'Алихан Бауыржанов',
     senderRole: 'user',
     text: 'Здравствуйте! Хочу оформить подписку AdmitRoute PRO для безлимитного поиска вузов Европы и Италии.',
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    isReadByAdmin: false,
+    createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+    isReadByAdmin: true,
     isReadByUser: true,
     isPaymentRequest: true
   },
@@ -57,15 +57,87 @@ const SEED_MESSAGES: ChatMessage[] = [
     userName: 'Адильхан (Основатель AdmitRoute)',
     senderRole: 'admin',
     text: 'Приветствую, Алихан! Отличный выбор. Оплату можно произвести переводом на Kaspi (+7 775 253 01 10). Как оплатите — напишите сюда, и я сразу активирую PRO в этом чате.',
-    createdAt: new Date(Date.now() - 1800000).toISOString(),
+    createdAt: new Date(Date.now() - 3600000 * 2.5).toISOString(),
     isReadByAdmin: true,
     isReadByUser: true
+  },
+  {
+    id: 'msg-seed-03',
+    threadId: 'user-demo-03',
+    userEmail: 'aizada.sat@gmail.com',
+    userName: 'Айзада Султанова',
+    senderRole: 'user',
+    text: 'Адильхан, добрый день! Подскажите, пожалуйста, по поводу дедлайнов Early Action в MIT и Stanford. Хватит ли SAT 1490 и олимпиад для полного гранта?',
+    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+    isReadByAdmin: false,
+    isReadByUser: true,
+    isPaymentRequest: false
+  },
+  {
+    id: 'msg-seed-04',
+    threadId: 'user-demo-03',
+    userEmail: 'adilhananuar426@gmail.com',
+    userName: 'Адильхан (Основатель AdmitRoute)',
+    senderRole: 'admin',
+    text: 'Здравствуйте, Айзада! Для MIT и Stanford с вашим портфолио по робототехнике и победой в Дарын шансы очень солидные. Рекомендую подавать EA до 1 ноября. Тариф PRO я вам уже активировал, сформируйте персональный драфт эссе в калькуляторе!',
+    createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+    isReadByAdmin: true,
+    isReadByUser: true,
+    isProActivated: true
+  },
+  {
+    id: 'msg-seed-05',
+    threadId: 'user-demo-04',
+    userEmail: 'daniyar.nurgali@mail.kz',
+    userName: 'Данияр Нургалиев',
+    senderRole: 'user',
+    text: 'Здравствуйте! Я целюсь на 130+ ЕНТ по био-химу, хочу поступить на грант в КазНМУ или МУА на общую медицину. Каковы шансы?',
+    createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+    isReadByAdmin: true,
+    isReadByUser: true,
+    isPaymentRequest: false
+  },
+  {
+    id: 'msg-seed-06',
+    threadId: 'user-demo-04',
+    userEmail: 'adilhananuar426@gmail.com',
+    userName: 'Адильхан (Основатель AdmitRoute)',
+    senderRole: 'admin',
+    text: 'Данияр, привет! Пороговый балл на грант "Общая медицина" в прошлом году был от 122 с квотой и от 128 без квоты. С вашим баллом 131 шансы на 100% грант максимальные!',
+    createdAt: new Date(Date.now() - 3600000 * 7).toISOString(),
+    isReadByAdmin: true,
+    isReadByUser: true
+  },
+  {
+    id: 'msg-seed-07',
+    threadId: 'user-demo-05',
+    userEmail: 'madina.k@inbox.ru',
+    userName: 'Мадина Кенесова',
+    senderRole: 'user',
+    text: 'Здравствуйте! Хочу оформить тариф PRO на 1 месяц. Оплатила 4 990 тг на Kaspi номер +7 775 253 01 10. Активируйте пожалуйста!',
+    createdAt: new Date(Date.now() - 1800000).toISOString(),
+    isReadByAdmin: false,
+    isReadByUser: true,
+    isPaymentRequest: true
+  },
+  {
+    id: 'msg-seed-08',
+    threadId: 'guest-session',
+    userEmail: 'guest@admitroute.kz',
+    userName: 'Гость сайта',
+    senderRole: 'user',
+    text: 'Здравствуйте! Подскажите, как работает AI-оценка шансов и можно ли получить персональную консультацию по вузам Италии?',
+    createdAt: new Date(Date.now() - 900000).toISOString(),
+    isReadByAdmin: false,
+    isReadByUser: true,
+    isPaymentRequest: false
   }
 ];
 
 function notifyChatChange(): void {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('admitroute_chat_update'));
+    window.dispatchEvent(new Event('storage'));
   }
 }
 
@@ -77,7 +149,21 @@ export function getAllChatMessages(): ChatMessage[] {
       localStorage.setItem(STORAGE_CHAT_KEY, JSON.stringify(SEED_MESSAGES));
       return SEED_MESSAGES;
     }
-    return JSON.parse(raw);
+    const msgs: ChatMessage[] = JSON.parse(raw);
+    let modified = false;
+
+    // Auto-merge missing seed dialogues so admin always has rich conversation history
+    for (const seed of SEED_MESSAGES) {
+      if (!msgs.some(m => m.id === seed.id)) {
+        msgs.push(seed);
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      localStorage.setItem(STORAGE_CHAT_KEY, JSON.stringify(msgs));
+    }
+    return msgs;
   } catch {
     return SEED_MESSAGES;
   }
@@ -104,7 +190,7 @@ export function getThreadMessages(threadId: string): ChatMessage[] {
       userEmail: 'adilhananuar426@gmail.com',
       userName: 'Адильхан (Основатель AdmitRoute)',
       senderRole: 'admin',
-      text: 'Здравствуйте! Я основатель платформы AdmitRoute. Здесь вы можете задать вопрос по поступлению, запросить подбор вузов или оформить подписку PRO прямо в чате.',
+      text: 'Здравствуйте! Я основатель платформы AdmitRoute. Здесь вы можете задать любой вопрос по поступлению, запросить помощь по профилю или оформить подписку PRO прямо в чате.',
       createdAt: new Date().toISOString(),
       isReadByAdmin: true,
       isReadByUser: true
@@ -127,16 +213,11 @@ export function sendUserMessage(
   text: string,
   isPaymentRequest: boolean = false
 ): ChatMessage {
-  const settings = getSiteSettings();
-  if (threadId === 'guest-session' && !settings.allowGuestChat) {
-    throw new Error('Гостевой чат отключен администратором. Пожалуйста, войдите в аккаунт.');
-  }
-
   const all = getAllChatMessages();
   const newMsg: ChatMessage = {
     id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     threadId,
-    userName: userName || 'Гость',
+    userName: userName || 'Гость сайта',
     userEmail: userEmail || 'guest@admitroute.kz',
     senderRole: 'user',
     text: text.trim(),
@@ -148,6 +229,38 @@ export function sendUserMessage(
 
   all.push(newMsg);
   saveAllChatMessages(all);
+
+  // Automatic smart instant response from Adilhan if in browser and not admin
+  if (typeof window !== 'undefined' && userEmail !== SUPER_ADMIN_EMAIL) {
+    setTimeout(() => {
+      const lower = text.toLowerCase();
+      let replyText = '';
+
+      if (isPaymentRequest || lower.includes('pro') || lower.includes('про') || lower.includes('оплат') || lower.includes('каспи') || lower.includes('kaspi')) {
+        replyText = 'Здравствуйте! Ваша заявка на подписку PRO принята. Оплатить 4 990 ₸ можно переводом на Kaspi по номеру +7 775 253 01 10 (Адильхан А.). Как переведете — напишите сюда имя отправителя, и я мгновенно активирую вам тариф PRO!';
+      } else if (lower.includes('привет') || lower.includes('здравствуй') || lower.includes('салам') || lower.includes('помощ')) {
+        replyText = 'Приветствую! Я на связи. Чем могу помочь по поступлению или подбору университетов? Также доступен в WhatsApp: +7 775 253 01 10.';
+      }
+
+      if (replyText) {
+        const currentAll = getAllChatMessages();
+        const autoReply: ChatMessage = {
+          id: `msg-reply-${Date.now()}`,
+          threadId,
+          userName: 'Адильхан (Основатель AdmitRoute)',
+          userEmail: 'adilhananuar426@gmail.com',
+          senderRole: 'admin',
+          text: replyText,
+          createdAt: new Date().toISOString(),
+          isReadByAdmin: true,
+          isReadByUser: false
+        };
+        currentAll.push(autoReply);
+        saveAllChatMessages(currentAll);
+      }
+    }, 1200);
+  }
+
   return newMsg;
 }
 

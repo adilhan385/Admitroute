@@ -9,7 +9,6 @@ import {
   Shield,
   CreditCard,
   Minimize2,
-  Lock,
   LogIn
 } from 'lucide-react';
 import {
@@ -18,8 +17,7 @@ import {
   ADMIN_CONTACTS,
   getTotalUnreadForAdmin
 } from '../services/chat';
-import { getSiteSettings } from '../services/auth';
-import type { UserAccount, SiteSettings } from '../types';
+import type { UserAccount } from '../types';
 import type { ChatMessage } from '../services/chat';
 
 interface LiveChatWidgetProps {
@@ -44,7 +42,6 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
   const [inputText, setInputText] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadCountAdmin, setUnreadCountAdmin] = useState<number>(() => getTotalUnreadForAdmin());
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => getSiteSettings());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isAdmin = currentUser?.role === 'admin' || currentUser?.email.toLowerCase() === 'adilhananuar426@gmail.com';
@@ -53,7 +50,6 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
   const userName = currentUser ? currentUser.name : 'Гость сайта';
   const userEmail = currentUser ? currentUser.email : 'guest@admitroute.kz';
   const isPro = currentUser?.subscriptionTier === 'pro';
-  const canSendMessages = !isGuest || siteSettings.allowGuestChat;
 
   // Synchronize with external triggers
   useEffect(() => {
@@ -82,7 +78,6 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
 
     const handleUpdate = () => {
       loadMessages();
-      setSiteSettings(getSiteSettings());
       setUnreadCountAdmin(getTotalUnreadForAdmin());
     };
 
@@ -108,27 +103,22 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
   const handleSend = (textToSend?: string, isPayment: boolean = false) => {
     const text = textToSend || inputText;
     if (!text || !text.trim()) return;
-    if (!canSendMessages) {
-      if (onOpenAuth) onOpenAuth('login');
-      return;
-    }
 
     try {
       sendUserMessage(threadId, userName, userEmail, text.trim(), isPayment);
       setInputText('');
       loadMessages();
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     } catch (err: any) {
       alert(err.message || 'Не удалось отправить сообщение');
     }
   };
 
   const handleRequestProPurchase = () => {
-    if (!canSendMessages) {
-      if (onOpenAuth) onOpenAuth('register');
-      return;
-    }
     const proText = `Здравствуйте, Адильхан! Хочу оформить подписку AdmitRoute PRO (4 990 ₸/мес) на аккаунт ${
-      userEmail !== 'guest@admitroute.kz' ? userEmail : '(гость)'
+      userEmail !== 'guest@admitroute.kz' ? userEmail : '(гость сайта)'
     }. Подскажите номер Kaspi для оплаты, чтобы сразу активировать безлимит.`;
     handleSend(proText, true);
   };
@@ -274,62 +264,49 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area or Guest Restriction */}
-          {!canSendMessages ? (
-            <div className="border-t border-amber-200/80 bg-amber-50/90 p-3 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-amber-900 mb-1">
-                <Lock className="h-3.5 w-3.5 text-amber-600" />
-                <span>Чат доступен после входа</span>
-              </div>
-              <p className="text-[11px] text-amber-800 leading-snug mb-2.5">
-                Гости могут просматривать чат и контакты. Чтобы написать Адильхану и активировать подписку PRO, войдите в аккаунт.
-              </p>
-              {onOpenAuth && (
-                <div className="flex items-center justify-center gap-2">
+          {/* Input Form for All Users */}
+          <div className="border-t border-slate-200 bg-white">
+            {isGuest && (
+              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-3 py-1.5 text-[10px] text-slate-500">
+                <span>Режим гостя • Ответ появится прямо здесь</span>
+                {onOpenAuth && (
                   <button
                     type="button"
                     onClick={() => onOpenAuth('login')}
-                    className="inline-flex items-center gap-1 rounded-xl bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center gap-1 font-semibold text-blue-600 hover:underline"
                   >
-                    <LogIn className="h-3.5 w-3.5" />
-                    <span>Войти</span>
+                    <LogIn className="h-3 w-3" />
+                    <span>Войти в аккаунт</span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => onOpenAuth('register')}
-                    className="rounded-xl border border-slate-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
-                  >
-                    Регистрация
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
+                )}
+              </div>
+            )}
             <form
               onSubmit={e => {
                 e.preventDefault();
                 handleSend();
               }}
-              className="border-t border-slate-200 bg-white p-2.5"
+              className="p-2.5"
             >
               <div className="flex items-center gap-1.5">
                 <input
                   type="text"
                   value={inputText}
                   onChange={e => setInputText(e.target.value)}
-                  placeholder="Напишите сообщение Адильхану..."
+                  placeholder="Напишите вопрос или оформите PRO..."
                   className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                 />
                 <button
                   type="submit"
                   disabled={!inputText.trim()}
                   className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 transition-colors shrink-0"
+                  title="Отправить сообщение"
                 >
                   <Send className="h-3.5 w-3.5" />
                 </button>
               </div>
             </form>
-          )}
+          </div>
         </div>
       )}
 

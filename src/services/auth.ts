@@ -14,11 +14,11 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   announcementText: '🔥 Стартовал прием на осенний семестр 2026! Проверьте дедлайны ранней подачи.',
   isAnnouncementActive: true,
   maintenanceMode: false,
-  guestMaxSearches: 1,
-  guestMaxRecalculations: 2,
-  freeCustomerMaxSearches: 6,
-  freeCustomerMaxRecalculations: 12,
-  allowGuestChat: false
+  guestMaxSearches: 2,
+  guestMaxRecalculations: 3,
+  freeCustomerMaxSearches: 8,
+  freeCustomerMaxRecalculations: 15,
+  allowGuestChat: true
 };
 
 export const SUPER_ADMIN_EMAIL = 'adilhananuar426@gmail.com';
@@ -28,7 +28,7 @@ export function isSuperAdmin(user?: UserAccount | null): boolean {
   return user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() || !!user.isSuperAdmin;
 }
 
-// Seed initial database
+// Seed initial database with diverse realistic applicants across Kazakhstan and abroad
 const SEED_USERS: UserAccount[] = [
   {
     id: 'user-admin-01',
@@ -40,22 +40,22 @@ const SEED_USERS: UserAccount[] = [
     isSuperAdmin: true,
     isBanned: false,
     createdAt: '2026-09-01T10:00:00Z',
-    usageStats: { searchesCount: 0, recalculationsCount: 0 },
+    usageStats: { searchesCount: 42, recalculationsCount: 18 },
     notes: 'Создатель и Главный Супер-Администратор платформы AdmitRoute'
   },
   {
     id: 'user-demo-02',
     email: 'student@admitroute.kz',
-    name: 'Алихан (Абитуриент)',
+    name: 'Алихан Бауыржанов',
     password: 'Student123',
     role: 'customer',
     subscriptionTier: 'free',
     isBanned: false,
     createdAt: '2026-09-10T12:30:00Z',
-    usageStats: { searchesCount: 1, recalculationsCount: 2 },
-    notes: 'Тестовый пользователь',
+    usageStats: { searchesCount: 5, recalculationsCount: 4 },
+    notes: '11 класс, НИШ ФМН Алматы. Интересуется CS и грантами в Италии и Европе.',
     profile: {
-      name: 'Алихан',
+      name: 'Алихан Бауыржанов',
       grade: 'grade_11',
       field: 'cs_it',
       gpa: 4.8,
@@ -67,6 +67,162 @@ const SEED_USERS: UserAccount[] = [
       budget: 'full_grant',
       targetYear: '2026',
       portfolioText: 'Победитель областной олимпиады по информатике, разработал сервис мониторинга дедлайнов для школы, капитан IT-клуба.'
+    }
+  },
+  {
+    id: 'user-demo-03',
+    email: 'aizada.sat@gmail.com',
+    name: 'Айзада Султанова',
+    password: 'Aizada2026',
+    role: 'customer',
+    subscriptionTier: 'pro',
+    isBanned: false,
+    createdAt: '2026-09-11T14:15:00Z',
+    usageStats: { searchesCount: 19, recalculationsCount: 8 },
+    notes: 'Выпускница РФМШ Астана. Цели: MIT, Stanford, NUS (США и Азия). Оформила PRO.',
+    profile: {
+      name: 'Айзада Султанова',
+      grade: 'graduate',
+      field: 'engineering',
+      gpa: 4.95,
+      hasLanguageTest: true,
+      languageScore: 'IELTS 7.5',
+      hasStateExam: true,
+      stateExamScore: 'SAT 1490',
+      targetRegion: 'usa',
+      budget: 'full_grant',
+      targetYear: '2026',
+      portfolioText: 'Золотая медаль на республиканском конкурсе научных проектов Дарын, разработала прототип биопротеза руки с Arduino, капитан команды по робототехнике WRO.'
+    }
+  },
+  {
+    id: 'user-demo-04',
+    email: 'daniyar.nurgali@mail.kz',
+    name: 'Данияр Нургалиев',
+    password: 'Daniyar77',
+    role: 'customer',
+    subscriptionTier: 'free',
+    isBanned: false,
+    createdAt: '2026-09-12T09:40:00Z',
+    usageStats: { searchesCount: 6, recalculationsCount: 5 },
+    notes: '11 класс, БИЛ Шымкент. Поступает на общую медицину (КазНМУ, МУА, Астана).',
+    profile: {
+      name: 'Данияр Нургалиев',
+      grade: 'grade_11',
+      field: 'medicine_bio',
+      gpa: 4.75,
+      hasLanguageTest: true,
+      languageScore: 'IELTS 6.5',
+      hasStateExam: true,
+      stateExamScore: 'ЕНТ 131 / 140',
+      targetRegion: 'kazakhstan',
+      budget: 'full_grant',
+      targetYear: '2026',
+      portfolioText: 'Призер олимпиады по биологии и химии, 60 часов волонтерства в городской детской больнице, организатор санпросвет клуба в школе.'
+    }
+  },
+  {
+    id: 'user-demo-05',
+    email: 'madina.k@inbox.ru',
+    name: 'Мадина Кенесова',
+    password: 'MadinaPass',
+    role: 'customer',
+    subscriptionTier: 'pro',
+    isBanned: false,
+    createdAt: '2026-09-13T16:20:00Z',
+    usageStats: { searchesCount: 14, recalculationsCount: 6 },
+    notes: '11 класс, Гимназия №159 Алматы. Бизнес и экономика (Bocconi, КИМЭП, Erasmus).',
+    profile: {
+      name: 'Мадина Кенесова',
+      grade: 'grade_11',
+      field: 'business_econ',
+      gpa: 4.4,
+      hasLanguageTest: true,
+      languageScore: 'IELTS 6.5',
+      hasStateExam: true,
+      stateExamScore: 'SAT 1340',
+      targetRegion: 'europe',
+      budget: 'mid_cost',
+      targetYear: '2026',
+      portfolioText: 'Победитель школьного бизнес-инкубатора, запустила локальный эко-бренд свечей с выручкой 400 тыс ₸, президент школьного дебатного клуба.'
+    }
+  },
+  {
+    id: 'user-demo-06',
+    email: 'timur.b@gmail.com',
+    name: 'Тимур Болатов',
+    password: 'TimurCode',
+    role: 'customer',
+    subscriptionTier: 'free',
+    isBanned: false,
+    createdAt: '2026-09-14T11:05:00Z',
+    usageStats: { searchesCount: 4, recalculationsCount: 3 },
+    notes: '10 класс, Лицей №8 Павлодар. Заранее готовится к поступлению в KAIST и Корею.',
+    profile: {
+      name: 'Тимур Болатов',
+      grade: 'grade_10',
+      field: 'cs_it',
+      gpa: 4.6,
+      hasLanguageTest: true,
+      languageScore: 'IELTS 6.0',
+      hasStateExam: false,
+      stateExamScore: '',
+      targetRegion: 'asia',
+      budget: 'full_grant',
+      targetYear: '2027',
+      portfolioText: 'Участник соревнований по спортивному программированию Codeforces (рейтинг 1450), разработал Telegram-бота для подготовки к олимпиадам.'
+    }
+  },
+  {
+    id: 'user-demo-07',
+    email: 'kamila.yerzhan@gmail.com',
+    name: 'Камила Ержанова',
+    password: 'Kamila99',
+    role: 'customer',
+    subscriptionTier: 'free',
+    isBanned: false,
+    createdAt: '2026-09-15T18:50:00Z',
+    usageStats: { searchesCount: 3, recalculationsCount: 2 },
+    notes: 'Выпускник колледжа, Астана. Графический дизайн и архитектура (Politecnico di Milano).',
+    profile: {
+      name: 'Камила Ержанова',
+      grade: 'graduate',
+      field: 'design_media',
+      gpa: 4.15,
+      hasLanguageTest: true,
+      languageScore: 'Duolingo 115',
+      hasStateExam: false,
+      stateExamScore: '',
+      targetRegion: 'europe',
+      budget: 'low_cost',
+      targetYear: '2026',
+      portfolioText: 'Портфолио на Behance с 15 работами по брендингу, иллюстрации для городской молодежной выставки, оформление школьного журнала.'
+    }
+  },
+  {
+    id: 'user-demo-08',
+    email: 'yerassyl.m@gmail.com',
+    name: 'Ерасыл Маратов',
+    password: 'YerassylLaw',
+    role: 'customer',
+    subscriptionTier: 'free',
+    isBanned: false,
+    createdAt: '2026-09-16T13:10:00Z',
+    usageStats: { searchesCount: 5, recalculationsCount: 3 },
+    notes: '11 класс, Караганда. Международное право и дипломатия (КАЗГЮУ, ЕНУ, Нархоз).',
+    profile: {
+      name: 'Ерасыл Маратов',
+      grade: 'grade_11',
+      field: 'social_law',
+      gpa: 3.9,
+      hasLanguageTest: false,
+      languageScore: '',
+      hasStateExam: true,
+      stateExamScore: 'ЕНТ 108 / 140',
+      targetRegion: 'kazakhstan',
+      budget: 'full_grant',
+      targetYear: '2026',
+      portfolioText: 'Капитан школьной сборной по дебатам в казахской лиге, волонтер молодежного ресурсного центра Караганды.'
     }
   }
 ];
@@ -83,15 +239,21 @@ export function initializeAuthDatabase(): void {
       const adminIndex = users.findIndex(u => u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
       if (adminIndex === -1) {
         users.unshift(SEED_USERS[0]);
-        localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
       } else {
         users[adminIndex].role = 'admin';
         users[adminIndex].password = 'Lolkek4ik';
         users[adminIndex].subscriptionTier = 'pro';
         users[adminIndex].isSuperAdmin = true;
         users[adminIndex].isBanned = false;
-        localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
       }
+
+      // Auto-populate all missing seed users so existing DB always has the full applicant database
+      for (const seed of SEED_USERS) {
+        if (!users.some(u => u.email.toLowerCase() === seed.email.toLowerCase())) {
+          users.push(seed);
+        }
+      }
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
     } catch {
       localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(SEED_USERS));
     }
@@ -103,7 +265,7 @@ export function initializeAuthDatabase(): void {
   } else {
     try {
       const parsed = JSON.parse(rawSettings);
-      const merged: SiteSettings = { ...DEFAULT_SITE_SETTINGS, ...parsed };
+      const merged: SiteSettings = { ...DEFAULT_SITE_SETTINGS, ...parsed, allowGuestChat: true };
       localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(merged));
     } catch {
       localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(DEFAULT_SITE_SETTINGS));
@@ -118,9 +280,76 @@ if (typeof window !== 'undefined') {
 export function getAllUsers(): UserAccount[] {
   if (typeof window === 'undefined') return SEED_USERS;
   try {
-    const data = localStorage.getItem(STORAGE_USERS_KEY);
-    return data ? JSON.parse(data) : SEED_USERS;
+    const raw = localStorage.getItem(STORAGE_USERS_KEY);
+    if (!raw) {
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(SEED_USERS));
+      return SEED_USERS;
+    }
+    const users: UserAccount[] = JSON.parse(raw);
+    let modified = false;
+
+    // Ensure all 8 seed applicants are present in database
+    for (const seed of SEED_USERS) {
+      const existingIndex = users.findIndex(u => u.email.toLowerCase() === seed.email.toLowerCase());
+      if (existingIndex === -1) {
+        users.push(seed);
+        modified = true;
+      } else if (!users[existingIndex].profile && seed.profile) {
+        users[existingIndex].profile = seed.profile;
+        modified = true;
+      }
+    }
+
+    // Ensure Super Admin status is maintained
+    const admin = users.find(u => u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+    if (admin) {
+      if (admin.role !== 'admin' || !admin.isSuperAdmin || admin.subscriptionTier !== 'pro' || admin.password !== 'Lolkek4ik') {
+        admin.role = 'admin';
+        admin.isSuperAdmin = true;
+        admin.subscriptionTier = 'pro';
+        admin.password = 'Lolkek4ik';
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+      window.dispatchEvent(new Event('admitroute_chat_update'));
+    }
+    return users;
   } catch {
+    return SEED_USERS;
+  }
+}
+
+export function resetSeedUsers(): UserAccount[] {
+  if (typeof window === 'undefined') return SEED_USERS;
+  try {
+    const raw = localStorage.getItem(STORAGE_USERS_KEY);
+    let users: UserAccount[] = raw ? JSON.parse(raw) : [];
+
+    for (const seed of SEED_USERS) {
+      const idx = users.findIndex(u => u.email.toLowerCase() === seed.email.toLowerCase());
+      if (idx === -1) {
+        users.push(seed);
+      } else {
+        users[idx] = {
+          ...seed,
+          ...users[idx],
+          name: seed.name,
+          notes: seed.notes,
+          profile: seed.profile || users[idx].profile,
+          subscriptionTier: users[idx].subscriptionTier || seed.subscriptionTier
+        };
+      }
+    }
+
+    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+    window.dispatchEvent(new Event('admitroute_chat_update'));
+    window.dispatchEvent(new Event('storage'));
+    return users;
+  } catch {
+    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(SEED_USERS));
     return SEED_USERS;
   }
 }
@@ -128,6 +357,8 @@ export function getAllUsers(): UserAccount[] {
 function saveUsers(users: UserAccount[]): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+  window.dispatchEvent(new Event('admitroute_chat_update'));
+  window.dispatchEvent(new Event('storage'));
 }
 
 export function getCurrentUser(): UserAccount | null {
