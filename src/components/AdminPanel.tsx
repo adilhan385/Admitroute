@@ -1230,7 +1230,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
                         <span className="text-[10px] text-slate-400 block uppercase font-semibold">Средний балл (GPA)</span>
                         <span className="font-bold text-blue-700 mt-0.5 block text-sm">
-                          {selectedUserForView.profile.gpa} / 5.0
+                          {selectedUserForView.profile.gpa} / {selectedUserForView.profile.gpaScale || '5.0'}
                         </span>
                       </div>
 
@@ -1258,11 +1258,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
 
                       <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
-                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Гос. экзамен (ЕНТ/SAT)</span>
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Экзамены (ЕНТ / SAT)</span>
                         <span className="font-semibold text-slate-900 mt-0.5 block">
-                          {selectedUserForView.profile.hasStateExam
-                            ? selectedUserForView.profile.stateExamScore || 'Сдан'
-                            : 'Не сдавался'}
+                          {selectedUserForView.profile.satScore
+                            ? (selectedUserForView.profile.stateExamScore || selectedUserForView.profile.satScore)
+                            : (selectedUserForView.profile.hasStateExam
+                                ? selectedUserForView.profile.stateExamScore || 'Сдан'
+                                : 'Не сдавался')}
                         </span>
                       </div>
 

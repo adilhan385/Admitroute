@@ -13,7 +13,11 @@ import { UNIVERSITIES_DATABASE } from '../data/universities';
  * Извлечение и нормализация числовых и качественных показателей из профиля кандидата
  */
 export function parseExamScores(profile: UserProfile) {
-  const gpa = Number(profile.gpa) || 3.0;
+  const isScale4 = profile.gpaScale === '4.0';
+  const rawGpa = Number(profile.gpa) || (isScale4 ? 3.5 : 4.0);
+  // Нормализация к 5.0-балльной шкале для единых алгоритмов оценки
+  const gpa = isScale4 ? Math.min(5.0, (rawGpa / 4.0) * 5.0) : rawGpa;
+  const gpaDisplay = isScale4 ? `${rawGpa.toFixed(2)} / 4.0` : `${rawGpa.toFixed(1)} / 5.0`;
 
   // 1. Language score parsing (IELTS / TOEFL / Duolingo)
   let ielts: number | null = null;
@@ -49,9 +53,20 @@ export function parseExamScores(profile: UserProfile) {
     }
   }
 
-  // 2. State exam score parsing (ЕНТ / SAT)
+  // 2. State & Standardized exam score parsing (ЕНТ / SAT)
   let unt: number | null = null;
   let sat: number | null = null;
+
+  // Прямая проверка поля SAT
+  if (profile.hasSat && profile.satScore) {
+    const satMatch = profile.satScore.match(/([0-9]+)/);
+    if (satMatch) {
+      const sVal = parseInt(satMatch[1], 10);
+      if (sVal >= 400 && sVal <= 1600) {
+        sat = sVal;
+      }
+    }
+  }
 
   if (profile.hasStateExam && profile.stateExamScore) {
     const raw = profile.stateExamScore.trim().toLowerCase();
@@ -64,15 +79,19 @@ export function parseExamScores(profile: UserProfile) {
       unt = parseInt(untMatch[1], 10);
     } else if (untSlashMatch) {
       unt = parseInt(untSlashMatch[1], 10);
-    } else if (satMatch) {
+    }
+
+    if (satMatch && sat === null) {
       sat = parseInt(satMatch[1], 10);
-    } else {
+    }
+
+    if (unt === null && sat === null) {
       const numMatch = raw.match(/([0-9]+)/);
       if (numMatch) {
         const val = parseInt(numMatch[1], 10);
         if (val <= 140) {
           unt = val;
-        } else if (val >= 400 && val <= 1600) {
+        } else if (val >= 400 && val <= 1600 && sat === null) {
           sat = val;
         }
       }
@@ -104,6 +123,9 @@ export function parseExamScores(profile: UserProfile) {
 
   return {
     gpa,
+    rawGpa,
+    gpaScale: isScale4 ? '4.0' : '5.0',
+    gpaDisplay,
     ielts,
     toefl,
     duolingo,
@@ -122,18 +144,19 @@ export function calculateDiagnosis(profile: UserProfile): ProfileDiagnosis {
   const riskFactors: string[] = [];
   const criticalWarnings: string[] = [];
 
-  const { gpa, ielts, toefl, duolingo, unt, sat, portfolioRating } = parsed;
+  const { gpa, gpaDisplay, ielts, toefl, duolingo, unt, sat, portfolioRating } = parsed;
+  const isScale4 = parsed.gpaScale === '4.0';
 
   // --- 1. GPA EVALUATION ---
   if (gpa >= 4.7) {
-    strengths.push(`Отличный средний балл (GPA ${gpa.toFixed(1)}/5.0) — подтверждает высокую академическую дисциплину`);
+    strengths.push(`Отличный средний балл (GPA ${gpaDisplay}) — подтверждает высокую академическую дисциплину`);
   } else if (gpa >= 4.3) {
-    strengths.push(`Хорошая академическая база (GPA ${gpa.toFixed(1)}/5.0) проходит квалификационный порог большинства вузов`);
+    strengths.push(`Хорошая академическая база (GPA ${gpaDisplay}) проходит квалификационный порог большинства вузов`);
   } else if (gpa < 3.5) {
-    riskFactors.push(`Критически низкий средний балл (GPA ${gpa.toFixed(1)}/5.0): троечный аттестат отсекает 95% программ со стипендиями`);
-    criticalWarnings.push(`Средний балл ${gpa.toFixed(1)}/5.0 находится на уровне «удовлетворительно» (троечник). Ведущие университеты требуют от 3.8–4.2 для рассмотрения на грант.`);
+    riskFactors.push(`Критически низкий средний балл (GPA ${gpaDisplay}): низкий аттестат отсекает 95% программ со стипендиями`);
+    criticalWarnings.push(`Средний балл ${gpaDisplay} находится на уровне «удовлетворительно». Ведущие университеты требуют от ${isScale4 ? '3.5 / 4.0' : '4.2 / 5.0'} для рассмотрения на грант.`);
   } else {
-    riskFactors.push(`Средний балл (GPA ${gpa.toFixed(1)}/5.0) находится в пограничной зоне: для престижных программ потребуется компенсация высокими тестами`);
+    riskFactors.push(`Средний балл (GPA ${gpaDisplay}) находится в пограничной зоне: для престижных программ потребуется компенсация высокими тестами`);
   }
 
   // --- 2. LANGUAGE TEST EVALUATION ---
@@ -243,24 +266,25 @@ export function calculateDiagnosis(profile: UserProfile): ProfileDiagnosis {
     else readiness += 0;
   }
 
-  // State Exam (0 to 25)
+  // Standardized & State Exam (0 to 25)
+  let examPoints = 0;
   if (unt !== null) {
-    if (unt >= 125) readiness += 25;
-    else if (unt >= 110) readiness += 20;
-    else if (unt >= 90) readiness += 14;
-    else if (unt >= 70) readiness += 8;
-    else if (unt >= 50) readiness += 4;
-    else readiness += 0; // UNT 1 gets 0 points!
-  } else if (sat !== null) {
-    if (sat >= 1450) readiness += 25;
-    else if (sat >= 1350) readiness += 20;
-    else if (sat >= 1200) readiness += 14;
-    else if (sat >= 1050) readiness += 6;
-    else readiness += 0;
-  } else {
-    if (profile.grade === 'grade_9' || profile.grade === 'grade_10') readiness += 5;
-    else readiness += 0;
+    if (unt >= 125) examPoints = Math.max(examPoints, 25);
+    else if (unt >= 110) examPoints = Math.max(examPoints, 20);
+    else if (unt >= 90) examPoints = Math.max(examPoints, 14);
+    else if (unt >= 70) examPoints = Math.max(examPoints, 8);
+    else if (unt >= 50) examPoints = Math.max(examPoints, 4);
   }
+  if (sat !== null) {
+    if (sat >= 1480) examPoints = Math.max(examPoints, 25);
+    else if (sat >= 1380) examPoints = Math.max(examPoints, 21);
+    else if (sat >= 1220) examPoints = Math.max(examPoints, 15);
+    else if (sat >= 1050) examPoints = Math.max(examPoints, 8);
+  }
+  if (unt === null && sat === null) {
+    if (profile.grade === 'grade_9' || profile.grade === 'grade_10') examPoints = 5;
+  }
+  readiness += examPoints;
 
   // Portfolio (0 to 15)
   if (portfolioRating === 'strong') readiness += 15;
@@ -304,7 +328,7 @@ export function calculateDiagnosis(profile: UserProfile): ProfileDiagnosis {
   // Dynamic Honest Summary
   let summary = '';
   if (readinessLevel === 'critical') {
-    summary = `🚨 КРИТИЧЕСКИЙ УРОВЕНЬ РИСКА: При текущих показателях (GPA ${gpa.toFixed(1)}, ${profile.languageScore || 'без языка'}, ${profile.stateExamScore || 'без тестов'}, без портфолио) поступление в вузы ${regionNames[profile.targetRegion] || 'выбранного региона'} со 100% грантом АБСОЛЮТНО НЕВОЗМОЖНО. Профиль не преодолевает даже минимальный отсевочный порог. Вам необходима фундаментальная подготовка с нуля минимум на 1–2 года: пересдача тестов и вытягивание успеваемости.`;
+    summary = `🚨 КРИТИЧЕСКИЙ УРОВЕНЬ РИСКА: При текущих показателях (GPA ${gpaDisplay}, ${profile.languageScore || 'без языка'}, ${profile.satScore || profile.stateExamScore || 'без тестов'}, без портфолио) поступление в вузы ${regionNames[profile.targetRegion] || 'выбранного региона'} со 100% грантом АБСОЛЮТНО НЕВОЗМОЖНО. Профиль не преодолевает даже минимальный отсевочный порог. Вам необходима фундаментальная подготовка с нуля минимум на 1–2 года: пересдача тестов и вытягивание успеваемости.`;
   } else if (readinessLevel === 'low') {
     summary = `⚠️ СУЩЕСТВЕННЫЙ ДЕФИЦИТ БАЛЛОВ: Академический профиль имеет критические пробелы по языку или профильным тестам. Поступление на гранты сопряжено с риском отказа выше 85%. Рекомендуется сосредоточиться на экстренной пересдаче тестов либо выбирать коммерческие отделения без высокого конкурса.`;
   } else if (readinessLevel === 'moderate') {
@@ -340,7 +364,7 @@ export function evaluateUniversityProgram(
   whyFits: string[];
 } {
   const parsed = parseExamScores(profile);
-  const { gpa, ielts, unt } = parsed;
+  const { gpa, gpaDisplay, ielts, unt, sat } = parsed;
   const isKZ = uni.region === 'kazakhstan';
   const gpaDiff = gpa - uni.avgGpa;
   const rawAcceptance = parseFloat(uni.acceptanceRate.replace('%', '')) || 25;
@@ -369,11 +393,11 @@ export function evaluateUniversityProgram(
   else if (gpaDiff <= -0.8) {
     category = 'unlikely';
     chance = Math.min(8, Math.max(1, Math.round(rawAcceptance * 0.2 + (gpa / 5) * 5)));
-    warning = `🚨 Критический академический дефицит: средний балл (GPA ${gpa.toFixed(1)}) отстает на ${Math.abs(gpaDiff).toFixed(1)} от среднего проходного (${uni.avgGpa}). Вуз отсекает абитуриентов с троечным аттестатом.`;
+    warning = `🚨 Критический академический дефицит: средний балл (GPA ${gpaDisplay}) отстает на ${Math.abs(gpaDiff).toFixed(1)} от среднего проходного (${uni.avgGpa}). Вуз отсекает абитуриентов с низкой успеваемостью.`;
   }
   // 4. ELITE / HIGHLY SELECTIVE TIER (acceptance <= 18% or Harvard, NUS, TUM, KAIST, NU)
   else if (rawAcceptance <= 18 || uni.id.includes('harvard') || uni.id.includes('nus') || uni.id.includes('tsinghua')) {
-    if (gpa < 4.5 || (ielts !== null && ielts < 6.5) || (isKZ && unt !== null && unt < 115)) {
+    if (gpa < 4.5 || (ielts !== null && ielts < 6.5) || (isKZ && unt !== null && unt < 115) || (sat !== null && sat < 1300)) {
       category = 'unlikely';
       chance = Math.min(10, Math.max(2, Math.round(rawAcceptance * 0.4)));
       warning = `Экстремально высокая селективность: конкурс ${uni.details.grantStats.competitionRatio}. Текущих баллов недостаточно для преодоления первого отборочного тура.`;
@@ -398,6 +422,21 @@ export function evaluateUniversityProgram(
     } else {
       category = 'target';
       chance = Math.min(70, Math.round(52 + gpaDiff * 20));
+    }
+  }
+
+  // SAT adjustment for programs that value SAT
+  if (sat !== null && uni.examRequirement.toLowerCase().includes('sat')) {
+    if (sat >= 1480) {
+      chance = Math.min(95, chance + 14);
+    } else if (sat >= 1350) {
+      chance = Math.min(88, chance + 7);
+    } else if (sat < 1200 && rawAcceptance < 30) {
+      if (category !== 'unlikely') {
+        category = 'reach';
+        chance = Math.min(chance, 25);
+        warning = `Балл SAT (${sat}) ниже среднего уровня зачисленных (${uni.examRequirement}).`;
+      }
     }
   }
   // 6. ACCESSIBLE / SAFETY TIER (acceptance >= 35%)

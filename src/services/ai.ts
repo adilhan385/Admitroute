@@ -220,9 +220,9 @@ export async function searchOrGenerateUniversityWithAi(
 - Имя: ${profile.name}
 - Класс: ${profile.grade}
 - Специальность: ${profile.field}
-- GPA: ${profile.gpa} / 5.0
+- GPA: ${profile.gpa} / ${profile.gpaScale || '5.0'}
 - Языковой тест: ${profile.hasLanguageTest ? profile.languageScore : 'Нет теста'}
-- Экзамены / SAT / ЕНТ: ${profile.hasStateExam ? profile.stateExamScore : 'Не сдан'}
+- Экзамены / SAT / ЕНТ: ${profile.satScore ? `${profile.stateExamScore || ''} [${profile.satScore}]`.trim() : profile.hasStateExam ? profile.stateExamScore : 'Не сдан'}
 - Бюджет: ${profile.budget}
 - Год поступления: ${profile.targetYear}
 
@@ -658,7 +658,8 @@ export async function generateAiUniversityRecommendations(
 
 Профиль:
 - Специальность: ${profile.field}
-- GPA: ${profile.gpa} / 5.0
+- GPA: ${profile.gpa} / ${profile.gpaScale || '5.0'}
+- Экзамены / SAT / ЕНТ: ${profile.satScore ? `${profile.stateExamScore || ''} [${profile.satScore}]`.trim() : profile.hasStateExam ? profile.stateExamScore : 'Не сдан'}
 - Бюджет: ${profile.budget}
 - Регион: ${profile.targetRegion}
 - Язык: ${profile.hasLanguageTest ? profile.languageScore : 'Начальный'}

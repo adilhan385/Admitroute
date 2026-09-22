@@ -12,15 +12,20 @@ export type TargetRegion = 'kazakhstan' | 'europe' | 'asia' | 'usa';
 
 export type BudgetTier = 'full_grant' | 'low_cost' | 'mid_cost' | 'any';
 
+export type GpaScale = '4.0' | '5.0';
+
 export interface UserProfile {
   name: string;
   grade: StudyGrade;
   field: FieldOfInterest;
-  gpa: number; // e.g. 4.7 out of 5.0
+  gpa: number; // e.g. 4.7 out of 5.0, or 3.8 out of 4.0
+  gpaScale?: GpaScale; // Шкала GPA: 4.0 или 5.0 (по умолчанию 5.0)
   hasLanguageTest: boolean;
   languageScore: string; // e.g. "IELTS 7.0" or "B2"
   hasStateExam: boolean; // e.g. ЕНТ / SAT
   stateExamScore: string; // e.g. "122 / 140"
+  hasSat?: boolean; // Экзамен SAT
+  satScore?: string; // e.g. "SAT 1420 / 1600"
   targetRegion: TargetRegion;
   budget: BudgetTier;
   targetYear: string; // "2026" or "2027"
