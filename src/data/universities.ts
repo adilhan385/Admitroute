@@ -4072,5 +4072,2861 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
         grantChanceSummary: 'Очень престижно. Решающую роль играют результаты теста TMUA и интервью.'
       }
     }
-  }
+  },
+  {
+    "id": "cityu-hk",
+    "name": "City University of Hong Kong (Городской университет Гонконга)",
+    "shortName": "CityU",
+    "aliases": [
+      "cityu",
+      "city u",
+      "сити ю",
+      "ситию",
+      "city university of hong kong",
+      "городской университет гонконга",
+      "cityu hk",
+      "гонконг сити",
+      "cityuhk"
+    ],
+    "city": "Гонконг",
+    "country": "Гонконг (САР Китая)",
+    "region": "asia",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "business_econ"
+    ],
+    "programTitle": "BSc in Computer Science & Data Science / BBA Finance",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "16%",
+    "avgGpa": 4.7,
+    "languageRequirement": "IELTS 6.5 (min 6.0) / TOEFL 79+",
+    "examRequirement": "SAT (1320+) или IB (30+) или высокий балл аттестата",
+    "tuitionYearKztOrUsd": "HKD 145 000 / год (~$18 500) или Top Scholarship (100% грант + стипендия)",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 85,
+    "whyFits": [
+      "Входит в топ-60 лучших университетов мира (QS World Rankings #62)",
+      "100% англоязычное обучение в ведущем финансовом и технологическом центре Азии",
+      "Щедрые международные стипендии: Top Scholarship (HKD 200 000/год), Full Tuition и Half Tuition"
+    ],
+    "keyStrengths": [
+      "Топ-60 мира",
+      "Обучение на английском",
+      "Международные гранты"
+    ],
+    "avgGraduateSalary": "от HKD 26 000 / мес (~$3 300)",
+    "applicationDeadline": "15 января 2026 (ранний) / 30 апреля 2026 (основной)",
+    "officialSiteUrl": "https://www.cityu.edu.hk",
+    "details": {
+      "aboutCampus": "Кампус в районе Коулун Тонг (Kowloon Tong) с прямым доступом к станции метро, футуристическим медиа-центром Run Run Shaw и современными дата-лабораториями.",
+      "studentLife": "Более 80 студенческих ассоциаций, глобальные программы обмена в 40+ стран, хакатоны CityU Hackathon, спортивные клубы.",
+      "livingCostsPerMonth": "~HKD 6 500 – 9 500 / мес (~$800 – 1 200)",
+      "dormitoryDetails": "Студенческий городок CityU Student Residence на Cornwall Street с гарантированным заселением иностранных первокурсников.",
+      "topEmployers": [
+        "HSBC",
+        "Goldman Sachs Hong Kong",
+        "Tencent HK",
+        "Microsoft Hong Kong",
+        "PwC Hong Kong",
+        "Morgan Stanley"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Early Review Round",
+          "deadline": "15 ноября 2025",
+          "description": "Приоритетный раунд для кандидатов на полные гранты.",
+          "recommendedFor": "Кандидатам с SAT 1380+ или отличным аттестатом."
+        },
+        "regular": {
+          "name": "Main Round Application",
+          "deadline": "15 января 2026",
+          "description": "Основной международный поток приема заявок.",
+          "recommendedFor": "Большинству международных абитуриентов."
+        },
+        "late": {
+          "name": "Extended Round",
+          "deadline": "30 апреля 2026",
+          "description": "Рассмотрение заявок при наличии свободных квот.",
+          "recommendedFor": "Запасной поток."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Выделяются гранты Top Scholarship, Full Tuition Waiver и Half Tuition",
+        "lastYearCutoff": "SAT 1380+ / GPA 4.85+ для получения полной стипендии",
+        "competitionRatio": "6.2 претендента на 1 место",
+        "grantChanceSummary": "Отличные возможности для академически сильных студентов из Центральной Азии благодаря государственным квотам HKSAR."
+      }
+    }
+  },
+  {
+    "id": "hku-hk",
+    "name": "The University of Hong Kong (Гонконгский университет)",
+    "shortName": "HKU",
+    "aliases": [
+      "hku",
+      "хку",
+      "гонконгский университет",
+      "university of hong kong",
+      "hku hk",
+      "хку гонконг"
+    ],
+    "city": "Гонконг",
+    "country": "Гонконг (САР Китая)",
+    "region": "asia",
+    "fields": [
+      "cs_it",
+      "business_econ",
+      "medicine_bio",
+      "social_law",
+      "engineering"
+    ],
+    "programTitle": "B.Eng. in Computer Science / BBA International Business & Global Management",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "10%",
+    "avgGpa": 4.9,
+    "languageRequirement": "IELTS 6.5 (min 6.0) / TOEFL 93+",
+    "examRequirement": "SAT (1400+) / ACT (31+) или IB (36+) / отличный аттестат",
+    "tuitionYearKztOrUsd": "HKD 182 000 / год (~$23 300) или HKU Foundation Scholarships (100% грант)",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 82,
+    "whyFits": [
+      "Старейший и самый престижный университет Гонконга, №17 в мировом рейтинге QS World Rankings",
+      "Мировой центр юридического, финансового и технологического образования в Азии",
+      "Полные стипендии HKU Foundation и Belt and Road Scholarships покрывают обучение и проживание"
+    ],
+    "keyStrengths": [
+      "Топ-20 мира (QS #17)",
+      "Элитный бренд в Азии",
+      "Стипендии Belt & Road"
+    ],
+    "avgGraduateSalary": "от HKD 32 000 / мес (~$4 100)",
+    "applicationDeadline": "15 ноября 2025 (ранний) / 24 августа 2026",
+    "officialSiteUrl": "https://www.hku.hk",
+    "details": {
+      "aboutCampus": "Исторический и ультрасовременный кампус на острове Гонконг (Pokfulam) с видом на гавань Виктория и вековыми традициями.",
+      "studentLife": "Традиционные студенческие колледжи (Halls), Union Debate, регаты, стартап-инкубатор iDendron.",
+      "livingCostsPerMonth": "~HKD 7 500 – 11 000 / мес",
+      "dormitoryDetails": "13 жилых колледжей и холлов с приоритетом для международных студентов.",
+      "topEmployers": [
+        "Goldman Sachs",
+        "Morgan Stanley",
+        "J.P. Morgan",
+        "Tencent",
+        "McKinsey & Co",
+        "Google APAC"
+      ],
+      "rounds": {
+        "early": {
+          "name": "First Round (Приоритетный)",
+          "deadline": "15 ноября 2025",
+          "description": "Главный конкурс на международные стипендии.",
+          "recommendedFor": "SAT 1450+ / IB 38+."
+        },
+        "regular": {
+          "name": "Main Round",
+          "deadline": "24 августа 2026",
+          "description": "Потоковый прием документов.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Clearing Round",
+          "deadline": "Июль 2026",
+          "description": "Добор на свободные программы.",
+          "recommendedFor": "По ситуации."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 250 полных и частичных стипендий для иностранцев",
+        "lastYearCutoff": "SAT 1450+ / GPA 4.9+",
+        "competitionRatio": "9.8 человека на место",
+        "grantChanceSummary": "Высокая конкуренция. Необходимы безупречные оценки и сильный олимпиадный или лидерский бэкграунд."
+      }
+    }
+  },
+  {
+    "id": "cuhk-hk",
+    "name": "The Chinese University of Hong Kong (Китайский университет Гонконга)",
+    "shortName": "CUHK",
+    "aliases": [
+      "cuhk",
+      "китайский университет гонконга",
+      "chinese university of hong kong",
+      "цухк",
+      "cuhk hk"
+    ],
+    "city": "Гонконг",
+    "country": "Гонконг (САР Китая)",
+    "region": "asia",
+    "fields": [
+      "cs_it",
+      "business_econ",
+      "engineering",
+      "medicine_bio"
+    ],
+    "programTitle": "B.Sc. in Computer Science & Artificial Intelligence / BBA",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "12%",
+    "avgGpa": 4.85,
+    "languageRequirement": "IELTS 6.5 / TOEFL 80+",
+    "examRequirement": "SAT (1360+) или IB (34+) / высокий аттестат",
+    "tuitionYearKztOrUsd": "HKD 145 000 / год (~$18 500) или University Full Scholarship (100% грант + стипендия)",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 84,
+    "whyFits": [
+      "Топ-36 лучших университетов мира (QS #36), родина китайского искусственного интеллекта (SenseTime)",
+      "Уникальная коллегиальная система образования по британскому образцу (9 автономных колледжей)",
+      "Полные стипендии для талантливых международных студентов"
+    ],
+    "keyStrengths": [
+      "Топ-40 мира",
+      "Коллегиальная система",
+      "Лидер в Computer Science & AI"
+    ],
+    "avgGraduateSalary": "от HKD 28 000 / мес (~$3 600)",
+    "applicationDeadline": "16 ноября 2025 (ранний) / 31 марта 2026",
+    "officialSiteUrl": "https://www.cuhk.edu.hk",
+    "details": {
+      "aboutCampus": "Крупнейший и самый живописный кампус Гонконга площадью 137 гектаров в заливе Shatin с собственным музеем искусств и парками.",
+      "studentLife": "Коллегиальная жизнь (Chung Chi, New Asia, United и др.), гребля, хакатоны, кейс-клубы.",
+      "livingCostsPerMonth": "~HKD 6 000 – 9 000 / мес",
+      "dormitoryDetails": "Гарантированное общежитие в своем колледже на первые 2-3 года обучения.",
+      "topEmployers": [
+        "SenseTime",
+        "Tencent",
+        "Alibaba",
+        "J.P. Morgan",
+        "Bloomberg HK",
+        "Baidu"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Early Consideration",
+          "deadline": "16 ноября 2025",
+          "description": "Основное окно подачи на президентские стипендии.",
+          "recommendedFor": "Кандидатам с SAT 1400+."
+        },
+        "regular": {
+          "name": "Regular Round",
+          "deadline": "31 марта 2026",
+          "description": "Основной международный поток.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Late Consideration",
+          "deadline": "Май 2026",
+          "description": "Добор на оставшиеся места.",
+          "recommendedFor": "Запасной поток."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 200 полных и частичных стипендий",
+        "lastYearCutoff": "SAT 1420+ / GPA 4.9",
+        "competitionRatio": "7.5 претендента на место",
+        "grantChanceSummary": "Престижный вуз с сильной финансовой поддержкой для олимпиадников."
+      }
+    }
+  },
+  {
+    "id": "polyu-hk",
+    "name": "The Hong Kong Polytechnic University (Гонконгский политехнический университет)",
+    "shortName": "PolyU",
+    "aliases": [
+      "polyu",
+      "полию",
+      "hong kong polytechnic",
+      "гонконгский политех",
+      "polyu hk",
+      "политех гонконг"
+    ],
+    "city": "Гонконг",
+    "country": "Гонконг (САР Китая)",
+    "region": "asia",
+    "fields": [
+      "engineering",
+      "cs_it",
+      "design_media",
+      "business_econ"
+    ],
+    "programTitle": "B.Sc. in Computing & AI / B.Eng. Electronic & Information Engineering",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "15%",
+    "avgGpa": 4.7,
+    "languageRequirement": "IELTS 6.0 (min 5.5) / TOEFL 80+",
+    "examRequirement": "SAT (1280+) или IB (30+) / высокий средний балл",
+    "tuitionYearKztOrUsd": "HKD 145 000 / год (~$18 500) или PolyU Entry Scholarship (100% грант)",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "target",
+    "matchScore": 86,
+    "whyFits": [
+      "Топ-65 университетов мира (QS #57), лидер в прикладной инженерии, дизайне и вычислительных науках",
+      "Тесные связи с индустрией Гонконга и Большого Залива (Greater Bay Area / Шэньчжэнь)",
+      "PolyU Entry Scholarship: полное освобождение от платы за обучение плюс стипендия на жизнь"
+    ],
+    "keyStrengths": [
+      "Топ-60 мира",
+      "Практика и стажировки",
+      "Шэньчжэньский технологический мост"
+    ],
+    "avgGraduateSalary": "от HKD 24 000 / мес (~$3 100)",
+    "applicationDeadline": "15 ноября 2025 (ранний) / 30 апреля 2026",
+    "officialSiteUrl": "https://www.polyu.edu.hk",
+    "details": {
+      "aboutCampus": "Кампус из красного кирпича в центре района Хунхам (Hung Hom) с башней инноваций Jockey Club Innovation Tower, созданной Захой Хадид.",
+      "studentLife": "Инновационные мастерские, хакатоны, мейкерспейсы, стажировки Work-Integrated Education.",
+      "livingCostsPerMonth": "~HKD 6 000 – 8 500 / мес",
+      "dormitoryDetails": "Два крупных студенческих комплекса: Hung Hom Halls и Homantin Halls.",
+      "topEmployers": [
+        "Huawei",
+        "DJI",
+        "Tencent",
+        "Cathay Pacific",
+        "HSBC",
+        "Arup"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Early Round",
+          "deadline": "15 ноября 2025",
+          "description": "Рассмотрение заявок на полные стипендии.",
+          "recommendedFor": "SAT 1320+."
+        },
+        "regular": {
+          "name": "Main Round",
+          "deadline": "30 апреля 2026",
+          "description": "Основной набор.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Extended Period",
+          "deadline": "Июнь 2026",
+          "description": "Поздний добор.",
+          "recommendedFor": "При наличии мест."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 300 стипендий Entry Scholarships различного уровня",
+        "lastYearCutoff": "SAT 1350+ / GPA 4.8",
+        "competitionRatio": "5.8 человека на место",
+        "grantChanceSummary": "Очень привлекательный вариант с высокими шансами на финансовую поддержку."
+      }
+    }
+  },
+  {
+    "id": "ntu-sg",
+    "name": "Nanyang Technological University (Наньянский технологический университет)",
+    "shortName": "NTU",
+    "aliases": [
+      "ntu",
+      "нту",
+      "наньян",
+      "nanyang technological university",
+      "ntu singapore",
+      "наньянский"
+    ],
+    "city": "Сингапур",
+    "country": "Сингапур",
+    "region": "asia",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "business_econ"
+    ],
+    "programTitle": "B.Eng. in Computer Science / Data Science & Artificial Intelligence",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "11%",
+    "avgGpa": 4.9,
+    "languageRequirement": "IELTS 6.5 (min 6.0) / TOEFL 90+",
+    "examRequirement": "SAT (1420+) / ACT (32+) + школьный табель с отличием",
+    "tuitionYearKztOrUsd": "MOE Tuition Grant (SGD ~17 500/год) или Nanyang Scholarship (100% грант + стипендия)",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 83,
+    "whyFits": [
+      "№15 в мире по версии QS World University Rankings, мировой лидер в инженерии и AI",
+      "Программа государственной субсидии MOE Tuition Grant покрывает более 50% расходов в обмен на 3 года работы в Сингапуре",
+      "Полная стипендия Nanyang Scholarship включает бесплатную учебу, проживание и ежегодную стипендию SGD 6 500"
+    ],
+    "keyStrengths": [
+      "Топ-15 мира",
+      "Стипендия Nanyang",
+      "Эпицентр азиатских инноваций"
+    ],
+    "avgGraduateSalary": "от SGD 5 200 / мес (~$3 900)",
+    "applicationDeadline": "21 февраля 2026",
+    "officialSiteUrl": "https://www.ntu.edu.sg",
+    "details": {
+      "aboutCampus": "Один из самых экологичных и красивых смарт-кампусов планеты (Yunnan Garden campus) со знаменитым зданием «The Hive» архитектора Томаса Хезервика.",
+      "studentLife": "Инновационные лаборатории, киберспортивные лиги, студенческие стартап-инкубаторы, тропический спорт.",
+      "livingCostsPerMonth": "~SGD 1 200 – 1 800 / мес",
+      "dormitoryDetails": "24 студенческих резиденции (Halls of Residence) с гарантированным жильем для 1-2 курсов.",
+      "topEmployers": [
+        "Google Singapore",
+        "Shopee / Sea Group",
+        "Grab",
+        "DBS Bank",
+        "Meta Singapore",
+        "Micron"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Scholarship Application",
+          "deadline": "15 января — 21 февраля 2026",
+          "description": "Подача на стипендии Nanyang и College Scholarships.",
+          "recommendedFor": "SAT 1450+."
+        },
+        "regular": {
+          "name": "International Qualifications",
+          "deadline": "21 февраля 2026",
+          "description": "Единый дедлайн для международных абитуриентов.",
+          "recommendedFor": "Строго обязателен."
+        },
+        "late": {
+          "name": "Outcome & Interviews",
+          "deadline": "Апрель — Июнь 2026",
+          "description": "Интервью на стипендии и подтверждение офферов.",
+          "recommendedFor": "Отобранным кандидатам."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Субсидия MOE Grant доступна большинству зачисленных, ~150 полных стипендий Nanyang",
+        "lastYearCutoff": "SAT 1450+ / GPA 4.95",
+        "competitionRatio": "8.4 претендента на место",
+        "grantChanceSummary": "Высокая конкуренция, но при сильной математике и SAT шансы на зачисление реальны."
+      }
+    }
+  },
+  {
+    "id": "ucl-uk",
+    "name": "University College London (UCL)",
+    "shortName": "UCL",
+    "aliases": [
+      "ucl",
+      "юклей",
+      "university college london",
+      "юсл",
+      "лондонский университетский колледж"
+    ],
+    "city": "Лондон",
+    "country": "Великобритания",
+    "region": "europe",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "business_econ",
+      "medicine_bio",
+      "social_law"
+    ],
+    "programTitle": "B.Sc. in Computer Science / Information Management for Business",
+    "degrees": [
+      "Бакалавриат (3 года)"
+    ],
+    "acceptanceRate": "12%",
+    "avgGpa": 4.9,
+    "languageRequirement": "IELTS 7.0 (min 6.5) / TOEFL 96+",
+    "examRequirement": "A-Levels (A*A*A) / IB (39) / SAT (1450+ с AP тестами 5,5,5) или Foundation",
+    "tuitionYearKztOrUsd": "UCL Global Undergraduate Scholarship (100% грант) или £37 500/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 81,
+    "whyFits": [
+      "№9 в мировом рейтинге QS World Rankings, член элитной Russell Group в сердце Лондона (Bloomsbury)",
+      "Родина лаборатории DeepMind (основатель Демис Хассабис защитил здесь PhD)",
+      "Стипендия UCL Global Undergraduate Scholarship полностью покрывает обучение и проживание"
+    ],
+    "keyStrengths": [
+      "Топ-10 мира",
+      "Сердце Лондона",
+      "Связь с Google DeepMind"
+    ],
+    "avgGraduateSalary": "от £48 000 / год",
+    "applicationDeadline": "29 января 2026 (через UCAS)",
+    "officialSiteUrl": "https://www.ucl.ac.uk",
+    "details": {
+      "aboutCampus": "Исторический кампус в районе Блумсбери в центре Лондона, рядом с Британским музеем и Британской библиотекой.",
+      "studentLife": "Более 300 клубов UCL Union, доступ ко всем культурным и финансовым ресурсам Лондона.",
+      "livingCostsPerMonth": "~£1 400 – 1 900 / мес",
+      "dormitoryDetails": "Студенческие резиденции UCL Halls с гарантией места для первокурсников.",
+      "topEmployers": [
+        "DeepMind",
+        "Amazon UK",
+        "Goldman Sachs London",
+        "Deloitte",
+        "Meta London",
+        "Barclays"
+      ],
+      "rounds": {
+        "early": {
+          "name": "UCAS Application",
+          "deadline": "29 января 2026",
+          "description": "Единая подача через портал UCAS.",
+          "recommendedFor": "Строго обязателен."
+        },
+        "regular": {
+          "name": "UCL Global Scholarship Application",
+          "deadline": "Апрель 2026",
+          "description": "Подача заявки на полную финансовую помощь.",
+          "recommendedFor": "Кандидатам с оффером."
+        },
+        "late": {
+          "name": "UCAS Extra & Clearing",
+          "deadline": "Июль 2026",
+          "description": "Добор на невостребованные специальности.",
+          "recommendedFor": "При наличии мест."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 30 полных стипендий UCL Global Undergraduate",
+        "lastYearCutoff": "A*A*A / SAT 1480+ / сильное мотивационное письмо",
+        "competitionRatio": "8.2 человека на место",
+        "grantChanceSummary": "Чрезвычайно престижно. Решающую роль играют Personal Statement и оценки по математике."
+      }
+    }
+  },
+  {
+    "id": "imperial-uk",
+    "name": "Imperial College London (Имперский колледж Лондона)",
+    "shortName": "Imperial",
+    "aliases": [
+      "imperial",
+      "империал",
+      "imperial college",
+      "имперский колледж",
+      "imperial london"
+    ],
+    "city": "Лондон",
+    "country": "Великобритания",
+    "region": "europe",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "medicine_bio"
+    ],
+    "programTitle": "B.Eng. in Computing / Electrical & Electronic Engineering",
+    "degrees": [
+      "Бакалавриат (3-4 года)"
+    ],
+    "acceptanceRate": "11%",
+    "avgGpa": 4.95,
+    "languageRequirement": "IELTS 7.0 (min 6.5) / TOEFL 100+",
+    "examRequirement": "A-Levels (A*A*A) + вступительный тест TMUA + онлайн-интервью",
+    "tuitionYearKztOrUsd": "President’s Undergraduate Scholarships или £39 500/год",
+    "scholarshipAvailability": "Частичные стипендии",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 80,
+    "whyFits": [
+      "№2 в мировом рейтинге QS World Rankings 2025, абсолютный мировой лидер в точных науках и инженерии",
+      "Расположение в престижнейшем районе South Kensington рядом с Музеем науки и Гайд-парком",
+      "Самые высокие стартовые зарплаты выпускников технических специальностей в Великобритании"
+    ],
+    "keyStrengths": [
+      "№2 в мире (QS)",
+      "Лидер в STEM",
+      "Рекордные зарплаты"
+    ],
+    "avgGraduateSalary": "от £58 000 / год",
+    "applicationDeadline": "29 января 2026",
+    "officialSiteUrl": "https://www.imperial.ac.uk",
+    "details": {
+      "aboutCampus": "Кампус в Южном Кенсингтоне и новый хайтек-кластер White City Innovation District с суперкомпьютерами и биолабораториями.",
+      "studentLife": "Imperial College Union, спортивные клубы, инженерные хакатоны, автогоночная команда Imperial Racing Green.",
+      "livingCostsPerMonth": "~£1 500 – 2 000 / мес",
+      "dormitoryDetails": "Гарантированное общежитие для первокурсников в резиденциях Кенсингтона и Паддингтона.",
+      "topEmployers": [
+        "Jane Street",
+        "DeepMind",
+        "Apple",
+        "ARM Holdings",
+        "Citadel",
+        "Rolls-Royce"
+      ],
+      "rounds": {
+        "early": {
+          "name": "UCAS Deadline",
+          "deadline": "29 января 2026",
+          "description": "Подача через портал UCAS.",
+          "recommendedFor": "Строго обязателен."
+        },
+        "regular": {
+          "name": "Тест TMUA & Собеседования",
+          "deadline": "Октябрь — Февраль 2026",
+          "description": "Математический экзамен и интервью.",
+          "recommendedFor": "Кандидатам на Computing."
+        },
+        "late": {
+          "name": "Подтверждение условий (Confirmation)",
+          "deadline": "Август 2026",
+          "description": "Проверка финальных оценок аттестата.",
+          "recommendedFor": "Всем принятым."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Стипендии ректора President’s Undergraduate Scholarships (£1,000 – £5,000/год)",
+        "lastYearCutoff": "A*A*A* / TMUA 7.5+",
+        "competitionRatio": "9.5 человека на место",
+        "grantChanceSummary": "Один из самых сложных вузов мира для поступления, требует олимпиадной математики."
+      }
+    }
+  },
+  {
+    "id": "lse-uk",
+    "name": "London School of Economics and Political Science (LSE)",
+    "shortName": "LSE",
+    "aliases": [
+      "lse",
+      "лсе",
+      "лондонская школа экономики",
+      "london school of economics"
+    ],
+    "city": "Лондон",
+    "country": "Великобритания",
+    "region": "europe",
+    "fields": [
+      "business_econ",
+      "social_law",
+      "cs_it"
+    ],
+    "programTitle": "B.Sc. in Economics / Data Science & Business Analytics",
+    "degrees": [
+      "Бакалавриат (3 года)"
+    ],
+    "acceptanceRate": "9%",
+    "avgGpa": 4.95,
+    "languageRequirement": "IELTS 7.0 (min 7.0 по всем компонентам)",
+    "examRequirement": "A-Levels (A*AA) / IB (38) + тест TMUA для экономики",
+    "tuitionYearKztOrUsd": "LSE Undergraduate Support Scheme (до 100% покрытия) или £28 000/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 81,
+    "whyFits": [
+      "Мировой эталон в экономике, финансах и социальных науках, среди выпускников 18 нобелевских лауреатов",
+      "Прямой мост в Сити Лондона, Уолл-стрит и международные финансовые институты (МВФ, Всемирный банк)",
+      "LSE Undergraduate Support Scheme предоставляет стипендии до £26 000 в год для талантливых студентов"
+    ],
+    "keyStrengths": [
+      "№1 в Европе по экономике",
+      "Нетворкинг в Сити",
+      "Финансовая помощь"
+    ],
+    "avgGraduateSalary": "от £52 000 / год",
+    "applicationDeadline": "29 января 2026",
+    "officialSiteUrl": "https://www.lse.ac.uk",
+    "details": {
+      "aboutCampus": "Кампус в историческом центре Лондона (Holborn / Aldwych), рядом с Королевским судом и финансовым районом.",
+      "studentLife": "Легендарные публичные лекции мировых лидеров, LSE SU Finance Society, дебаты.",
+      "livingCostsPerMonth": "~£1 400 – 1 900 / мес",
+      "dormitoryDetails": "10 студенческих резиденций LSE в 1-й зоне Лондона.",
+      "topEmployers": [
+        "Goldman Sachs",
+        "Morgan Stanley",
+        "McKinsey & Co",
+        "Bank of England",
+        "BlackRock"
+      ],
+      "rounds": {
+        "early": {
+          "name": "UCAS Deadline",
+          "deadline": "29 января 2026",
+          "description": "Подача заявки UCAS.",
+          "recommendedFor": "Обязателен."
+        },
+        "regular": {
+          "name": "LSE Financial Support Application",
+          "deadline": "Апрель 2026",
+          "description": "Заявка на финансовую помощь LSE USS.",
+          "recommendedFor": "Всем соискателям грантов."
+        },
+        "late": {
+          "name": "Финальное подтверждение",
+          "deadline": "Август 2026",
+          "description": "Подтверждение результатов.",
+          "recommendedFor": "Принятым студентам."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 60 полных и частичных стипендий LSE USS",
+        "lastYearCutoff": "A*AA / TMUA 6.8+",
+        "competitionRatio": "11.4 человека на 1 место",
+        "grantChanceSummary": "Экстремально селективный отбор. Критически важна математика и академическое эссе."
+      }
+    }
+  },
+  {
+    "id": "nyu-usa",
+    "name": "New York University (Нью-Йоркский университет)",
+    "shortName": "NYU",
+    "aliases": [
+      "nyu",
+      "нью йорк",
+      "нью йоркский университет",
+      "new york university",
+      "ниу"
+    ],
+    "city": "Нью-Йорк",
+    "country": "США",
+    "region": "usa",
+    "fields": [
+      "business_econ",
+      "cs_it",
+      "design_media",
+      "social_law"
+    ],
+    "programTitle": "B.Sc. in Computer Science (Courant Institute) / BS in Finance (Stern)",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "8%",
+    "avgGpa": 4.85,
+    "languageRequirement": "TOEFL 100+ / IELTS 7.5 / Duolingo 130+",
+    "examRequirement": "SAT (1450 – 1560) / ACT (33 – 35) + школьный транскрипт",
+    "tuitionYearKztOrUsd": "Need-based Financial Aid (покрытие 100% нужды) или $62 000/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 82,
+    "whyFits": [
+      "Культовый университет в центре Манхэттена (Гринвич-Виллидж), бизнес-школа Stern и математический институт Куранта",
+      "Политика 100% покрытия продемонстрированной финансовой нужды (Meet 100% demonstrated need)",
+      "Непревзойденный доступ к стажировкам на Уолл-стрит, в ООН, медиа-холдингах и технологических корпорациях"
+    ],
+    "keyStrengths": [
+      "Сердце Манхэттена",
+      "Stern School of Business",
+      "Финансовая помощь"
+    ],
+    "avgGraduateSalary": "от $88 000 / год",
+    "applicationDeadline": "1 ноября 2025 (ED I) / 5 января 2026 (RD)",
+    "officialSiteUrl": "https://www.nyu.edu",
+    "details": {
+      "aboutCampus": "Кампус без стен, интегрированный в район Вашингтон-Сквер в Манхэттене, а также кампусы в Абу-Даби и Шанхае.",
+      "studentLife": "Студенческие медиа, кинофестивали Tisch, сообщества инвесторов Stern, бродвейские постановки.",
+      "livingCostsPerMonth": "~2 200 – 2 800 $ / мес",
+      "dormitoryDetails": "22 студенческие резиденции в Манхэттене и Бруклине.",
+      "topEmployers": [
+        "JPMorgan Chase",
+        "Google NYC",
+        "Goldman Sachs",
+        "NBCUniversal",
+        "Bloomberg",
+        "Deloitte"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Early Decision I",
+          "deadline": "1 ноября 2025",
+          "description": "Обязывающий ранний раунд с максимальным шансом на зачисление.",
+          "recommendedFor": "Приоритетным кандидатам."
+        },
+        "regular": {
+          "name": "Regular Decision",
+          "deadline": "5 января 2026",
+          "description": "Основной международный конкурс.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Early Decision II",
+          "deadline": "1 января 2026",
+          "description": "Второй обязывающий раунд.",
+          "recommendedFor": "Тем, для кого NYU второй выбор."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Сотни международных стипендий на основе финансовой нужды (CSS Profile)",
+        "lastYearCutoff": "SAT 1480+ / GPA 4.9",
+        "competitionRatio": "12.5 человек на место",
+        "grantChanceSummary": "Селективный отбор. Обязательна ранняя подача документов через Common Application."
+      }
+    }
+  },
+  {
+    "id": "ucla-usa",
+    "name": "University of California, Los Angeles (UCLA)",
+    "shortName": "UCLA",
+    "aliases": [
+      "ucla",
+      "укла",
+      "юкла",
+      "university of california los angeles",
+      "калифорнийский университет в лос анджелесе"
+    ],
+    "city": "Лос-Анджелес",
+    "country": "США",
+    "region": "usa",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "business_econ",
+      "design_media",
+      "medicine_bio"
+    ],
+    "programTitle": "B.S. in Computer Science (Samueli Engineering) / Business Economics",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "9%",
+    "avgGpa": 4.95,
+    "languageRequirement": "TOEFL 100+ (min 22) / IELTS 7.0",
+    "examRequirement": "Test-Blind (SAT/ACT не учитываются) / Решающую роль играют GPA и 4 эссе UC PIQ",
+    "tuitionYearKztOrUsd": "Out-of-state tuition ~$48 000/год (ограниченная финансовая помощь иностранцам)",
+    "scholarshipAvailability": "Частичные стипендии",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 81,
+    "whyFits": [
+      "№1 государственный университет США (US News), родина интернета (первый узел ARPANET запущен в UCLA в 1969 г.)",
+      "Расположение в престижнейшем районе Вествуд между Беверли-Хиллз и пляжами Санта-Моники",
+      "Эпицентр кремниевого пляжа (Silicon Beach) с тысячами технологических стартапов"
+    ],
+    "keyStrengths": [
+      "№1 публичный вуз США",
+      "Silicon Beach",
+      "Культовый кампус Вествуда"
+    ],
+    "avgGraduateSalary": "от $86 000 / год",
+    "applicationDeadline": "30 ноября 2025 (строгий дедлайн UC)",
+    "officialSiteUrl": "https://www.ucla.edu",
+    "details": {
+      "aboutCampus": "Исторический романский кампус в районе Вествуд с пальмовыми аллеями, стадионом Pauley Pavilion и хайтек-центрами Samueli Engineering.",
+      "studentLife": "Легендарные спортивные команды UCLA Bruins (123 национальных чемпионства NCAA), хакатоны LA Hacks.",
+      "livingCostsPerMonth": "~2 000 – 2 600 $ / мес",
+      "dormitoryDetails": "Гарантированное 4-летнее проживание в общежитиях на холме The Hill.",
+      "topEmployers": [
+        "Google LA",
+        "Apple",
+        "Riot Games",
+        "SpaceX",
+        "Snap Inc",
+        "Disney",
+        "Amazon"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Подача заявки UC Application",
+          "deadline": "1 октября — 30 ноября 2025",
+          "description": "Единое окно подачи без возможности раннего решения.",
+          "recommendedFor": "Строго обязательно."
+        },
+        "regular": {
+          "name": "Публикация решений",
+          "deadline": "Конец марта 2026",
+          "description": "Оглашение результатов зачисления.",
+          "recommendedFor": "Всем кандидатам."
+        },
+        "late": {
+          "name": "Подтверждение оффера (SIR)",
+          "deadline": "1 мая 2026",
+          "description": "Внесение депозита первокурсника.",
+          "recommendedFor": "Принятым студентам."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Стипендии ректора Regents Scholarship для топ-1% абитуриентов",
+        "lastYearCutoff": "GPA 4.95+ / исключительные эссе UC Personal Insight Questions",
+        "competitionRatio": "11.1 человека на место",
+        "grantChanceSummary": "Экстремально высокая конкуренция среди иностранцев. Требуется выдающийся табель и сильные лидерские эссе."
+      }
+    }
+  },
+  {
+    "id": "cmu-usa",
+    "name": "Carnegie Mellon University (Университет Карнеги — Меллон)",
+    "shortName": "CMU",
+    "aliases": [
+      "cmu",
+      "карнеги",
+      "карнеги меллон",
+      "carnegie mellon",
+      "сму"
+    ],
+    "city": "Питтсбург",
+    "country": "США",
+    "region": "usa",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "design_media",
+      "business_econ"
+    ],
+    "programTitle": "B.S. in Computer Science / B.S. in Artificial Intelligence",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "11%",
+    "avgGpa": 4.95,
+    "languageRequirement": "TOEFL 102+ (min 25) / IELTS 7.5",
+    "examRequirement": "SAT (1510 – 1570) / ACT (34 – 35) + сильная олимпиадная математика",
+    "tuitionYearKztOrUsd": "Need-based Financial Aid или $64 000/год",
+    "scholarshipAvailability": "Частичные стипендии",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 80,
+    "whyFits": [
+      "№1 в мире по направлениям Computer Science, Software Engineering и Artificial Intelligence",
+      "Первый в мире университет, открывший отдельный бакалавриат по искусственному интеллекту (BS in AI)",
+      "Самые высокие зарплаты среди IT-выпускников в США (медиана более $130,000 в первый год)"
+    ],
+    "keyStrengths": [
+      "№1 в мире по Computer Science",
+      "Пионеры AI и робототехники",
+      "Рекордные зарплаты"
+    ],
+    "avgGraduateSalary": "от $130 000 / год",
+    "applicationDeadline": "1 ноября 2025 (ED) / 3 января 2026 (RD)",
+    "officialSiteUrl": "https://www.cmu.edu",
+    "details": {
+      "aboutCampus": "Кампус в Питтсбурге с легендарным зданием Gates Center for Computer Science и институтом робототехники.",
+      "studentLife": "Традиция Spring Carnival, гонки багги (Buggy Races), непрерывные хакатоны TartanHacks.",
+      "livingCostsPerMonth": "~1 500 – 2 000 $ / мес",
+      "dormitoryDetails": "Кампусные общежития CMU Housing с гарантией заселения для первого курса.",
+      "topEmployers": [
+        "Google",
+        "Meta",
+        "Apple",
+        "NVIDIA",
+        "Jane Street",
+        "OpenAI",
+        "Microsoft"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Early Decision I",
+          "deadline": "1 ноября 2025",
+          "description": "Приоритетный раунд с повышенным шансом на прием.",
+          "recommendedFor": "Тем, для кого CMU безусловный топ-1."
+        },
+        "regular": {
+          "name": "Regular Decision",
+          "deadline": "3 января 2026",
+          "description": "Основной поток Common Application.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Early Decision II",
+          "deadline": "3 января 2026",
+          "description": "Второй раунд обязательного поступления.",
+          "recommendedFor": "По ситуации."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Ограниченная финансовая помощь иностранцам, требуются внешние фонды",
+        "lastYearCutoff": "SAT Math 790 – 800 / GPA 5.0",
+        "competitionRatio": "9.2 претендента на место",
+        "grantChanceSummary": "Поступление на CS в CMU сложнее, чем в Гарвард. Нужна победа на республиканских/международных олимпиадах."
+      }
+    }
+  },
+  {
+    "id": "columbia-usa",
+    "name": "Columbia University (Колумбийский университет)",
+    "shortName": "Columbia",
+    "aliases": [
+      "columbia",
+      "колумбийский",
+      "колумбия",
+      "columbia university",
+      "колумбийский университет"
+    ],
+    "city": "Нью-Йорк",
+    "country": "США",
+    "region": "usa",
+    "fields": [
+      "cs_it",
+      "business_econ",
+      "social_law",
+      "engineering",
+      "medicine_bio"
+    ],
+    "programTitle": "B.S. in Computer Science (Columbia Engineering) / BA Economics",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "3.9%",
+    "avgGpa": 4.98,
+    "languageRequirement": "TOEFL 105+ / IELTS 7.5",
+    "examRequirement": "SAT (1510 – 1570) / ACT (34 – 35) + школьный табель с отличием",
+    "tuitionYearKztOrUsd": "Need-based Financial Aid (100% покрытие нужды для иностранцев) или $68 000/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 78,
+    "whyFits": [
+      "Участник элитной Лиги плюща (Ivy League), расположен в районе Манхэттена Морнингсайд-Хайтс",
+      "Политика щедрой финансовой помощи для иностранных студентов без кредитов (All-grant packages)",
+      "Легендарная образовательная программа Core Curriculum и прямой доступ к финансовой и медийной элите Нью-Йорка"
+    ],
+    "keyStrengths": [
+      "Лига плюща",
+      "Полная финансовая помощь",
+      "Манхэттен"
+    ],
+    "avgGraduateSalary": "от $95 000 / год",
+    "applicationDeadline": "1 ноября 2025 (ED) / 1 января 2026 (RD)",
+    "officialSiteUrl": "https://www.columbia.edu",
+    "details": {
+      "aboutCampus": "Классический монументальный кампус в неоклассическом стиле в Манхэттене вокруг библиотеки Low Memorial Library.",
+      "studentLife": "Газетные редакции Columbia Spectator, дебатные клубы, доступ ко всем театрам и музеям Нью-Йорка.",
+      "livingCostsPerMonth": "~2 000 – 2 600 $ / мес (покрывается грантом при финансовой нужде)",
+      "dormitoryDetails": "Гарантированное 4-летнее проживание в общежитиях кампуса.",
+      "topEmployers": [
+        "Goldman Sachs",
+        "Morgan Stanley",
+        "Google",
+        "McKinsey",
+        "The New York Times",
+        "Meta"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Early Decision",
+          "deadline": "1 ноября 2025",
+          "description": "Обязывающий ранний раунд.",
+          "recommendedFor": "Приоритетным кандидатам."
+        },
+        "regular": {
+          "name": "Regular Decision",
+          "deadline": "1 января 2026",
+          "description": "Основной международный конкурс.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Оглашение Ivy Day",
+          "deadline": "Конец марта 2026",
+          "description": "Единый день оглашения Лиги плюща.",
+          "recommendedFor": "Всем кандидатам."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Полное покрытие стоимости учебы и проживания для семей с доходом до $66,000/год",
+        "lastYearCutoff": "SAT 1520+ / GPA 5.0",
+        "competitionRatio": "25 человек на 1 место",
+        "grantChanceSummary": "Анти-иллюзия: вероятность поступления минимальна даже для отличников без выдающихся международных достижений."
+      }
+    }
+  },
+  {
+    "id": "berkeley-usa",
+    "name": "University of California, Berkeley (UC Berkeley)",
+    "shortName": "UC Berkeley",
+    "aliases": [
+      "berkeley",
+      "uc berkeley",
+      "беркли",
+      "ucb",
+      "калифорнийский университет в беркли"
+    ],
+    "city": "Беркли (Сан-Франциско)",
+    "country": "США",
+    "region": "usa",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "business_econ",
+      "medicine_bio"
+    ],
+    "programTitle": "B.S. in Electrical Engineering & Computer Sciences (EECS)",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "11%",
+    "avgGpa": 4.95,
+    "languageRequirement": "TOEFL 100+ / IELTS 7.0",
+    "examRequirement": "Test-Blind (без SAT/ACT) / Решающую роль играют академические победы и 4 эссе UC PIQ",
+    "tuitionYearKztOrUsd": "Out-of-state tuition ~$48 000/год",
+    "scholarshipAvailability": "Частичные стипендии",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 80,
+    "whyFits": [
+      "№1 в мире среди исследовательских университетов по версии Forbes, сердце инноваций Кремниевой долины",
+      "Программа EECS в Беркли считается золотым стандартом мирового IT-образования",
+      "Среди выпускников и профессоров — 110 нобелевских лауреатов и основатели Apple (Стив Возняк), Intel, Tesla"
+    ],
+    "keyStrengths": [
+      "Сердце Кремниевой долины",
+      "Легендарный EECS",
+      "110 нобелевских лауреатов"
+    ],
+    "avgGraduateSalary": "от $125 000 / год",
+    "applicationDeadline": "30 ноября 2025",
+    "officialSiteUrl": "https://www.berkeley.edu",
+    "details": {
+      "aboutCampus": "Исторический кампус с башней Sather Tower в заливе Сан-Франциско с видом на мост Золотые Ворота.",
+      "studentLife": "Активизм, студенческие хакатоны CalHacks, технологические инкубаторы Berkeley SkyDeck.",
+      "livingCostsPerMonth": "~2 100 – 2 700 $ / мес",
+      "dormitoryDetails": "Студенческие комплексы Units 1, 2, 3 и резиденции Blackwell Hall.",
+      "topEmployers": [
+        "Google",
+        "Apple",
+        "NVIDIA",
+        "Meta",
+        "Tesla",
+        "OpenAI",
+        "Salesforce"
+      ],
+      "rounds": {
+        "early": {
+          "name": "UC Application Window",
+          "deadline": "1 — 30 ноября 2025",
+          "description": "Единая подача для всех кампусов Калифорнийского университета.",
+          "recommendedFor": "Строго обязателен."
+        },
+        "regular": {
+          "name": "Решения комиссии",
+          "deadline": "Конец марта 2026",
+          "description": "Оглашение списков принятых.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "SIR Confirmation",
+          "deadline": "1 мая 2026",
+          "description": "Подтверждение зачисления.",
+          "recommendedFor": "Принятым студентам."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Стипендии Regents’ and Chancellor’s Scholarship для топ-кандидатов",
+        "lastYearCutoff": "GPA 5.0 / победы на республиканских олимпиадах",
+        "competitionRatio": "9.8 человека на место",
+        "grantChanceSummary": "Высочайшая конкуренция со школьниками Кремниевой долины и всего мира."
+      }
+    }
+  },
+  {
+    "id": "waterloo-ca",
+    "name": "University of Waterloo (Университет Ватерлоо)",
+    "shortName": "Waterloo",
+    "aliases": [
+      "waterloo",
+      "ватерлоо",
+      "университет ватерлоо",
+      "university of waterloo",
+      "uwaterloo"
+    ],
+    "city": "Ватерлоо",
+    "country": "Канада",
+    "region": "usa",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "business_econ"
+    ],
+    "programTitle": "B.CS in Computer Science / Software Engineering (Co-op)",
+    "degrees": [
+      "Бакалавриат (4-5 лет со стажировками)"
+    ],
+    "acceptanceRate": "15%",
+    "avgGpa": 4.85,
+    "languageRequirement": "IELTS 6.5 (Writing 6.5, Speaking 6.5) / TOEFL 90+",
+    "examRequirement": "Математические конкурсы Euclid / CCC (Waterloo CEMC) + высокий балл аттестата",
+    "tuitionYearKztOrUsd": "International Entrance Scholarships или CAD $45 000 – 62 000/год (окупается Co-op зарплатой CAD $40,000+)",
+    "scholarshipAvailability": "Частичные стипендии",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 84,
+    "whyFits": [
+      "№1 университет Канады и топ-20 мира по Computer Science, главный поставщик инженеров в Кремниевую долину после Стэнфорда",
+      "Крупнейшая в мире программа оплачиваемых стажировок Co-op (студенты зарабатывают от CAD $40,000 во время учебы в Google, Bloomberg, Meta)",
+      "Прямой путь к канадской рабочей визе PGWP и постоянному виду на жительство"
+    ],
+    "keyStrengths": [
+      "№1 по Co-op стажировкам",
+      "Главный найм в Big Tech",
+      "Канадская программа PGWP"
+    ],
+    "avgGraduateSalary": "от CAD $95 000 / год",
+    "applicationDeadline": "1 февраля 2026",
+    "officialSiteUrl": "https://uwaterloo.ca",
+    "details": {
+      "aboutCampus": "Современный технологический кампус в «Канадской кремниевой долине» (регион Ватерлоо) с собственным институтом квантовых вычислений.",
+      "studentLife": "Культура стартапов Velocity, крупнейший студенческий хакатон Hack the North.",
+      "livingCostsPerMonth": "~CAD 1 400 – 1 800 / мес",
+      "dormitoryDetails": "Студенческие деревни Waterloo Residences (Ron Eydt Village, Village 1) с гарантией места.",
+      "topEmployers": [
+        "Google Waterloo/US",
+        "Microsoft",
+        "Bloomberg",
+        "Meta",
+        "Amazon Canada",
+        "Wish",
+        "Shopify"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Early Consideration",
+          "deadline": "15 декабря 2025",
+          "description": "Подача формы AIF (Admission Information Form).",
+          "recommendedFor": "Кандидатам на Computer Science."
+        },
+        "regular": {
+          "name": "Основной дедлайн OUAC",
+          "deadline": "1 февраля 2026",
+          "description": "Подача документов через систему OUAC.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Конкурс Euclid Math Contest",
+          "deadline": "Апрель 2026",
+          "description": "Сдача математического теста Euclid.",
+          "recommendedFor": "Критически важен для CS."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Стипендии Президента за академические заслуги (до CAD $10,000)",
+        "lastYearCutoff": "GPA 4.9+ / высокий результат теста Euclid CEMC",
+        "competitionRatio": "7.1 человека на место",
+        "grantChanceSummary": "Отличные перспективы окупаемости: за время Co-op стажировок студенты полностью компенсируют затраты на жизнь."
+      }
+    }
+  },
+  {
+    "id": "ubc-ca",
+    "name": "University of British Columbia (UBC)",
+    "shortName": "UBC",
+    "aliases": [
+      "ubc",
+      "юбс",
+      "британская колумбия",
+      "university of british columbia",
+      "убк"
+    ],
+    "city": "Ванкувер",
+    "country": "Канада",
+    "region": "usa",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "business_econ",
+      "medicine_bio"
+    ],
+    "programTitle": "B.Sc. in Computer Science / B.Com Sauder School of Business",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "20%",
+    "avgGpa": 4.8,
+    "languageRequirement": "IELTS 6.5 (min 6.0) / TOEFL 90+",
+    "examRequirement": "Школьный аттестат с отличием + UBC Personal Profile",
+    "tuitionYearKztOrUsd": "International Major Entrance Scholarship (до CAD $100 000) или CAD $46 000/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "target",
+    "matchScore": 86,
+    "whyFits": [
+      "Входит в топ-3 лучших университетов Канады и топ-40 мира (QS World Rankings #38)",
+      "Живописный кампус в Ванкувере на берегу Тихого океана с непревзойденным качеством жизни",
+      "Престижные стипендии Karen McKellin International Leader of Tomorrow (покрывают 100% расходов)"
+    ],
+    "keyStrengths": [
+      "Топ-40 мира",
+      "Ванкувер",
+      "Полные стипендии Leader of Tomorrow"
+    ],
+    "avgGraduateSalary": "от CAD $78 000 / год",
+    "applicationDeadline": "15 января 2026",
+    "officialSiteUrl": "https://www.ubc.ca",
+    "details": {
+      "aboutCampus": "Огромный зеленый кампус на мысе Point Grey, окруженный океаном и хвойными лесами, с ботаническим садом и музеем антропологии.",
+      "studentLife": "Активный спорт (сноуборд в Уистлере, каякинг), хакатоны nwHacks, кейс-соревнования Sauder Summit.",
+      "livingCostsPerMonth": "~CAD 1 600 – 2 200 / мес",
+      "dormitoryDetails": "Кампусные резиденции Totem Park, Vanier и Orchard Commons.",
+      "topEmployers": [
+        "Amazon Vancouver",
+        "Microsoft Canada",
+        "Electronic Arts (EA)",
+        "Lululemon",
+        "RBC",
+        "Teck Resources"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Scholarship Deadline",
+          "deadline": "1 декабря 2025",
+          "description": "Дедлайн для соискателей полных стипендий Leader of Tomorrow.",
+          "recommendedFor": "Всем кандидатам на гранты."
+        },
+        "regular": {
+          "name": "Main Application Deadline",
+          "deadline": "15 января 2026",
+          "description": "Основное окно подачи заявок.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Рассмотрение портфолио",
+          "deadline": "Март — Май 2026",
+          "description": "Публикация решений.",
+          "recommendedFor": "Ожидающим ответа."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 150 стипендий International Major Entrance Scholarships",
+        "lastYearCutoff": "GPA 4.85+ / выдающееся эссе Personal Profile",
+        "competitionRatio": "5.2 человека на место",
+        "grantChanceSummary": "Хорошие шансы на поступление для сильных выпускников казахстанских школ с крепким английским."
+      }
+    }
+  },
+  {
+    "id": "yonsei-kr",
+    "name": "Yonsei University (Университет Ёнсе)",
+    "shortName": "Yonsei",
+    "aliases": [
+      "yonsei",
+      "ёнсе",
+      "йонсей",
+      "yonsei university",
+      "ёнсей",
+      "скай корея"
+    ],
+    "city": "Сеул",
+    "country": "Южная Корея",
+    "region": "asia",
+    "fields": [
+      "business_econ",
+      "cs_it",
+      "social_law",
+      "engineering"
+    ],
+    "programTitle": "Underwood International College (UIC): B.A. / B.Sc. in Comparative Literature & Culture, Information & Interaction Design",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "14%",
+    "avgGpa": 4.75,
+    "languageRequirement": "IELTS 6.5 / TOEFL 85+ (обучение 100% на английском в колледже UIC)",
+    "examRequirement": "Школьный аттестат + эссе + онлайн-интервью / SAT приветствуется",
+    "tuitionYearKztOrUsd": "UIC Full/Half Tuition Scholarship (100% грант) или ₩7 500 000/семестр",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 84,
+    "whyFits": [
+      "Член элитной тройки корейских университетов SKY (Seoul National, Korea, Yonsei), топ-60 мира",
+      "Колледж Underwood International College (UIC) — 100% англоязычное liberal arts образование в Сеуле",
+      "Стипендии UIC Merit-based Scholarship покрывают 100% платы за обучение на все 4 года"
+    ],
+    "keyStrengths": [
+      "Элита SKY Кореи",
+      "100% английский в UIC",
+      "Кампус в Сеуле (Синчхон)"
+    ],
+    "avgGraduateSalary": "от ₩48 000 000 / год",
+    "applicationDeadline": "Ноябрь 2025 (весенний) / Май 2026 (осенний семестр)",
+    "officialSiteUrl": "https://www.yonsei.ac.kr",
+    "details": {
+      "aboutCampus": "Кампус Синчхон в молодежном центре Сеула с историческими зданиями, обвитыми плющом, и кампус Songdo International Campus в Инчхоне.",
+      "studentLife": "Легендарный фестиваль Akaraka, спортивное противостояние Yonsei-Korea Games, интернациональные клубы.",
+      "livingCostsPerMonth": "~₩900 000 – 1 300 000 / мес",
+      "dormitoryDetails": "100% проживание на 1 курсе в International Campus Dormitory в Сондо.",
+      "topEmployers": [
+        "Samsung Electronics",
+        "Hyundai Motor",
+        "LG",
+        "Naver",
+        "Kakao",
+        "SK Telecom",
+        "Coupang"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Spring Admissions",
+          "deadline": "Август — Ноябрь 2025",
+          "description": "Набор на весенний семестр (март 2026).",
+          "recommendedFor": "Ранним выпускникам."
+        },
+        "regular": {
+          "name": "Fall Admissions (Основной)",
+          "deadline": "Март — Май 2026",
+          "description": "Основной набор на осенний семестр (сентябрь 2026).",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Интервью UIC",
+          "deadline": "Июнь 2026",
+          "description": "Онлайн-собеседование на английском языке.",
+          "recommendedFor": "Отобранным кандидатам."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 120 полных грантов UIC Tuition Waiver для иностранцев",
+        "lastYearCutoff": "GPA 4.8+ / сильное интервью",
+        "competitionRatio": "6.4 претендента на место",
+        "grantChanceSummary": "Прекрасный вариант качественного англоязычного бакалавриата в центре Сеула."
+      }
+    }
+  },
+  {
+    "id": "tou-eng",
+    "name": "Торайгыров университет (Toraighyrov University / ТоУ)",
+    "shortName": "ТоУ",
+    "aliases": [
+      "тоу",
+      "пгу",
+      "торайгыров",
+      "торайгыров университет",
+      "павлодарский государственный",
+      "пгу павлодар"
+    ],
+    "city": "Павлодар",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "engineering",
+      "cs_it",
+      "business_econ",
+      "social_law"
+    ],
+    "programTitle": "BEng Металлургия, Машиностроение & Информационные системы",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "58%",
+    "avgGpa": 3.9,
+    "languageRequirement": "Русский / Казахский",
+    "examRequirement": "ЕНТ: профильные предметы (от 50+ платное, от 75-92 грант)",
+    "tuitionYearKztOrUsd": "Гос. грант РК или ~850 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 92,
+    "whyFits": [
+      "Ведущий многопрофильный научно-образовательный центр Индустриального Прииртышья",
+      "Прямые партнерства с промышленными гигантами: ERG (Евразийская Группа), Павлодарский алюминиевый завод, ПНХЗ",
+      "Огромная квота государственных грантов (поступить на грант значительно проще, чем в Алматы или Астане)"
+    ],
+    "keyStrengths": [
+      "Индустриальная база ERG",
+      "Доступные проходные баллы на грант",
+      "Современные лаборатории металлургии"
+    ],
+    "avgGraduateSalary": "от 380 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://tou.edu.kz",
+    "details": {
+      "aboutCampus": "Кампус на ул. Ломова в Павлодаре: металлургические стенды, сталеплавильные тренажеры, спортивный комплекс.",
+      "studentLife": "Студенческий деканат, КВН, научные конференции «Торайгыровские чтения», волонтерские отряды.",
+      "livingCostsPerMonth": "~70 000 – 100 000 ₸/мес (очень доступная жизнь)",
+      "dormitoryDetails": "3 благоустроенных общежития с доступной стоимостью проживания.",
+      "topEmployers": [
+        "ERG (Казхром, Алюминий Казахстана)",
+        "ПНХЗ (Павлодарский нефтехимический завод)",
+        "Богатырь Комир",
+        "KAZ Minerals"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Профориентация и прием документов",
+          "deadline": "Июнь 2026",
+          "description": "Подача заявлений на ЕНТ.",
+          "recommendedFor": "Всем абитуриентам региона."
+        },
+        "regular": {
+          "name": "Конкурс госгрантов МНВО РК",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Основное распределение государственных грантов.",
+          "recommendedFor": "При ЕНТ от 75 баллов."
+        },
+        "late": {
+          "name": "Зачисление на контракт",
+          "deadline": "До 25 августа 2026",
+          "description": "Платное обучение.",
+          "recommendedFor": "При ЕНТ от 50 баллов."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 1 100 государственных грантов",
+        "lastYearCutoff": "ЕНТ от 75 баллов на металлургию, 85 на IT",
+        "competitionRatio": "1.4 человека на место",
+        "grantChanceSummary": "Отличный надежный вариант для гарантированного получения государственного гранта."
+      }
+    }
+  },
+  {
+    "id": "arru-ped",
+    "name": "Актюбинский региональный университет им. К. Жубанова (АРРУ)",
+    "shortName": "АРРУ",
+    "aliases": [
+      "арру",
+      "ару",
+      "жубанов",
+      "актюбинский университет",
+      "актобе жубанов",
+      "zhubanov university"
+    ],
+    "city": "Актобе",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "social_law",
+      "engineering",
+      "cs_it",
+      "social_law",
+      "business_econ"
+    ],
+    "programTitle": "B.Ed. Педагогика & IT-образование / BEng Нефтегазовое дело",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "55%",
+    "avgGpa": 4,
+    "languageRequirement": "Русский / Казахский",
+    "examRequirement": "ЕНТ: профильные предметы (от 50+ платное, от 78-95 грант, спецэкзамен для пед.)",
+    "tuitionYearKztOrUsd": "Гос. грант РК или ~780 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 94,
+    "whyFits": [
+      "Крупнейший университет Западного Казахстана с мощной педагогической и инженерной школой",
+      "Высокая президентская стипендия для будущих педагогов (~75 000 ₸/мес)",
+      "Сотрудничество с нефтегазовыми и горнодобывающими предприятиями Актюбинской области"
+    ],
+    "keyStrengths": [
+      "№1 вуз Западного Казахстана",
+      "Высокая стипендия педагогов",
+      "Доступные проходные баллы"
+    ],
+    "avgGraduateSalary": "от 360 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://zhubanov.edu.kz",
+    "details": {
+      "aboutCampus": "Кампус в Актобе на пр. А. Молдагуловой с технологическим парком и педагогическим симуляционным центром.",
+      "studentLife": "Молодежные ассоциации «Жас Отан», дебатные клубы, танцевальные ансамбли, спортивные секции.",
+      "livingCostsPerMonth": "~75 000 – 110 000 ₸/мес",
+      "dormitoryDetails": "Несколько корпусов студенческих Домов студентов с ремонтом.",
+      "topEmployers": [
+        "СНПС-Актобемунайгаз",
+        "Казхром",
+        "Школы и лицеи Западного Казахстана",
+        "НИШ Актобе"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Спецэкзамен для педагогических специальностей",
+          "deadline": "Июнь — Июль 2026",
+          "description": "Сдача теста на профпригодность.",
+          "recommendedFor": "Всем поступающим на педагогику."
+        },
+        "regular": {
+          "name": "Конкурс госгрантов МНВО РК",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Распределение грантов.",
+          "recommendedFor": "ЕНТ 75+."
+        },
+        "late": {
+          "name": "Платное зачисление",
+          "deadline": "Август 2026",
+          "description": "Контрактное обучение.",
+          "recommendedFor": "ЕНТ 50+."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 1 400 государственных грантов",
+        "lastYearCutoff": "ЕНТ от 78 баллов на педагогику, 82 на инженерию",
+        "competitionRatio": "1.5 человека на место",
+        "grantChanceSummary": "Прекрасный надежный вариант поступления на грант в Западном регионе."
+      }
+    }
+  },
+  {
+    "id": "korkyt-it",
+    "name": "Кызылординский университет им. Коркыт Ата",
+    "shortName": "Коркыт Ата",
+    "aliases": [
+      "коркыт",
+      "коркыт ата",
+      "кызылорда университет",
+      "korkyt ata",
+      "кгу коркыт"
+    ],
+    "city": "Кызылорда",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "social_law",
+      "business_econ"
+    ],
+    "programTitle": "B.Sc. Информационные технологии (ИИ-школа Сеульского политеха SeoulTech)",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "52%",
+    "avgGpa": 4.1,
+    "languageRequirement": "Русский / Казахский / Английский",
+    "examRequirement": "ЕНТ: профильные предметы (от 50+ платное, от 80-98 грант)",
+    "tuitionYearKztOrUsd": "Гос. грант РК или ~750 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 93,
+    "whyFits": [
+      "Открыта совместная Высшая школа искусственного интеллекта совместно с Сеульским национальным университетом науки и технологий (SeoulTech)",
+      "Возможность получить передовые знания по IT и AI от южнокорейских профессоров без выезда из Казахстана",
+      "Большие региональные квоты государственных грантов"
+    ],
+    "keyStrengths": [
+      "Школа ИИ с SeoulTech (Корея)",
+      "Низкая стоимость жизни",
+      "Высокий шанс гранта"
+    ],
+    "avgGraduateSalary": "от 390 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://korkyt.kz",
+    "details": {
+      "aboutCampus": "Кампус в центре Кызылорды с новым AI-инкубатором и корейско-казахстанской компьютерной лабораторией.",
+      "studentLife": "ИТ-хакатоны Kyzylorda Hub, языковые клубы корейского языка, студенческий театр.",
+      "livingCostsPerMonth": "~65 000 – 95 000 ₸/мес",
+      "dormitoryDetails": "Студенческие общежития с приоритетом для грантников.",
+      "topEmployers": [
+        "Казатомпром",
+        "ПетроКазахстан",
+        "IT-компании Kyzylorda Hub",
+        "Образовательные учреждения"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Отбор в школу ИИ SeoulTech",
+          "deadline": "Июнь 2026",
+          "description": "Тестирование английского и математики.",
+          "recommendedFor": "Абитуриентам AI-программы."
+        },
+        "regular": {
+          "name": "Конкурс госгрантов",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Подача сертификатов ЕНТ.",
+          "recommendedFor": "ЕНТ 80+."
+        },
+        "late": {
+          "name": "Платное зачисление",
+          "deadline": "Август 2026",
+          "description": "Платный контракт.",
+          "recommendedFor": "ЕНТ 50+."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 950 грантов",
+        "lastYearCutoff": "ЕНТ 82 балла",
+        "competitionRatio": "1.6 человека на место",
+        "grantChanceSummary": "Уникальная возможность учиться по южнокорейской программе на полном казахстанском гранте."
+      }
+    }
+  },
+  {
+    "id": "dku-kz",
+    "name": "Казахстанско-Немецкий Университет (DKU)",
+    "shortName": "DKU",
+    "aliases": [
+      "дку",
+      "dku",
+      "немецкий университет",
+      "deutsch-kasachische universitat",
+      "dku алматы"
+    ],
+    "city": "Алматы",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "business_econ",
+      "engineering",
+      "social_law",
+      "cs_it"
+    ],
+    "programTitle": "B.Sc. Логистика, Телематика & Международный бизнес (по стандартам Германии)",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "35%",
+    "avgGpa": 4.4,
+    "languageRequirement": "Русский / Немецкий (с нуля) / Английский",
+    "examRequirement": "ЕНТ (от 65+) + внутреннее тестирование по немецкому/английскому языку",
+    "tuitionYearKztOrUsd": "Гранты DAAD и Правительства Германии (100% покрытие) или ~1 950 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "target",
+    "matchScore": 89,
+    "whyFits": [
+      "Единственный немецкий вуз в Центральной Азии с финансовой поддержкой МИД Германии и DAAD",
+      "Программы двойного диплома с вузами Германии (Hochschule Mittweida, TU Wildau, Schmalkalden)",
+      "Щедрые немецкие стипендии DAAD с возможностью провести год на бесплатной стажировке в Германии"
+    ],
+    "keyStrengths": [
+      "Немецкий диплом в РК",
+      "Стипендии DAAD",
+      "Обучение в Германии на 3 курсе"
+    ],
+    "avgGraduateSalary": "от 650 000 ₸/мес",
+    "applicationDeadline": "15 июля 2026",
+    "officialSiteUrl": "https://dku.kz",
+    "details": {
+      "aboutCampus": "Уютный европейский кампус в центре Алматы на ул. Пушкина с современными мультимедийными аудиториями и языковым центром Goethe-Institut.",
+      "studentLife": "Немецкие праздники (Oktoberfest, День объединения), клубы дебатов, летние школы в Германии.",
+      "livingCostsPerMonth": "~130 000 – 170 000 ₸/мес",
+      "dormitoryDetails": "Партнерские студенческие резиденции в Алматы.",
+      "topEmployers": [
+        "Siemens Казахстан",
+        "Bosch",
+        "Lufthansa Cargo",
+        "DHL",
+        "Rhenus Logistics",
+        "KPMG"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Конкурс грантов DAAD",
+          "deadline": "Апрель — Май 2026",
+          "description": "Тестирование на стипендии немецкого правительства.",
+          "recommendedFor": "Отличникам учебы."
+        },
+        "regular": {
+          "name": "Летний прием документов",
+          "deadline": "Июнь — Июль 2026",
+          "description": "Основная подача по результатам ЕНТ.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Финальный добор",
+          "deadline": "Август 2026",
+          "description": "Контрактное зачисление.",
+          "recommendedFor": "При наличии мест."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 120 стипендий DAAD и грантов ректора",
+        "lastYearCutoff": "ЕНТ 85+ / балл внутреннего языкового теста от 70%",
+        "competitionRatio": "2.8 человека на место",
+        "grantChanceSummary": "Отличный шанс получить европейское образование и диплом Германии, находясь в Алматы."
+      }
+    }
+  },
+  {
+    "id": "yassawi-med",
+    "name": "Международный казахско-турецкий университет им. Х.А. Ясави (МКТУ)",
+    "shortName": "МКТУ",
+    "aliases": [
+      "мкту",
+      "ясави",
+      "яссави",
+      "туркестан ясави",
+      "iktu",
+      "yassawi"
+    ],
+    "city": "Туркестан",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "medicine_bio",
+      "social_law",
+      "social_law",
+      "cs_it"
+    ],
+    "programTitle": "Общая медицина & Стоматология / IT-системы",
+    "degrees": [
+      "Бакалавриат (5 лет)"
+    ],
+    "acceptanceRate": "48%",
+    "avgGpa": 4.3,
+    "languageRequirement": "Русский / Казахский / Турецкий",
+    "examRequirement": "ЕНТ: профильные предметы (от 70+ платное, 115+ грант)",
+    "tuitionYearKztOrUsd": "100% межправительственный грант РК-Турция или ~1 100 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 92,
+    "whyFits": [
+      "Межправительственный статус (учрежден правительствами Казахстана и Турции)",
+      "Собственная современная университетская клиника в Туркестане",
+      "Огромные квоты специальных грантов Республики Казахстан и Турецкой Республики"
+    ],
+    "keyStrengths": [
+      "Казахско-турецкий статус",
+      "Собственная клиника",
+      "Турецкие гранты и дипломы"
+    ],
+    "avgGraduateSalary": "от 420 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://ayu.edu.kz",
+    "details": {
+      "aboutCampus": "Огромный восточный университетский городок в священном Туркестане с ботаническим садом и клиниками.",
+      "studentLife": "Тюркоязычный международный фестиваль, научные общества, волонтерские отряды.",
+      "livingCostsPerMonth": "~60 000 – 90 000 ₸/мес",
+      "dormitoryDetails": "Студенческие общежития гостиничного типа на территории кампуса.",
+      "topEmployers": [
+        "Клиники Туркестанской области",
+        "Сеть клиник Syzganov",
+        "Турецкие медицинские центры"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Психометрический тест",
+          "deadline": "Июнь — Июль 2026",
+          "description": "Обязательный допуск на медспециальности.",
+          "recommendedFor": "Всем абитуриентам медицины."
+        },
+        "regular": {
+          "name": "Конкурс межправгрантов",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Распределение грантов РК и Турции.",
+          "recommendedFor": "ЕНТ от 105+."
+        },
+        "late": {
+          "name": "Платное зачисление",
+          "deadline": "Август 2026",
+          "description": "Контрактное обучение.",
+          "recommendedFor": "ЕНТ от 70 баллов."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 1 600 грантов РК и Турции",
+        "lastYearCutoff": "ЕНТ 118 баллов на Общую медицину",
+        "competitionRatio": "2.9 человека на место",
+        "grantChanceSummary": "Отличный шанс поступить на медицинский грант при сильной химии и биологии."
+      }
+    }
+  },
+  {
+    "id": "dulaty-eng",
+    "name": "Таразский региональный университет им. М.Х. Дулати",
+    "shortName": "ТарРУ",
+    "aliases": [
+      "дулати",
+      "таргу",
+      "таргу дулати",
+      "тараз университет",
+      "dulaty"
+    ],
+    "city": "Тараз",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "engineering",
+      "cs_it",
+      "business_econ",
+      "social_law"
+    ],
+    "programTitle": "BEng Водные ресурсы, Мелиорация & Нефтехимия",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "56%",
+    "avgGpa": 3.9,
+    "languageRequirement": "Русский / Казахский",
+    "examRequirement": "ЕНТ профильные (от 50+ платное, от 72-88 грант)",
+    "tuitionYearKztOrUsd": "Гос. грант РК или ~780 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 94,
+    "whyFits": [
+      "Главный национальный центр водного хозяйства и гидромелиорации в Центральной Азии",
+      "Сотрудничество с Kazphosphate (Казфосфат) и химическими концернами юга страны",
+      "Низкие проходные баллы на грант по приоритетным водным и инженерным специальностям"
+    ],
+    "keyStrengths": [
+      "Лидер в гидромелиорации и экологии",
+      "Партнерство с Казфосфат",
+      "Доступные гранты"
+    ],
+    "avgGraduateSalary": "от 350 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://dulaty.kz",
+    "details": {
+      "aboutCampus": "Кампусы в Таразе с гидродинамическими полигонами и химическими лабораториями.",
+      "studentLife": "Студенческие стройотряды, экологические клубы, спортивные лиги.",
+      "livingCostsPerMonth": "~65 000 – 95 000 ₸/мес",
+      "dormitoryDetails": "Несколько корпусов студенческих общежитий.",
+      "topEmployers": [
+        "ТОО «Казфосфат»",
+        "Казводхоз",
+        "Химические и перерабатывающие заводы"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Прием документов",
+          "deadline": "Июнь 2026",
+          "description": "Консультации по водным специальностям.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "regular": {
+          "name": "Конкурс грантов",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Основной конкурс грантов.",
+          "recommendedFor": "ЕНТ 72+."
+        },
+        "late": {
+          "name": "Платное зачисление",
+          "deadline": "Август 2026",
+          "description": "Контрактное обучение.",
+          "recommendedFor": "ЕНТ 50+."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 1 200 грантов",
+        "lastYearCutoff": "ЕНТ 72 балла",
+        "competitionRatio": "1.3 человека на место",
+        "grantChanceSummary": "Гарантированное поступление на грант для выпускников южных областей."
+      }
+    }
+  },
+  {
+    "id": "shakarim-tech",
+    "name": "Shakarim University (Университет имени Шакарима)",
+    "shortName": "Шакарим",
+    "aliases": [
+      "шакарим",
+      "семей университет",
+      "shakarim",
+      "шакарим семей",
+      "гу семей"
+    ],
+    "city": "Семей",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "engineering",
+      "medicine_bio",
+      "social_law",
+      "cs_it"
+    ],
+    "programTitle": "BEng Биотехнология, Пищевая безопасность & Агротехнологии",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "57%",
+    "avgGpa": 3.9,
+    "languageRequirement": "Русский / Казахский",
+    "examRequirement": "ЕНТ профильные (от 50+ платное, от 74-90 грант)",
+    "tuitionYearKztOrUsd": "Гос. грант РК или ~760 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 93,
+    "whyFits": [
+      "Ведущий многопрофильный вуз области Абай с акцентом на биотехнологии и инженерию",
+      "Большие региональные квоты проекта «Серпін» для молодежи из южных регионов",
+      "Доступное обучение и проживание"
+    ],
+    "keyStrengths": [
+      "Биотехнологии",
+      "Программа «Серпін»",
+      "Доступность грантов"
+    ],
+    "avgGraduateSalary": "от 340 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://shakarim.edu.kz",
+    "details": {
+      "aboutCampus": "Кампус в историческом центре Семея с биоинженерными теплицами и лабораториями.",
+      "studentLife": "Культурные клубы наследия Абая и Шакарима, студенческий театр, спорт.",
+      "livingCostsPerMonth": "~65 000 – 90 000 ₸/мес",
+      "dormitoryDetails": "Благоустроенные общежития для иногородних студентов.",
+      "topEmployers": [
+        "Предприятия агропромышленного комплекса",
+        "НИЯЦ РК",
+        "Школы области Абай"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Консультации Серпін",
+          "deadline": "Июнь 2026",
+          "description": "Подача заявок по целевым квотам.",
+          "recommendedFor": "Выпускникам сельских школ."
+        },
+        "regular": {
+          "name": "Конкурс грантов",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Основное распределение.",
+          "recommendedFor": "ЕНТ 74+."
+        },
+        "late": {
+          "name": "Платное зачисление",
+          "deadline": "Август 2026",
+          "description": "Платный контракт.",
+          "recommendedFor": "ЕНТ 50+."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 1 000 грантов",
+        "lastYearCutoff": "ЕНТ 75 баллов",
+        "competitionRatio": "1.4 человека на место",
+        "grantChanceSummary": "Отличный шанс учиться бесплатно по инженерно-технологическому профилю."
+      }
+    }
+  },
+  {
+    "id": "turan-kz",
+    "name": "Университет «Туран» (Turan University)",
+    "shortName": "Туран",
+    "aliases": [
+      "туран",
+      "turan",
+      "туран алматы",
+      "turan university",
+      "университет туран"
+    ],
+    "city": "Алматы",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "business_econ",
+      "design_media",
+      "social_law",
+      "cs_it"
+    ],
+    "programTitle": "B.Sc. Маркетинг, Кино & Медиа / IT-менеджмент",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "45%",
+    "avgGpa": 4.1,
+    "languageRequirement": "Русский / Казахский / Английский",
+    "examRequirement": "ЕНТ профильные (от 65+ платное, 105+ грант)",
+    "tuitionYearKztOrUsd": "Гос. грант РК или ~1 650 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 90,
+    "whyFits": [
+      "Первый негосударственный вуз независимого Казахстана с сильной медиа- и бизнес-школой",
+      "Собственный павильон кинопроизводства и креативный кластер Turan Media",
+      "Гибкая система внутренних скидок и грантов ректора"
+    ],
+    "keyStrengths": [
+      "Медиа и креативные индустрии",
+      "Расположение на Сатпаева в Алматы",
+      "Практика в медиа"
+    ],
+    "avgGraduateSalary": "от 460 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://turan-edu.kz",
+    "details": {
+      "aboutCampus": "Кампус на ул. Сатпаева в Алматы с телестудиями, залами судебных заседаний и кинозалами.",
+      "studentLife": "Кинофестиваль «Бастау», студенческий парламент, лига КВН Туран.",
+      "livingCostsPerMonth": "~130 000 – 170 000 ₸/мес",
+      "dormitoryDetails": "Дом студентов в Алматы.",
+      "topEmployers": [
+        "Телеканалы Хабар, Qazaqstan",
+        "Salem Social Media",
+        "Маркетинговые агентства",
+        "ForteBank"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Конкурс грантов ректора",
+          "deadline": "Май — Июнь 2026",
+          "description": "Творческие конкурсы на скидки до 100%.",
+          "recommendedFor": "Медиа-абитуриентам."
+        },
+        "regular": {
+          "name": "Конкурс госгрантов",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Распределение госгрантов РК.",
+          "recommendedFor": "ЕНТ 105+."
+        },
+        "late": {
+          "name": "Платное зачисление",
+          "deadline": "Август 2026",
+          "description": "Платное отделение.",
+          "recommendedFor": "ЕНТ 65+."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 400 государственных и внутренних грантов",
+        "lastYearCutoff": "ЕНТ 108 баллов на менеджмент",
+        "competitionRatio": "2.5 человека на место",
+        "grantChanceSummary": "Хорошие шансы на контракт или скидку ректора при активном портфолио."
+      }
+    }
+  },
+  {
+    "id": "uib-kz",
+    "name": "Университет Международного Бизнеса им. К. Сагадиева (UIB)",
+    "shortName": "UIB",
+    "aliases": [
+      "уиб",
+      "uib",
+      "юиб",
+      "сагадиев",
+      "uib almaty",
+      "университет международного бизнеса"
+    ],
+    "city": "Алматы",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "business_econ",
+      "cs_it",
+      "social_law",
+      "design_media"
+    ],
+    "programTitle": "BBA Финансы, Логистика & Цифровой маркетинг",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "44%",
+    "avgGpa": 4.1,
+    "languageRequirement": "Русский / Казахский / Английский",
+    "examRequirement": "ЕНТ профильные (от 65+ платное, 108+ грант)",
+    "tuitionYearKztOrUsd": "Гос. грант РК или ~1 750 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 90,
+    "whyFits": [
+      "Ведущий профильный бизнес-университет Алматы с многолетними традициями подготовки финансистов",
+      "Программы двойного диплома с вузами Европы и США",
+      "Ежегодный конкурс бизнес-проектов с полными стипендиями им. К. Сагадиева"
+    ],
+    "keyStrengths": [
+      "Финансовая школа",
+      "Кампус на Абая в Алматы",
+      "Практика в банках"
+    ],
+    "avgGraduateSalary": "от 520 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://uib.edu.kz",
+    "details": {
+      "aboutCampus": "Кампус на пр. Абая в Алматы рядом со станцией метро с биржевыми симуляторами и коворкингами.",
+      "studentLife": "Инвестиционный клуб UIB Finance, стартап-акселератор, волейбольная лига.",
+      "livingCostsPerMonth": "~130 000 – 170 000 ₸/мес",
+      "dormitoryDetails": "Студенческое общежитие UIB Residence.",
+      "topEmployers": [
+        "Halyk Bank",
+        "Kaspi.kz",
+        "Ernst & Young",
+        "Deloitte",
+        "Jusan Bank"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Олимпиада UIB",
+          "deadline": "Апрель — Май 2026",
+          "description": "Внутренняя олимпиада на гранты.",
+          "recommendedFor": "Отличникам."
+        },
+        "regular": {
+          "name": "Гос. конкурс",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Распределение грантов МНВО РК.",
+          "recommendedFor": "ЕНТ 108+."
+        },
+        "late": {
+          "name": "Контракт",
+          "deadline": "Август 2026",
+          "description": "Платное зачисление со скидками.",
+          "recommendedFor": "ЕНТ 65+."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 500 грантов",
+        "lastYearCutoff": "ЕНТ 110 баллов",
+        "competitionRatio": "2.7 человека на место",
+        "grantChanceSummary": "Отличный вариант качественного бизнес-образования в центре Алматы."
+      }
+    }
+  },
+  {
+    "id": "caspian-kz",
+    "name": "Каспийский Общественный Университет (Caspian University)",
+    "shortName": "Caspian",
+    "aliases": [
+      "каспийский",
+      "caspian",
+      "caspian university",
+      "каспийский университет",
+      "ку алматы"
+    ],
+    "city": "Алматы",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "social_law",
+      "engineering",
+      "business_econ",
+      "medicine_bio"
+    ],
+    "programTitle": "Высшая школа права «Адилет» / Нефтегазовая инженерия",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "46%",
+    "avgGpa": 4.1,
+    "languageRequirement": "Русский / Казахский",
+    "examRequirement": "ЕНТ профильные (от 65+ платное, 112+ грант)",
+    "tuitionYearKztOrUsd": "Гос. грант РК или ~1 800 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 89,
+    "whyFits": [
+      "Легендарная Высшая школа права «Адилет» — кузница лучших юристов и судей Казахстана",
+      "Инженерные программы по разработке нефтяных и газовых месторождений",
+      "Сильные карьерные связи с ведущими юридическими коллегиями и нефтесервисными компаниями"
+    ],
+    "keyStrengths": [
+      "Школа права «Адилет»",
+      "Нефтегазовый сектор",
+      "Юридическая практика"
+    ],
+    "avgGraduateSalary": "от 550 000 ₸/мес",
+    "applicationDeadline": "20 июля 2026",
+    "officialSiteUrl": "https://cu.edu.kz",
+    "details": {
+      "aboutCampus": "Кампус на пр. Сейфуллина в Алматы с залом судебных заседаний и геологическим музеем.",
+      "studentLife": "Юридическая клиника бесплатной правовой помощи, кейс-клубы, спортивные турниры.",
+      "livingCostsPerMonth": "~130 000 – 170 000 ₸/мес",
+      "dormitoryDetails": "Партнерские студенческие резиденции в Алматы.",
+      "topEmployers": [
+        "GRATA International",
+        "Kinstellar",
+        "Тенгизшевройл",
+        "Судебные органы РК"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Юридическая олимпиада Адилет",
+          "deadline": "Май 2026",
+          "description": "Борьба за ректорские гранты.",
+          "recommendedFor": "Будущим юристам."
+        },
+        "regular": {
+          "name": "Конкурс госгрантов",
+          "deadline": "13 — 20 июля 2026",
+          "description": "Подача ЕНТ.",
+          "recommendedFor": "ЕНТ 112+ на право."
+        },
+        "late": {
+          "name": "Платное зачисление",
+          "deadline": "Август 2026",
+          "description": "Контрактное обучение.",
+          "recommendedFor": "ЕНТ 65+."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 350 грантов",
+        "lastYearCutoff": "ЕНТ 114 баллов на юриспруденцию",
+        "competitionRatio": "3.4 человека на место",
+        "grantChanceSummary": "Престижный диплом в области юриспруденции и права."
+      }
+    }
+  },
+  {
+    "id": "dmu-kz",
+    "name": "De Montfort University Kazakhstan (DMU Kazakhstan)",
+    "shortName": "DMU",
+    "aliases": [
+      "дмю",
+      "dmu",
+      "de montfort",
+      "де монтфорт",
+      "dmu kz",
+      "dmu almaty"
+    ],
+    "city": "Алматы",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "business_econ",
+      "cs_it",
+      "design_media",
+      "social_law"
+    ],
+    "programTitle": "B.Sc. in Business & Management / Cyber Security / Graphic Design (Британский диплом)",
+    "degrees": [
+      "Бакалавриат (3-4 года, британский диплом)"
+    ],
+    "acceptanceRate": "38%",
+    "avgGpa": 4.3,
+    "languageRequirement": "IELTS 6.0 / Внутренний тест DMU Oxford Placement Test",
+    "examRequirement": "Аттестат + внутреннее тестирование по английскому (ЕНТ не требуется для британского диплома)",
+    "tuitionYearKztOrUsd": "Гранты Акимата Алматы или ~3 500 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "target",
+    "matchScore": 88,
+    "whyFits": [
+      "Первый полноправный кампус британского университета в Алматы: 100% британский диплом без выезда в Великобританию",
+      "Обучение полностью на английском языке с профессорами из Великобритании",
+      "Возможность провести семестр или год в главном кампусе DMU в Лестере (Великобритания)"
+    ],
+    "keyStrengths": [
+      "100% британский диплом в Алматы",
+      "Обучение на английском",
+      "Гранты Акимата"
+    ],
+    "avgGraduateSalary": "от 700 000 ₸/мес",
+    "applicationDeadline": "20 августа 2026",
+    "officialSiteUrl": "https://dmuk.edu.kz",
+    "details": {
+      "aboutCampus": "Ультрасовременный технологичный кампус в Алматы (район Esentai Mall) с дизайнерскими студиями и хабами кибербезопасности.",
+      "studentLife": "Британские студенческие традиции, международные выставки дизайна, бизнес-питчинги.",
+      "livingCostsPerMonth": "~150 000 – 200 000 ₸/мес",
+      "dormitoryDetails": "Партнерские апартаменты и резиденции в Алматы.",
+      "topEmployers": [
+        "Deloitte",
+        "PwC",
+        "Ernst & Young",
+        "Air Astana",
+        "Kaspi.kz",
+        "Международные агентства"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Ранний прием и стипендиальный тест",
+          "deadline": "Апрель — Июнь 2026",
+          "description": "Скидки до 50-100% за высокие баллы теста.",
+          "recommendedFor": "Кандидатам с IELTS 6.5+."
+        },
+        "regular": {
+          "name": "Основной международный набор",
+          "deadline": "Июль — Август 2026",
+          "description": "Зачисление по аттестату и английскому.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Финальный добор",
+          "deadline": "До 10 сентября 2026",
+          "description": "Старт занятий.",
+          "recommendedFor": "Опоздавшим."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 80 полных грантов Акимата и стипендий основателей",
+        "lastYearCutoff": "IELTS 6.5+ / средний балл аттестата от 4.8",
+        "competitionRatio": "3.1 человека на место",
+        "grantChanceSummary": "Прекрасная возможность получить признанный в мире диплом UK, находясь в Алматы."
+      }
+    }
+  },
+  {
+    "id": "coventry-kz",
+    "name": "Coventry University Kazakhstan",
+    "shortName": "Coventry KZ",
+    "aliases": [
+      "ковентри",
+      "coventry",
+      "coventry kz",
+      "coventry university astana",
+      "ковентри астана"
+    ],
+    "city": "Астана",
+    "country": "Казахстан",
+    "region": "kazakhstan",
+    "fields": [
+      "cs_it",
+      "business_econ",
+      "social_law"
+    ],
+    "programTitle": "B.Sc. in Computer Science / Advertising & Digital Marketing (UK Degree)",
+    "degrees": [
+      "Бакалавриат (3 года, британский диплом)"
+    ],
+    "acceptanceRate": "40%",
+    "avgGpa": 4.2,
+    "languageRequirement": "IELTS 6.0 / Внутренний тест Coventry English",
+    "examRequirement": "Аттестат + внутреннее интервью на английском языке",
+    "tuitionYearKztOrUsd": "Государственные гранты РК (целевые) или ~3 400 000 ₸/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "target",
+    "matchScore": 88,
+    "whyFits": [
+      "Официальный кампус престижного британского университета Coventry University в столице Казахстана",
+      "Прямой диплом британского государственного образца с аккредитацией в Соединенном Королевстве",
+      "Выделяются государственные образовательные гранты Республики Казахстан"
+    ],
+    "keyStrengths": [
+      "Британский диплом в Астане",
+      "Обучение на английском",
+      "Современный столичный кампус"
+    ],
+    "avgGraduateSalary": "от 680 000 ₸/мес",
+    "applicationDeadline": "20 августа 2026",
+    "officialSiteUrl": "https://coventry.edu.kz",
+    "details": {
+      "aboutCampus": "Новый инновационный кампус в Астане с умными аудиториями и британской библиотекой.",
+      "studentLife": "Интернациональное студенческое сообщество, хакатоны, кейс-клубы.",
+      "livingCostsPerMonth": "~140 000 – 180 000 ₸/мес",
+      "dormitoryDetails": "Студенческие резиденции в Астане.",
+      "topEmployers": [
+        "Astana Hub",
+        "BI Group",
+        "Big 4",
+        "Казахтелеком",
+        "Международные IT-стартапы"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Ранний отбор и гранты",
+          "deadline": "Май — Июнь 2026",
+          "description": "Отбор на гранты и скидки.",
+          "recommendedFor": "Абитуриентам с IELTS 6.5+."
+        },
+        "regular": {
+          "name": "Основной набор",
+          "deadline": "Июль — Август 2026",
+          "description": "Подача аттестата.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Late Entry",
+          "deadline": "Сентябрь 2026",
+          "description": "Добор на свободные места.",
+          "recommendedFor": "По ситуации."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 100 грантов и стипендиальных программ",
+        "lastYearCutoff": "GPA 4.7+ / IELTS 6.0+",
+        "competitionRatio": "2.8 человека на место",
+        "grantChanceSummary": "Британское качество образования по европейским стандартам в столице."
+      }
+    }
+  },
+  {
+    "id": "mgimo-ru",
+    "name": "МГИМО МИД России (Московский государственный институт международных отношений)",
+    "shortName": "МГИМО",
+    "aliases": [
+      "мгимо",
+      "mgimo",
+      "мгимо мид",
+      "мгимо москва"
+    ],
+    "city": "Москва",
+    "country": "Россия",
+    "region": "europe",
+    "fields": [
+      "social_law",
+      "business_econ"
+    ],
+    "programTitle": "Международные отношения / Международное право / Мировая экономика",
+    "degrees": [
+      "Бакалавриат (4 года)"
+    ],
+    "acceptanceRate": "12%",
+    "avgGpa": 4.9,
+    "languageRequirement": "Русский (свободно) + Вступительное тестирование по иностранному языку",
+    "examRequirement": "Квота Россотрудничества или ЕГЭ (от 285+ суммарно) + ДВИ МГИМО",
+    "tuitionYearKztOrUsd": "100% бюджетная квота Россотрудничества или от 650 000 ₽/год",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 82,
+    "whyFits": [
+      "Главная дипломатическая школа Евразии, непревзойденный бренд в сфере внешней политики и права",
+      "Рекордсмен Книги рекордов Гиннесса по количеству преподаваемых иностранных языков (53 языка)",
+      "100% бесплатное обучение для граждан Казахстана по правительственной квоте Россотрудничества"
+    ],
+    "keyStrengths": [
+      "Главный дипломатический вуз",
+      "53 иностранных языка",
+      "Квота Россотрудничества"
+    ],
+    "avgGraduateSalary": "от 140 000 ₽/мес",
+    "applicationDeadline": "20 февраля 2026 (Россотрудничество) / 10 июля 2026 (общий конкурс)",
+    "officialSiteUrl": "https://mgimo.ru",
+    "details": {
+      "aboutCampus": "Кампус на проспекте Вернадского в Москве с дипломатическим музеем, спортивным комплексом с олимпийским бассейном.",
+      "studentLife": "Московская международная модель ООН (MIMUN), студенческий союз, балы МГИМО.",
+      "livingCostsPerMonth": "~45 000 – 65 000 ₽/мес",
+      "dormitoryDetails": "4 общежития МГИМО, первоочередное заселение иностранных студентов-квотников.",
+      "topEmployers": [
+        "МИД РФ",
+        "ЕЭК (Евразийская экономическая комиссия)",
+        "Газпром",
+        "Роснефть",
+        "Консалтинг"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Квота Правительства РФ (Россотрудничество)",
+          "deadline": "Ноябрь 2025 — Февраль 2026",
+          "description": "Подача через портал education-in-russia.com.",
+          "recommendedFor": "Строго обязательно для бесплатного обучения."
+        },
+        "regular": {
+          "name": "Сдача ДВИ по иностранному языку",
+          "deadline": "Начало июля 2026",
+          "description": "Внутренний профильный экзамен.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "late": {
+          "name": "Зачисление на договор",
+          "deadline": "Август 2026",
+          "description": "Платное обучение.",
+          "recommendedFor": "При высоком балле."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Около 40 бюджетных мест для граждан Казахстана через Россотрудничество",
+        "lastYearCutoff": "GPA 5.0 / победы в олимпиадах МГИМО и портфолио",
+        "competitionRatio": "7.8 человека на место",
+        "grantChanceSummary": "Престижный вуз. Для получения квоты требуется максимальный средний балл и активность."
+      }
+    }
+  },
+  {
+    "id": "epfl-ch",
+    "name": "EPFL (Федеральная политехническая школа Лозанны)",
+    "shortName": "EPFL",
+    "aliases": [
+      "epfl",
+      "эпфл",
+      "лозанна",
+      "ecole polytechnique federale de lausanne",
+      "швейцария политех"
+    ],
+    "city": "Лозанна",
+    "country": "Швейцария",
+    "region": "europe",
+    "fields": [
+      "cs_it",
+      "engineering"
+    ],
+    "programTitle": "B.Sc. in Computer Science / Microengineering",
+    "degrees": [
+      "Бакалавриат (3 года)"
+    ],
+    "acceptanceRate": "20%",
+    "avgGpa": 4.95,
+    "languageRequirement": "Французский B2/C1 (1-й курс преимущественно на французском) или перевод после 1-2 курсов",
+    "examRequirement": "Аттестат с отличием (от 80-85% по точным предметам) или вступительный экзамен EPFL",
+    "tuitionYearKztOrUsd": "CHF 1 560 / год (субсидируется правительством Швейцарии, ~1 700 $/год)",
+    "scholarshipAvailability": "Частичные стипендии",
+    "hasDormitory": true,
+    "matchCategory": "reach",
+    "matchScore": 82,
+    "whyFits": [
+      "Топ-15 лучших университетов мира (QS #16), один из ведущих инновационных центров Европы на Женевском озере",
+      "Крайне низкая стоимость обучения благодаря государственным субсидиям Швейцарии (всего ~$1 700 в год)",
+      "Инновационный парк EPFL Innovation Park, где базируются лаборатории Logitech, Cisco, Nestlé"
+    ],
+    "keyStrengths": [
+      "Топ-15 мира",
+      "Субсидируемое обучение CHF 1560",
+      "Вид на Альпы и Женевское озеро"
+    ],
+    "avgGraduateSalary": "от CHF 95 000 / год",
+    "applicationDeadline": "30 апреля 2026",
+    "officialSiteUrl": "https://www.epfl.ch",
+    "details": {
+      "aboutCampus": "Футуристический кампус на берегу Женевского озера с архитектурным шедевром Rolex Learning Center (архитекторы SANAA).",
+      "studentLife": "Ассоциация AGEPoly, горнолыжные выезды в Альпы, парусный спорт, стартап-акселераторы.",
+      "livingCostsPerMonth": "~CHF 1 800 – 2 300 / мес",
+      "dormitoryDetails": "Студенческие ассоциации жилья FMEL (Fondation Maisons pour Etudiants Lausanne).",
+      "topEmployers": [
+        "Google Zurich",
+        "Logitech",
+        "CERN",
+        "ABB",
+        "Rolex",
+        "Nestle"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Подача заявки онлайн",
+          "deadline": "Ноябрь 2025 — 30 апреля 2026",
+          "description": "Основное окно подачи документов.",
+          "recommendedFor": "Всем кандидатам."
+        },
+        "regular": {
+          "name": "Сдача вступительного экзамена (CMS)",
+          "deadline": "Сентябрь 2026",
+          "description": "Для кандидатов без прямо признаваемого аттестата.",
+          "recommendedFor": "По требованию."
+        },
+        "late": {
+          "name": "Старт семестра",
+          "deadline": "Сентябрь 2026",
+          "description": "Начало занятий.",
+          "recommendedFor": "Зачисленным."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Бакалавриат практически без стипендий, но стоимость учебы минимальна",
+        "lastYearCutoff": "GPA от 4.9 из 5.0 по математике и физике",
+        "competitionRatio": "Высокий отсев после 1-го курса («Propédeutique» сдают около 50%)",
+        "grantChanceSummary": "Поступить реально, но учеба требует феноменальной дисциплины."
+      }
+    }
+  },
+  {
+    "id": "lmu-de",
+    "name": "LMU Munich (Мюнхенский университет Людвига-Максимилиана)",
+    "shortName": "LMU",
+    "aliases": [
+      "lmu",
+      "лму",
+      "мюнхенский университет",
+      "ludwig maximilians universitat munchen",
+      "мюнхен lmu"
+    ],
+    "city": "Мюнхен",
+    "country": "Германия",
+    "region": "europe",
+    "fields": [
+      "medicine_bio",
+      "cs_it",
+      "business_econ",
+      "social_law"
+    ],
+    "programTitle": "B.Sc. in Computer Science & Media / Medicine",
+    "degrees": [
+      "Бакалавриат (3 года)"
+    ],
+    "acceptanceRate": "22%",
+    "avgGpa": 4.8,
+    "languageRequirement": "Немецкий (TestDaF 4x4 / Goethe C1 / DSH-2)",
+    "examRequirement": "Feststellungsprüfung (Studienkolleg Мюнхен) или 1-2 курса вуза в РК",
+    "tuitionYearKztOrUsd": "Бесплатное обучение (€0, семестровый сбор €150/семестр)",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "target",
+    "matchScore": 87,
+    "whyFits": [
+      "Старейший и один из самых авторитетных университетов Германии, топ-55 мира (QS World Rankings)",
+      "100% бесплатное высшее образование для всех иностранных студентов",
+      "Мюнхен — один из самых безопасных, красивых и экономически развитых городов Европы"
+    ],
+    "keyStrengths": [
+      "Бесплатное обучение €0",
+      "Топ-60 мира",
+      "Мюнхен"
+    ],
+    "avgGraduateSalary": "от €52 000 / год",
+    "applicationDeadline": "15 июля 2026",
+    "officialSiteUrl": "https://www.lmu.de",
+    "details": {
+      "aboutCampus": "Исторический дворец на площади Geschwister-Scholl-Platz в центре Мюнхена и высокотехнологичный биомедицинский кампус в Martinsried.",
+      "studentLife": "Английский сад (Englischer Garten) прямо за главным зданием, серфинг на Айсбахе, поездки в Баварские Альпы.",
+      "livingCostsPerMonth": "~€950 – 1 400 / мес",
+      "dormitoryDetails": "Общежития мюнхенского студенческого союза Studentenwerk München.",
+      "topEmployers": [
+        "BMW Group",
+        "Siemens",
+        "Allianz",
+        "Munich Re",
+        "Google Munich",
+        "Roche Diagnostics"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Подача в Studienkolleg München",
+          "deadline": "15 января 2026 (на летний) / 15 июля 2026",
+          "description": "Для выпускников 11 классов РК.",
+          "recommendedFor": "Выпускникам школ."
+        },
+        "regular": {
+          "name": "Uni-Assist / LMU Portal",
+          "deadline": "15 июля 2026",
+          "description": "Основной дедлайн на зимний семестр.",
+          "recommendedFor": "Всем кандидатам."
+        },
+        "late": {
+          "name": "Визовое оформление и страховка",
+          "deadline": "Август 2026",
+          "description": "Оформление национальной визы D.",
+          "recommendedFor": "Принятым студентам."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Обучение полностью бесплатное для 100% студентов",
+        "lastYearCutoff": "Abitur NC от 1.2 до 1.8 (по немецкой шкале, где 1.0 — высший)",
+        "competitionRatio": "3.6 человека на место",
+        "grantChanceSummary": "Великолепный выбор. Главный фактор успеха — знание немецкого языка на уровне C1."
+      }
+    }
+  },
+  {
+    "id": "polito-it",
+    "name": "Politecnico di Torino (Туринский политехнический университет)",
+    "shortName": "PoliTo",
+    "aliases": [
+      "полито",
+      "polito",
+      "туринский политех",
+      "politecnico di torino",
+      "политех турин"
+    ],
+    "city": "Турин",
+    "country": "Италия",
+    "region": "europe",
+    "fields": [
+      "engineering",
+      "cs_it"
+    ],
+    "programTitle": "B.Sc. in Computer Engineering / Automotive & Mechanical Engineering",
+    "degrees": [
+      "Бакалавриат (3 года)"
+    ],
+    "acceptanceRate": "34%",
+    "avgGpa": 4.4,
+    "languageRequirement": "IELTS 5.5 / B2 (Обучение полностью на английском языке)",
+    "examRequirement": "Вступительный экзамен TIL-I (Test in Laib) или SAT (от 1100+)",
+    "tuitionYearKztOrUsd": "100% региональная стипендия EDISU (€0 + выплата до €7 500/год)",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "safety",
+    "matchScore": 92,
+    "whyFits": [
+      "Старейший политехнический университет Италии, автомобильная столица Европы (родина FIAT, Ferrari, Pininfarina)",
+      "100% англоязычные программы по компьютерной инженерии и машиностроению",
+      "Региональная стипендия EDISU Piemonte покрывает 100% обучения и выплачивает до €7 500 в год на проживание"
+    ],
+    "keyStrengths": [
+      "Стипендия EDISU (€0 + жилье)",
+      "100% английский",
+      "Столица автопрома Европы"
+    ],
+    "avgGraduateSalary": "от €38 000 / год",
+    "applicationDeadline": "Март — Май 2026",
+    "officialSiteUrl": "https://www.polito.it",
+    "details": {
+      "aboutCampus": "Кампус Corso Duca degli Abruzzi в центре Турина и инновационный хаб Mirafiori со стендами испытаний электромобилей.",
+      "studentLife": "Инженерная гоночная команда Squadra Corse, доступные Альпы для лыжного спорта, уютная итальянская жизнь.",
+      "livingCostsPerMonth": "Полностью компенсируется стипендией EDISU (~€550 – 750/мес)",
+      "dormitoryDetails": "Резиденции EDISU в Турине с первоочередным предоставлением иностранным стипендиатам.",
+      "topEmployers": [
+        "Stellantis (FIAT)",
+        "Ferrari",
+        "Pirelli",
+        "Iveco",
+        "Thales Alenia Space",
+        "Reply IT"
+      ],
+      "rounds": {
+        "early": {
+          "name": "Первая сессия TIL-I",
+          "deadline": "Февраль — Март 2026",
+          "description": "Онлайн сдача теста TIL-I.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "regular": {
+          "name": "Вторая сессия TIL-I и предрегистрация Universitaly",
+          "deadline": "Апрель — Май 2026",
+          "description": "Подтверждение баллов и визовый портал.",
+          "recommendedFor": "Основной поток."
+        },
+        "late": {
+          "name": "Подача на стипендию EDISU",
+          "deadline": "Июль — Август 2026",
+          "description": "Загрузка документов о доходах семьи (ISEE-U).",
+          "recommendedFor": "Всем поступившим."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Свыше 2 500 региональных стипендий EDISU для иностранцев",
+        "lastYearCutoff": "TIL-I от 35-40 баллов из 100 для гарантированного зачисления",
+        "competitionRatio": "2.1 человека на место",
+        "grantChanceSummary": "Один из самых надежных и выгодных способов бесплатно получить признанное европейское инженерное образование."
+      }
+    }
+  },
+  {
+    "id": "sapienza-it",
+    "name": "Sapienza University of Rome (Римский университет Сапиенца)",
+    "shortName": "Sapienza",
+    "aliases": [
+      "сапиенца",
+      "sapienza",
+      "римский университет",
+      "sapienza university of rome",
+      "сапиенза"
+    ],
+    "city": "Рим",
+    "country": "Италия",
+    "region": "europe",
+    "fields": [
+      "cs_it",
+      "engineering",
+      "business_econ",
+      "medicine_bio"
+    ],
+    "programTitle": "B.Sc. in Applied Computer Science and Artificial Intelligence (ACSAI)",
+    "degrees": [
+      "Бакалавриат (3 года)"
+    ],
+    "acceptanceRate": "28%",
+    "avgGpa": 4.5,
+    "languageRequirement": "IELTS 6.0 / B2 (Программа 100% на английском языке)",
+    "examRequirement": "Экзамен TOLC-I / English TOLC-I или SAT (от 1150+)",
+    "tuitionYearKztOrUsd": "Региональная стипендия DiSCo Lazio (€0 + стипендия до €7 200/год)",
+    "scholarshipAvailability": "100% гранты",
+    "hasDormitory": true,
+    "matchCategory": "target",
+    "matchScore": 90,
+    "whyFits": [
+      "Крупнейший и один из старейших университетов Европы (основан в 1303 году), расположен в Вечном городе Риме",
+      "Программа ACSAI (Applied Computer Science & AI) признана одной из лучших англоязычных бакалаврских программ по AI в Европе",
+      "Стипендия региона Лацио (DiSCo) обеспечивает бесплатную учебу, проживание и выплату стипендии"
+    ],
+    "keyStrengths": [
+      "Сердце Рима",
+      "Программа ACSAI на английском",
+      "Стипендия DiSCo Lazio"
+    ],
+    "avgGraduateSalary": "от €39 000 / год",
+    "applicationDeadline": "Апрель — Июнь 2026",
+    "officialSiteUrl": "https://www.uniroma1.it",
+    "details": {
+      "aboutCampus": "Исторический Ciudad Universitaria (Университетский городок) рядом со станцией метро Policlinico в Риме.",
+      "studentLife": "Жизнь в окружении памятников всемирного наследия, хакатоны, международные студенческие сообщества Erasmus Student Network.",
+      "livingCostsPerMonth": "Покрывается грантом DiSCo (~€700 – 900 / мес)",
+      "dormitoryDetails": "Резиденции DiSCo Lazio в Риме.",
+      "topEmployers": [
+        "Enel",
+        "Leonardo",
+        "Engineering Ingegneria Informatica",
+        "Accenture Italy",
+        "Oracle Rome"
+      ],
+      "rounds": {
+        "early": {
+          "name": "English TOLC-I / SAT Submission",
+          "deadline": "Февраль — Апрель 2026",
+          "description": "Сдача теста TOLC-I онлайн.",
+          "recommendedFor": "Всем абитуриентам."
+        },
+        "regular": {
+          "name": "Ranking List Publication",
+          "deadline": "Май — Июнь 2026",
+          "description": "Публикация рейтингов зачисленных.",
+          "recommendedFor": "Основной конкурс."
+        },
+        "late": {
+          "name": "Заявка на стипендию DiSCo",
+          "deadline": "Июль 2026",
+          "description": "Оформление финансовой помощи.",
+          "recommendedFor": "Зачисленным."
+        }
+      },
+      "grantStats": {
+        "lastYearGrantsCount": "Более 3 000 региональных стипендий",
+        "lastYearCutoff": "TOLC-I от 24 баллов из 50",
+        "competitionRatio": "2.8 человека на место",
+        "grantChanceSummary": "Превосходный шанс учиться в Риме на английском языке с полным финансированием."
+      }
+    }
+  },
 ];

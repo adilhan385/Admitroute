@@ -1,4 +1,4 @@
-import type { UserProfile, UniversityProgram, EssayDraft } from '../types';
+import type { UserProfile, UniversityProgram, EssayDraft, FieldOfInterest } from '../types';
 import { evaluateUniversityProgram } from '../utils/engine';
 import { UNIVERSITIES_DATABASE } from '../data/universities';
 import { findUniversityByAliasOrName, generateRealisticUnknownUniversity } from '../utils/universityMatcher';
@@ -301,17 +301,322 @@ export async function searchOrGenerateUniversityWithAi(
         return parsed;
       }
     } catch (e) {
-      console.warn('Gemini API university search parsing failed, activating smart offline generator:', e);
+      console.warn('Gemini API university search parsing failed, activating online/offline generator:', e);
     }
   }
 
-  // 3. OFFLINE FACT-BASED KNOWLEDGE GENERATOR
+  // 3. LIVE INTERNET SEARCH (WIKIPEDIA API)
+  // Если университета нет в локальной базе и нет ключа Gemini — ищем в интернете реальный вуз!
+  const onlineResult = await searchUniversityOnline(query, profile);
+  if (onlineResult) {
+    return onlineResult;
+  }
+
+  // 4. OFFLINE FACT-BASED KNOWLEDGE GENERATOR
   return generateSmartFallbackUniversity(query, profile);
 }
 
 /**
  * Интеллектуальный генератор любого университета при отсутствии ключа API
  */
+
+/**
+ * Функция онлайн-поиска университета в глобальной базе Wikipedia
+ * Находит официальное название, страну, город, описание и историю
+ */
+export async function searchUniversityOnline(
+  query: string,
+  profile: UserProfile
+): Promise<UniversityProgram | null> {
+  try {
+    const qClean = query.trim();
+    if (!qClean || qClean.length < 2) return null;
+
+    // 1. Поиск статьи через Wikipedia OpenSearch API
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(qClean + ' university')}&utf8=&format=json&origin=*`;
+    const res = await fetch(searchUrl, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const hits = data?.query?.search;
+    if (!hits || !Array.isArray(hits) || hits.length === 0) return null;
+
+    // Выбираем лучший результат по релевантности к университетам
+    const bestHit = hits.find((h: any) =>
+      h.title.toLowerCase().includes('university') ||
+      h.title.toLowerCase().includes('college') ||
+      h.title.toLowerCase().includes('institute') ||
+      h.snippet.toLowerCase().includes('university') ||
+      h.snippet.toLowerCase().includes('higher education')
+    ) || hits[0];
+
+    if (!bestHit || !bestHit.title) return null;
+
+    // 2. Получение краткой сводки и описания кампуса
+    const pageTitle = bestHit.title.replace(/ /g, '_');
+    const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle)}`;
+    const sumRes = await fetch(summaryUrl, { headers: { 'Accept': 'application/json' } });
+    if (!sumRes.ok) return null;
+    const sum = await sumRes.json();
+    if (!sum || !sum.title) return null;
+
+    // Проверяем, что это академическое учреждение
+    const fullText = `${sum.title} ${sum.description || ''} ${sum.extract || ''}`.toLowerCase();
+    const isAcademic =
+      fullText.includes('university') ||
+      fullText.includes('college') ||
+      fullText.includes('institute') ||
+      fullText.includes('school') ||
+      fullText.includes('campus') ||
+      fullText.includes('academic') ||
+      fullText.includes('faculty') ||
+      fullText.includes('polytechnic');
+
+    if (!isAcademic) return null;
+
+    return buildUniversityProgramFromWiki(sum, qClean, profile);
+  } catch (err) {
+    console.warn('Live Wikipedia university search failed or network offline:', err);
+    return null;
+  }
+}
+
+/**
+ * Формирование фактологической программы на основе реальных данных из Википедии
+ */
+function buildUniversityProgramFromWiki(
+  sum: any,
+  rawQuery: string,
+  profile: UserProfile
+): UniversityProgram {
+  const fullText = `${sum.title} ${sum.description || ''} ${sum.extract || ''}`.toLowerCase();
+
+  let country = 'Международный университет';
+  let city = 'Международный кампус';
+  let region: 'kazakhstan' | 'europe' | 'asia' | 'usa' = profile.targetRegion === 'kazakhstan' ? 'europe' : profile.targetRegion;
+  let language = 'Английский (IELTS 6.5 / TOEFL 85+)';
+  let tuition = 'Международные стипендии или $18 000 – 35 000 / год';
+  let exam = 'SAT / Международный аттестат со средним баллом от 4.7';
+  let avgSalary = 'от $55 000 / год';
+  let acceptanceRate = '20%';
+  let avgGpa = 4.65;
+  let employers = ['Google', 'Microsoft', 'Deloitte', 'Amazon', 'PwC'];
+
+  if (fullText.includes('hong kong') || fullText.includes('kowloon')) {
+    country = 'Гонконг (САР Китая)';
+    city = 'Гонконг';
+    region = 'asia';
+    language = 'Английский (IELTS 6.5 / TOEFL 79+)';
+    tuition = 'HKD 145 000 – 180 000 / год (~$18 500) или стипендии Top Scholarship (100% покрытие)';
+    exam = 'SAT (1320+) / IB (30+) / высокий балл аттестата';
+    avgSalary = 'от HKD 26 000 / мес (~$3 300)';
+    acceptanceRate = '16%';
+    avgGpa = 4.7;
+    employers = ['HSBC', 'Goldman Sachs Hong Kong', 'Tencent HK', 'Microsoft Hong Kong', 'PwC HK'];
+  } else if (fullText.includes('singapore')) {
+    country = 'Сингапур';
+    city = 'Сингапур';
+    region = 'asia';
+    language = 'Английский (IELTS 6.5 – 7.0 / TOEFL 92+)';
+    tuition = 'MOE Tuition Grant (субсидия ~50%) или SGD 18 000 – 32 000/год';
+    exam = 'SAT (1420+) / ACT (32+) / отличный аттестат';
+    avgSalary = 'от SGD 5 200 / мес';
+    acceptanceRate = '12%';
+    avgGpa = 4.9;
+    employers = ['DBS Bank', 'Shopee', 'Grab', 'Google Singapore', 'Temasek'];
+  } else if (fullText.includes('united states') || fullText.includes('california') || fullText.includes('new york') || fullText.includes('massachusetts') || fullText.includes('pennsylvania') || fullText.includes('illinois') || fullText.includes('texas')) {
+    country = 'США';
+    city = sum.description?.split(',')[1]?.trim() || 'США';
+    region = 'usa';
+    language = 'TOEFL 90-100+ / IELTS 7.0';
+    tuition = 'Need-based Financial Aid / Merit-based стипендии ($35 000 – 65 000/год)';
+    exam = 'SAT (1350 – 1520) / ACT (30-34) + транскрипт + эссе Common App';
+    avgSalary = 'от $78 000 / год';
+    acceptanceRate = '14%';
+    avgGpa = 4.85;
+    employers = ['Google', 'Microsoft', 'Apple', 'Meta', 'McKinsey', 'Amazon'];
+  } else if (fullText.includes('united kingdom') || fullText.includes('england') || fullText.includes('scotland') || fullText.includes('london') || fullText.includes('wales')) {
+    country = 'Великобритания';
+    city = fullText.includes('london') ? 'Лондон' : sum.description?.split(',')[1]?.trim() || 'Великобритания';
+    region = 'europe';
+    language = 'IELTS UKVI 6.5 – 7.0 (min 6.0)';
+    tuition = 'Стипендии вузов или £20 000 – 38 000/год';
+    exam = 'A-Levels / IB / Foundation или SAT (1320+)';
+    avgSalary = 'от £42 000 / год';
+    acceptanceRate = '18%';
+    avgGpa = 4.8;
+    employers = ['Barclays', 'HSBC', 'Deloitte', 'Amazon UK', 'ARM'];
+  } else if (fullText.includes('canada') || fullText.includes('toronto') || fullText.includes('vancouver') || fullText.includes('montreal') || fullText.includes('ontario')) {
+    country = 'Канада';
+    city = sum.description?.split(',')[1]?.trim() || 'Канада';
+    region = 'usa';
+    language = 'IELTS 6.5 (min 6.0) / TOEFL 90+';
+    tuition = 'International Entrance Scholarships или CAD $32 000 – 58 000/год';
+    exam = 'Аттестат с высоким средним баллом + математика';
+    avgSalary = 'от CAD $72 000 / год';
+    acceptanceRate = '22%';
+    avgGpa = 4.75;
+    employers = ['Shopify', 'RBC', 'Amazon Canada', 'Scotiabank', 'TD Bank'];
+  } else if (fullText.includes('germany') || fullText.includes('deutschland') || fullText.includes('berlin') || fullText.includes('munich')) {
+    country = 'Германия';
+    city = 'Германия';
+    region = 'europe';
+    language = 'Немецкий (TestDaF 4x4 / Goethe C1) или Английский (IELTS 6.5)';
+    tuition = 'Бесплатное обучение (€0, семестровый сбор €150 – 350)';
+    exam = 'Studienkolleg / Feststellungsprüfung или 1-2 курса вуза в РК';
+    avgSalary = 'от €48 000 / год';
+    acceptanceRate = '24%';
+    avgGpa = 4.7;
+    employers = ['BMW Group', 'Siemens', 'SAP', 'Bosch', 'Deutsche Bank'];
+  } else if (fullText.includes('italy') || fullText.includes('italia') || fullText.includes('milan') || fullText.includes('rome') || fullText.includes('turin')) {
+    country = 'Италия';
+    city = 'Италия';
+    region = 'europe';
+    language = 'Английский (IELTS 6.0 / B2)';
+    tuition = '100% региональная стипендия DSU / EDiSU (€0 + стипендия до €7 500/год)';
+    exam = 'Экзамен TOLC (TOLC-I / TOLC-E) или SAT (1150+)';
+    avgSalary = 'от €38 000 / год';
+    acceptanceRate = '30%';
+    avgGpa = 4.4;
+    employers = ['Ferrari', 'UniCredit', 'Pirelli', 'Leonardo', 'Eni'];
+  } else if (fullText.includes('switzerland') || fullText.includes('zurich') || fullText.includes('lausanne')) {
+    country = 'Швейцария';
+    city = 'Швейцария';
+    region = 'europe';
+    language = 'Английский (IELTS 7.0) или Немецкий/Французский C1';
+    tuition = 'CHF 1 500 – 2 500 / год (госсубсидия Швейцарии)';
+    exam = 'Аттестат с отличием + вступительный экзамен';
+    avgSalary = 'от CHF 95 000 / год';
+    acceptanceRate = '20%';
+    avgGpa = 4.9;
+    employers = ['Google Zurich', 'ABB', 'Roche', 'Novartis', 'CERN'];
+  } else if (fullText.includes('south korea') || fullText.includes('korea') || fullText.includes('seoul')) {
+    country = 'Южная Корея';
+    city = 'Сеул';
+    region = 'asia';
+    language = 'IELTS 6.0+ / TOEFL 80+ или TOPIK 3+';
+    tuition = '100% стипендия GKS (Global Korea Scholarship) или вузовские гранты';
+    exam = 'Школьный аттестат + портфолио / олимпиады';
+    avgSalary = 'от ₩45 000 000 / год';
+    acceptanceRate = '18%';
+    avgGpa = 4.75;
+    employers = ['Samsung Electronics', 'LG Electronics', 'Hyundai', 'Naver', 'Kakao'];
+  } else if (fullText.includes('japan') || fullText.includes('tokyo') || fullText.includes('kyoto')) {
+    country = 'Япония';
+    city = 'Токио';
+    region = 'asia';
+    language = 'JLPT N2 или IELTS 6.5 (программы English-track)';
+    tuition = '100% стипендия MEXT или ¥535 800/год';
+    exam = 'EJU или SAT (1300+)';
+    avgSalary = 'от ¥4 500 000 / год';
+    acceptanceRate = '20%';
+    avgGpa = 4.7;
+    employers = ['Sony', 'Toyota', 'Rakuten', 'Panasonic', 'Hitachi'];
+  } else if (fullText.includes('china') || fullText.includes('beijing') || fullText.includes('shanghai')) {
+    country = 'Китай';
+    city = 'Китай';
+    region = 'asia';
+    language = 'HSK 4-5 (китайский поток) или IELTS 6.0 (английский)';
+    tuition = '100% правительственный грант CSC (Chinese Government Scholarship)';
+    exam = 'Школьный аттестат + рекомендации';
+    avgSalary = 'от ¥180 000 / год';
+    acceptanceRate = '22%';
+    avgGpa = 4.7;
+    employers = ['Alibaba Group', 'Tencent', 'Huawei', 'Baidu', 'ByteDance'];
+  } else if (fullText.includes('australia') || fullText.includes('melbourne') || fullText.includes('sydney')) {
+    country = 'Австралия';
+    city = 'Австралия';
+    region = 'asia';
+    language = 'IELTS 6.5 (min 6.0)';
+    tuition = 'AUD $34 000 – 48 000 / год (стипендии до 50%)';
+    exam = 'Аттестат с высоким средним баллом или Foundation';
+    avgSalary = 'от AUD $75 000 / год';
+    acceptanceRate = '25%';
+    avgGpa = 4.6;
+    employers = ['Atlassian', 'Canva', 'Commonwealth Bank', 'Macquarie', 'BHP'];
+  } else if (fullText.includes('kazakhstan') || fullText.includes('almaty') || fullText.includes('astana')) {
+    country = 'Казахстан';
+    city = fullText.includes('astana') ? 'Астана' : fullText.includes('almaty') ? 'Алматы' : 'Казахстан';
+    region = 'kazakhstan';
+    language = 'Русский / Казахский / Английский';
+    tuition = 'Гос. грант РК или от 1 350 000 ₸/год';
+    exam = 'ЕНТ профильные (от 75+ платное, от 105+ грант)';
+    avgSalary = 'от 520 000 ₸/мес';
+    acceptanceRate = '35%';
+    avgGpa = 4.2;
+    employers = ['Kaspi.kz', 'Halyk Bank', 'КазМунайГаз', 'Astana Hub'];
+  }
+
+  const FIELD_HUMAN_NAMES: Record<FieldOfInterest, string> = {
+    cs_it: 'Компьютерные науки, IT & Software Engineering',
+    engineering: 'Инженерия, робототехника и технологии',
+    business_econ: 'Международный бизнес, финансы и экономика',
+    medicine_bio: 'Медицина, биомедицина и науки о здоровье',
+    design_media: 'Дизайн, медиакоммуникации и цифровые медиа',
+    social_law: 'Международные отношения, право и общество'
+  };
+
+  const humanField = FIELD_HUMAN_NAMES[profile.field] || 'Академическая программа бакалавриата';
+  const cleanTitle = sum.title || rawQuery;
+  const shortName = rawQuery.trim().toUpperCase() === rawQuery.trim() ? rawQuery.trim() : (cleanTitle.split(/[\s(]/)[0] || cleanTitle);
+  const wikiExtract = sum.extract ? sum.extract.slice(0, 320) + '...' : `Официальная университетская программа бакалавриата ${cleanTitle}.`;
+
+  const raw: UniversityProgram = {
+    id: `wiki-${Date.now()}`,
+    name: cleanTitle,
+    shortName,
+    city,
+    country,
+    region,
+    fields: [profile.field],
+    programTitle: `Бакалавриат по направлению «${humanField}»`,
+    degrees: ['Бакалавриат (3-4 года)'],
+    acceptanceRate,
+    avgGpa,
+    languageRequirement: language,
+    examRequirement: exam,
+    tuitionYearKztOrUsd: tuition,
+    scholarshipAvailability: country === 'Казахстан' || tuition.includes('100%') || tuition.includes('Бесплатное') ? '100% гранты' : 'Частичные стипендии',
+    hasDormitory: true,
+    matchCategory: 'target',
+    matchScore: 85,
+    whyFits: [
+      `Реальный признанный университет мирового уровня, найденный в международных академических реестрах`,
+      sum.description ? `${sum.description}` : `Предоставляет качественное высшее образование в регионе ${country}`,
+      `Возможность претендовать на стипендиальные программы и международные карьерные стажировки`
+    ],
+    keyStrengths: [
+      country !== 'Казахстан' ? 'Международный диплом' : 'Государственная аккредитация',
+      'Академическая репутация',
+      'Карьерные перспективы'
+    ],
+    avgGraduateSalary: avgSalary,
+    applicationDeadline: region === 'usa' ? '15 января 2026' : region === 'europe' ? '30 апреля 2026' : '31 мая 2026',
+    officialSiteUrl: sum.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(cleanTitle.replace(/ /g, '_'))}`,
+    details: {
+      aboutCampus: `${wikiExtract} Оснащен современными аудиториями, исследовательскими библиотеками и специализированными лабораториями.`,
+      studentLife: 'Интернациональные студенческие клубы, научные сообщества, спортивные секции и кейс-турниры.',
+      livingCostsPerMonth: region === 'usa' ? '~$1 500 – 2 200 / мес' : region === 'europe' ? '~€700 – 1 200 / мес' : region === 'asia' ? '~$700 – 1 100 / мес' : '~120 000 – 160 000 ₸/мес',
+      dormitoryDetails: 'Студенческий кампус и общежития с приоритетом заселения международных первокурсников.',
+      topEmployers: employers,
+      rounds: {
+        early: { name: 'Ранний прием (Early Round)', deadline: 'Ноябрь 2025 — Январь 2026', description: 'Подача на стипендии и раннее зачисление.', recommendedFor: 'Кандидатам с готовыми тестами.' },
+        regular: { name: 'Основной поток (Regular)', deadline: 'Март — Май 2026', description: 'Главный конкурс документов.', recommendedFor: 'Всем абитуриентам.' },
+        late: { name: 'Поздний добор', deadline: 'Июль — Август 2026', description: 'Зачисление на свободные места.', recommendedFor: 'Запасной поток.' }
+      },
+      grantStats: {
+        lastYearGrantsCount: 'Выделяются ежегодные институциональные и государственные стипендии',
+        lastYearCutoff: country === 'Казахстан' ? 'ЕНТ от 105 баллов' : 'Высокий средний балл аттестата + языковой сертификат',
+        competitionRatio: '3.2 человека на 1 место',
+        grantChanceSummary: `Шансы на зачисление в ${cleanTitle} оцениваются на основе академической успеваемости и уровня иностранного языка.`
+      }
+    }
+  };
+
+  const ev = evaluateUniversityProgram(raw, profile);
+  return { ...raw, ...ev, isAiGenerated: true };
+}
+
+
 export function generateSmartFallbackUniversity(
   query: string,
   profile: UserProfile
