@@ -30,8 +30,7 @@ import {
   updateSiteSettings,
   toggleAdminRole,
   isSuperAdmin,
-  saveUserProfileForUser,
-  resetSeedUsers,
+  purgeAllFakeUsers,
   SUPER_ADMIN_EMAIL
 } from '../services/auth';
 import {
@@ -44,7 +43,7 @@ import {
   type ChatThreadSummary,
   type ChatMessage
 } from '../services/chat';
-import type { UserAccount, SiteSettings, SubscriptionTier, UserProfile } from '../types';
+import type { UserAccount, SiteSettings, SubscriptionTier } from '../types';
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -278,24 +277,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }, 100);
   };
 
-  const handleFillDemoProfile = (userId: string) => {
-    const demoProfile: UserProfile = {
-      name: 'Алихан Касымов',
-      grade: 'grade_11',
-      field: 'cs_it',
-      gpa: 4.85,
-      hasLanguageTest: true,
-      languageScore: 'IELTS 7.5',
-      hasStateExam: true,
-      stateExamScore: 'ЕНТ 128 / 140',
-      targetRegion: 'europe',
-      budget: 'full_grant',
-      targetYear: '2026',
-      portfolioText: 'Победитель республиканской олимпиады по программированию, призер хакатона LOCUS 2026, разработчик веб-сервисов.'
-    };
-    saveUserProfileForUser(userId, demoProfile);
+  const handlePurgeFakeUsers = () => {
+    const refreshed = purgeAllFakeUsers();
+    setUsers(refreshed);
     loadData();
-    showNotification('Тестовый профиль успешно прикреплен к аккаунту');
+    showNotification(`База очищена! Реальных пользователей: ${refreshed.length}`);
   };
 
   const handleSendAdminReply = (e?: React.FormEvent) => {
@@ -477,20 +463,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-xs text-slate-500">
-                  Всего: <strong className="font-bold text-slate-800">{users.length}</strong> абитуриентов (PRO: {totalPro})
+                  Всего: <strong className="font-bold text-slate-800">{users.length}</strong> пользователей (PRO: {totalPro})
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    const refreshed = resetSeedUsers();
-                    setUsers(refreshed);
-                    showNotification(`База синхронизирована! В системе ${refreshed.length} пользователей.`);
-                  }}
+                  onClick={handlePurgeFakeUsers}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-blue-600 transition-colors"
-                  title="Синхронизировать базу и восстановить всех абитуриентов с анкетами"
+                  title="Очистить базу от всех демо-пользователей и обновить список"
                 >
                   <Users className="h-3.5 w-3.5 text-blue-600" />
-                  <span>Синхронизировать базу</span>
+                  <span>Обновить / Очистить от фейков</span>
                 </button>
               </div>
             </div>
@@ -1079,22 +1061,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
           </div>
         )}
-      </div>
 
-      {/* ========================================================================= */}
-      {/* USER DETAILS INSPECTION MODAL */}
-      {/* ========================================================================= */}
-      {selectedUserForView && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-3 sm:p-5 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
+        {/* ========================================================================= */}
+        {/* USER DETAILS INSPECTION DOSSIER (Full Inspector inside the Panel) */}
+        {/* ========================================================================= */}
+        {selectedUserForView && (
+          <div className="absolute inset-0 z-40 flex flex-col bg-white overflow-hidden animate-in fade-in duration-150">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white shrink-0">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 font-bold text-base text-white shadow-xs">
                   {selectedUserForView.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-base font-bold text-white">{selectedUserForView.name}</h3>
                     {selectedUserForView.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() ? (
                       <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
@@ -1132,9 +1112,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedUserForView(null)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition-colors"
+                title="Вернуться к списку пользователей"
               >
-                <X className="h-5 w-5" />
+                <span>✕ Назад к списку</span>
               </button>
             </div>
 
@@ -1311,28 +1292,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-dashed border-slate-200 p-5 text-center bg-slate-50">
+                  <div className="rounded-xl border border-dashed border-slate-200 p-6 text-center bg-slate-50">
                     <GraduationCap className="mx-auto h-8 w-8 text-slate-300 mb-1.5" />
                     <div className="text-xs font-bold text-slate-700">Анкета абитуриента еще не заполнена</div>
-                    <p className="text-[11px] text-slate-500 max-w-md mx-auto mt-0.5 mb-3">
-                      Пользователь еще не проходил пошаговый опросник подбора вузов на главной странице.
+                    <p className="text-[11px] text-slate-500 max-w-md mx-auto mt-0.5">
+                      Пользователь зарегистрировался, но еще не заполнял опросник подбора университетов на главной странице.
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => handleFillDemoProfile(selectedUserForView.id)}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-2xs hover:bg-blue-50 transition-colors"
-                    >
-                      <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-                      <span>Прикрепить тестовую анкету (для жюри)</span>
-                    </button>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Modal Actions Footer */}
-            <div className="border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2">
+            {/* Actions Footer */}
+            <div className="border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-between flex-wrap gap-2 shrink-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 {selectedUserForView.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase() && (
                   <button
                     type="button"
@@ -1340,7 +1313,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors"
                   >
                     <MessageSquare className="h-3.5 w-3.5" />
-                    <span>Написать пользователю в чат</span>
+                    <span>Написать в чат</span>
                   </button>
                 )}
 
@@ -1377,6 +1350,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     {selectedUserForView.isBanned ? 'Разблокировать' : 'Заблокировать'}
                   </button>
                 )}
+
+                {selectedUserForView.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase() && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleDeleteUser(selectedUserForView.id, selectedUserForView.email);
+                      setSelectedUserForView(null);
+                    }}
+                    className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700 hover:bg-rose-100 transition-colors"
+                  >
+                    Удалить
+                  </button>
+                )}
               </div>
 
               <button
@@ -1388,8 +1374,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

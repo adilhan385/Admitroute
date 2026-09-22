@@ -53,15 +53,10 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
 
   // Synchronize with external triggers
   useEffect(() => {
-    if (isOpenExternal && isAdmin && onOpenAdmin) {
-      onOpenAdmin('messages');
-      if (onCloseExternal) onCloseExternal();
-      return;
-    }
     if (isOpenExternal !== undefined) {
       setIsOpen(isOpenExternal);
     }
-  }, [isOpenExternal, isAdmin, onOpenAdmin, onCloseExternal]);
+  }, [isOpenExternal]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -150,6 +145,25 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
             </div>
 
             <div className="flex items-center gap-1">
+              {isAdmin && onOpenAdmin && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleClose();
+                    onOpenAdmin('messages');
+                  }}
+                  className="mr-1 inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-blue-700 transition-colors shadow-2xs"
+                  title="Открыть все диалоги в панели администратора"
+                >
+                  <MessageSquare className="h-3 w-3" />
+                  <span>CRM диалогов</span>
+                  {unreadCountAdmin > 0 && (
+                    <span className="rounded-full bg-rose-500 px-1 py-0.2 text-[9px] font-bold">
+                      {unreadCountAdmin}
+                    </span>
+                  )}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleClose}
@@ -315,10 +329,6 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
         <button
           type="button"
           onClick={() => {
-            if (isAdmin && onOpenAdmin) {
-              onOpenAdmin('messages');
-              return;
-            }
             setIsOpen(true);
             if (initialTopic) {
               handleRequestProPurchase();
