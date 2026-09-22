@@ -82,17 +82,20 @@ export function parseExamScores(profile: UserProfile) {
   // 3. Portfolio evaluation
   const pText = (profile.portfolioText || '').trim();
   let portfolioRating: 'empty' | 'weak' | 'moderate' | 'strong' = 'empty';
-  if (pText.length >= 15) {
+  if (pText.length >= 10) {
     const pKeywords = [
       'олимпиад', 'хакатон', 'проект', 'разработ', 'призер', 'победител',
       'волонтер', 'капитан', 'стартап', 'github', 'робототехник', 'конкурс',
-      'наград', 'диплом', 'дебат', 'исследован', 'стать'
+      'наград', 'диплом', 'дебат', 'исследован', 'стать', 'учен', 'научн',
+      'лекарств', 'леарств', 'изобре', 'придумал', 'создал', 'вакцин', 'медицин',
+      'био', 'патент', 'рак', 'бешенств', 'лаборатор', 'открыти', 'онколог',
+      'препарат', 'спорт', 'кмс', 'чемпион', 'клуб', 'код', 'бот', 'сайт'
     ];
     const lowerP = pText.toLowerCase();
     const hits = pKeywords.filter(k => lowerP.includes(k)).length;
-    if (hits >= 3 || (pText.length > 80 && hits >= 2)) {
+    if (hits >= 2 || (pText.length > 35 && hits >= 1)) {
       portfolioRating = 'strong';
-    } else if (hits >= 1 || pText.length > 35) {
+    } else if (hits >= 1 || pText.length > 20) {
       portfolioRating = 'moderate';
     } else {
       portfolioRating = 'weak';
@@ -188,7 +191,9 @@ export function calculateDiagnosis(profile: UserProfile): ProfileDiagnosis {
 
   // --- 4. PORTFOLIO EVALUATION ---
   if (portfolioRating === 'strong') {
-    strengths.push('Убедительное портфолио: олимпиады и практические проекты дают преимущество в конкурсе');
+    strengths.push('Убедительное портфолио: заявлены авторские проекты, научно-исследовательские разработки или соревновательный опыт');
+  } else if (portfolioRating === 'moderate') {
+    strengths.push('Наличие прикладного портфолио: практический проектный интерес или активность в профильных кружках');
   } else if (portfolioRating === 'empty') {
     if (profile.targetRegion === 'usa' || profile.budget === 'full_grant') {
       riskFactors.push('Полное отсутствие внеучебного портфолио: для вузов США и грантов это лишает заявку конкурентоспособности');
