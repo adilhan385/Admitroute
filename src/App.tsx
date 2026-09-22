@@ -18,11 +18,12 @@ import { ScholarshipsSection } from './components/ScholarshipsSection';
 import { NextActionBanner } from './components/NextActionBanner';
 import { EssayAssistantModal } from './components/EssayAssistantModal';
 import { UniversityDetailModal } from './components/UniversityDetailModal';
+import { UniversityPlanModal } from './components/UniversityPlanModal';
 import { AuthModal } from './components/AuthModal';
 import { LiveChatWidget } from './components/LiveChatWidget';
 import { AdminPanel } from './components/AdminPanel';
 import { PricingModal } from './components/PricingModal';
-import { getCurrentUser, logout as authLogout, getSiteSettings, recordActionUsage } from './services/auth';
+import { getCurrentUser, logout as authLogout, getSiteSettings, recordActionUsage, saveUserProfileForUser } from './services/auth';
 import type { UserAccount, SiteSettings } from './types';
 import { Bell } from 'lucide-react';
 import { Sparkles, SlidersHorizontal } from 'lucide-react';
@@ -46,7 +47,17 @@ export const App: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const [isCompareOpen, setIsCompareOpen] = useState<boolean>(false);
-  const [roadmap, setRoadmap] = useState<RoadmapStep[]>(() => profile ? generateRoadmap(profile) : []);
+  const [roadmap, setRoadmap] = useState<RoadmapStep[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_ROADMAP);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
 
   // Diversity & AI Recommendations state
   const [customUniversities, setCustomUniversities] = useState<UniversityProgram[]>([]);
@@ -56,6 +67,9 @@ export const App: React.FC = () => {
   // University Detail Modal state
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const [selectedDetailUni, setSelectedDetailUni] = useState<UniversityProgram | null>(null);
+
+  // University Preparation Plan state
+  const [selectedPlanUni, setSelectedPlanUni] = useState<UniversityProgram | null>(null);
 
   // Essay Assistant state
   const [isEssayModalOpen, setIsEssayModalOpen] = useState<boolean>(false);
@@ -69,6 +83,8 @@ export const App: React.FC = () => {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
   const [supportTopic, setSupportTopic] = useState<string>('PRO');
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
+  const [adminInitialTab, setAdminInitialTab] = useState<'users' | 'messages' | 'settings'>('users');
+  const [adminInitialThreadId, setAdminInitialThreadId] = useState<string | undefined>(undefined);
   const [isPricingModalOpen, setIsPricingModalOpen] = useState<boolean>(false);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => getSiteSettings());
 
@@ -98,6 +114,12 @@ export const App: React.FC = () => {
     setIsSupportModalOpen(true);
   };
 
+  const handleOpenAdmin = (tab: 'users' | 'messages' | 'settings' = 'users', threadId?: string) => {
+    setAdminInitialTab(tab);
+    setAdminInitialThreadId(threadId);
+    setIsAdminPanelOpen(true);
+  };
+
   const handleLogout = () => {
     authLogout();
     setCurrentUser(null);
@@ -121,6 +143,10 @@ export const App: React.FC = () => {
     setRoadmap(generateRoadmap(newProfile));
     setIsEditing(false);
     setCustomUniversities([]);
+    if (currentUser) {
+      saveUserProfileForUser(currentUser.id, newProfile);
+      setCurrentUser(getCurrentUser());
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -179,6 +205,10 @@ export const App: React.FC = () => {
     setRoadmap(generateRoadmap(chosenProfile));
     setIsEditing(false);
     setCustomUniversities([]);
+    if (currentUser) {
+      saveUserProfileForUser(currentUser.id, chosenProfile);
+      setCurrentUser(getCurrentUser());
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -236,6 +266,11 @@ export const App: React.FC = () => {
     setIsEssayModalOpen(true);
     const draft = await generateEssayStructure(uni, profile);
     setEssayDraft(draft);
+  };
+
+  // Open University Preparation Plan modal
+  const handleOpenPlanModal = (uni: UniversityProgram) => {
+    setSelectedPlanUni(uni);
   };
 
   // Rotation / Refresh handler
@@ -309,7 +344,7 @@ export const App: React.FC = () => {
         onExportCalendar={profile ? handleExportCalendar : undefined}
         currentUser={currentUser}
         onOpenAuth={handleOpenAuth}
-        onOpenAdmin={() => setIsAdminPanelOpen(true)}
+        onOpenAdmin={handleOpenAdmin}
         onOpenSupport={handleOpenSupport}
         onOpenPricing={() => setIsPricingModalOpen(true)}
         onLogout={handleLogout}
@@ -418,6 +453,7 @@ export const App: React.FC = () => {
                   setIsDetailModalOpen(true);
                 }}
                 onOpenEssayModal={handleOpenEssayModal}
+                onOpenPlanModal={handleOpenPlanModal}
                 selectedForCompare={selectedForCompare}
                 onToggleCompare={handleToggleCompare}
                 onAddCustomUniversity={handleAddCustomUniversity}
@@ -434,6 +470,7 @@ export const App: React.FC = () => {
               onToggleCompare={handleToggleCompare}
               onOpenCompareModal={() => setIsCompareOpen(true)}
               onOpenEssayModal={handleOpenEssayModal}
+              onOpenPlanModal={handleOpenPlanModal}
               onSelectUniversity={(uni) => {
                 setSelectedDetailUni(uni);
                 setIsDetailModalOpen(true);
@@ -466,9 +503,19 @@ export const App: React.FC = () => {
               onClose={() => setIsDetailModalOpen(false)}
               university={selectedDetailUni}
               onOpenEssayModal={handleOpenEssayModal}
+              onOpenPlanModal={handleOpenPlanModal}
               isCompared={selectedDetailUni ? selectedForCompare.includes(selectedDetailUni.id) : false}
               onToggleCompare={handleToggleCompare}
             />
+
+            {/* UNIVERSITY PREPARATION PLAN MODAL (Step-by-step roadmap & Gap Analysis) */}
+            {selectedPlanUni && profile && (
+              <UniversityPlanModal
+                uni={selectedPlanUni}
+                profile={profile}
+                onClose={() => setSelectedPlanUni(null)}
+              />
+            )}
 
             {/* ESSAY STRUCTURE ASSISTANT MODAL */}
             <EssayAssistantModal
@@ -488,6 +535,12 @@ export const App: React.FC = () => {
         initialMode={authModalMode}
         onAuthSuccess={user => {
           setCurrentUser(user);
+          if (user.profile) {
+            setProfile(user.profile);
+            setRoadmap(generateRoadmap(user.profile));
+          } else if (profile) {
+            saveUserProfileForUser(user.id, profile);
+          }
         }}
       />
 
@@ -498,6 +551,7 @@ export const App: React.FC = () => {
         isOpenExternal={isSupportModalOpen}
         onCloseExternal={() => setIsSupportModalOpen(false)}
         initialTopic={supportTopic}
+        onOpenAdmin={handleOpenAdmin}
       />
 
       {/* Pricing Comparison Modal */}
@@ -521,6 +575,8 @@ export const App: React.FC = () => {
             setSiteSettings(getSiteSettings());
           }}
           currentUser={currentUser}
+          initialTab={adminInitialTab}
+          initialThreadId={adminInitialThreadId}
         />
       )}
 

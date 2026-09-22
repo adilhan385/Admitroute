@@ -15,7 +15,8 @@ import {
 import {
   getThreadMessages,
   sendUserMessage,
-  ADMIN_CONTACTS
+  ADMIN_CONTACTS,
+  getTotalUnreadForAdmin
 } from '../services/chat';
 import { getSiteSettings } from '../services/auth';
 import type { UserAccount, SiteSettings } from '../types';
@@ -27,6 +28,7 @@ interface LiveChatWidgetProps {
   isOpenExternal?: boolean;
   onCloseExternal?: () => void;
   initialTopic?: string;
+  onOpenAdmin?: (tab?: 'users' | 'messages' | 'settings') => void;
 }
 
 export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
@@ -34,15 +36,18 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
   onOpenAuth,
   isOpenExternal,
   onCloseExternal,
-  initialTopic
+  initialTopic,
+  onOpenAdmin
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCountAdmin, setUnreadCountAdmin] = useState<number>(() => getTotalUnreadForAdmin());
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => getSiteSettings());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.email.toLowerCase() === 'adilhananuar426@gmail.com';
   const isGuest = !currentUser || currentUser.role === 'guest';
   const threadId = currentUser ? currentUser.id : 'guest-session';
   const userName = currentUser ? currentUser.name : 'Гость сайта';
@@ -52,10 +57,15 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
 
   // Synchronize with external triggers
   useEffect(() => {
+    if (isOpenExternal && isAdmin && onOpenAdmin) {
+      onOpenAdmin('messages');
+      if (onCloseExternal) onCloseExternal();
+      return;
+    }
     if (isOpenExternal !== undefined) {
       setIsOpen(isOpenExternal);
     }
-  }, [isOpenExternal]);
+  }, [isOpenExternal, isAdmin, onOpenAdmin, onCloseExternal]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -73,6 +83,7 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
     const handleUpdate = () => {
       loadMessages();
       setSiteSettings(getSiteSettings());
+      setUnreadCountAdmin(getTotalUnreadForAdmin());
     };
 
     window.addEventListener('admitroute_chat_update', handleUpdate);
@@ -327,6 +338,10 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
         <button
           type="button"
           onClick={() => {
+            if (isAdmin && onOpenAdmin) {
+              onOpenAdmin('messages');
+              return;
+            }
             setIsOpen(true);
             if (initialTopic) {
               handleRequestProPurchase();
@@ -339,11 +354,19 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
             <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
             <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-emerald-500" />
           </div>
-          <span>Чат с админом • Купить PRO</span>
-          {unreadCount > 0 && (
-            <span className="rounded-full bg-rose-600 px-1.5 py-0.2 text-[10px] font-bold text-white">
-              {unreadCount}
-            </span>
+          <span>{isAdmin ? 'Сообщения клиентов' : 'Чат с админом • Купить PRO'}</span>
+          {isAdmin ? (
+            unreadCountAdmin > 0 && (
+              <span className="rounded-full bg-rose-600 px-1.5 py-0.2 text-[10px] font-bold text-white">
+                {unreadCountAdmin}
+              </span>
+            )
+          ) : (
+            unreadCount > 0 && (
+              <span className="rounded-full bg-rose-600 px-1.5 py-0.2 text-[10px] font-bold text-white">
+                {unreadCount}
+              </span>
+            )
           )}
         </button>
       )}

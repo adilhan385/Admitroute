@@ -13,7 +13,13 @@ import {
   CheckCircle2,
   CreditCard,
   Crown,
-  ShieldCheck
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  Copy,
+  Check,
+  GraduationCap,
+  Key
 } from 'lucide-react';
 import {
   getAllUsers,
@@ -24,6 +30,7 @@ import {
   updateSiteSettings,
   toggleAdminRole,
   isSuperAdmin,
+  saveUserProfileForUser,
   SUPER_ADMIN_EMAIL
 } from '../services/auth';
 import {
@@ -36,31 +43,93 @@ import {
   type ChatThreadSummary,
   type ChatMessage
 } from '../services/chat';
-import type { UserAccount, SiteSettings, SubscriptionTier } from '../types';
+import type { UserAccount, SiteSettings, SubscriptionTier, UserProfile } from '../types';
 
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: UserAccount;
+  initialTab?: 'users' | 'messages' | 'settings';
+  initialThreadId?: string;
 }
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, currentUser }) => {
-  const [activeTab, setActiveTab] = useState<'users' | 'messages' | 'settings'>('users');
+const GRADE_LABELS: Record<string, string> = {
+  grade_9: '9 класс',
+  grade_10: '10 класс',
+  grade_11: '11 класс (Выпускной)',
+  graduate: 'Выпускник школы / Gap Year',
+  gap_year: 'Выпускник школы / Gap Year',
+  college: 'Студент колледжа',
+  bachelor_grad: 'Выпускник бакалавриата'
+};
+
+const FIELD_LABELS: Record<string, string> = {
+  cs_it: 'Компьютерные науки и IT / AI',
+  engineering: 'Инженерия и Робототехника',
+  business_econ: 'Бизнес, Финансы и Экономика',
+  medicine_bio: 'Медицина и Биология',
+  medicine: 'Медицина и Здравоохранение',
+  design_media: 'Дизайн, Архитектура и Медиа',
+  social_law: 'Право и Социальные науки',
+  law: 'Международное право',
+  humanities: 'Гуманитарные науки'
+};
+
+const REGION_LABELS: Record<string, string> = {
+  kazakhstan: 'Казахстан (НУ, МУИТ, КБТУ, СДУ, КИМЭП)',
+  europe: 'Европа (Германия, Италия, Венгрия, Чехия)',
+  usa: 'США и Канада (Top-100, Ivy League)',
+  usa_canada: 'США и Канада (Top-100, Ivy League)',
+  asia: 'Азия (Гонконг, Южная Корея, Сингапур)',
+  cis: 'СНГ (Россия, Узбекистан)'
+};
+
+const BUDGET_LABELS: Record<string, string> = {
+  full_grant: '100% Грант / Стипендия (Need/Merit-based)',
+  scholarship_needed: '100% Грант / Стипендия (Need/Merit-based)',
+  low_cost: 'До $5,000 в год (частичная оплата)',
+  under_5k: 'До $5,000 в год (частичная оплата)',
+  mid_cost: 'До $15,000 в год (средний бюджет)',
+  under_15k: 'До $15,000 в год (средний бюджет)',
+  any: 'Без ограничений (самофинансирование)',
+  no_limit: 'Без ограничений (самофинансирование)'
+};
+
+export const AdminPanel: React.FC<AdminPanelProps> = ({
+  isOpen,
+  onClose,
+  currentUser,
+  initialTab = 'users',
+  initialThreadId
+}) => {
+  const [activeTab, setActiveTab] = useState<'users' | 'messages' | 'settings'>(initialTab);
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [threadSummaries, setThreadSummaries] = useState<ChatThreadSummary[]>([]);
-  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(initialThreadId || null);
   const [activeThreadMessages, setActiveThreadMessages] = useState<ChatMessage[]>([]);
   const [adminReplyInput, setAdminReplyInput] = useState('');
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(getSiteSettings());
   const [searchQuery, setSearchQuery] = useState('');
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [selectedUserForView, setSelectedUserForView] = useState<UserAccount | null>(null);
+  const [showPasswordMap, setShowPasswordMap] = useState<Record<string, boolean>>({});
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const loadData = () => {
-    setUsers(getAllUsers());
+    const all = getAllUsers();
+    setUsers(all);
     const summaries = getAllThreadSummaries();
     setThreadSummaries(summaries);
     setSiteSettings(getSiteSettings());
+
+    // Keep selected user view in sync if open
+    if (selectedUserForView) {
+      const refreshed = all.find(u => u.id === selectedUserForView.id);
+      if (refreshed) {
+        setSelectedUserForView(refreshed);
+      }
+    }
 
     if (!selectedThreadId && summaries.length > 0) {
       setSelectedThreadId(summaries[0].threadId);
@@ -74,10 +143,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
 
   useEffect(() => {
     if (isOpen) {
+      if (initialTab) {
+        setActiveTab(initialTab);
+      }
+      if (initialThreadId) {
+        setSelectedThreadId(initialThreadId);
+      }
       loadData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, initialTab, initialThreadId]);
+
+  useEffect(() => {
+    const handleLiveSync = () => {
+      loadData();
+    };
+
+    window.addEventListener('admitroute_chat_update', handleLiveSync);
+    window.addEventListener('storage', handleLiveSync);
+
+    return () => {
+      window.removeEventListener('admitroute_chat_update', handleLiveSync);
+      window.removeEventListener('storage', handleLiveSync);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedThreadId, selectedUserForView?.id]);
 
   useEffect(() => {
     if (selectedThreadId) {
@@ -92,14 +182,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
   if (!isOpen) return null;
 
   // Protect admin access
-  if (currentUser.role !== 'admin' && currentUser.email.toLowerCase() !== 'adilhananuar426@gmail.com') {
+  if (currentUser.role !== 'admin' && currentUser.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase()) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
         <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-xl">
           <Ban className="mx-auto h-12 w-12 text-rose-600 mb-3" />
           <h3 className="text-lg font-bold text-slate-900">Доступ ограничен</h3>
           <p className="mt-1 text-xs text-slate-600">
-            Данный раздел предназначен исключительно для администратора (adilhananuar426@gmail.com).
+            Данный раздел предназначен исключительно для администратора ({SUPER_ADMIN_EMAIL}).
           </p>
           <button
             type="button"
@@ -116,6 +206,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
   const showNotification = (msg: string) => {
     setActionNotice(msg);
     setTimeout(() => setActionNotice(null), 3500);
+  };
+
+  const handleCopy = (text: string, key: string) => {
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
+    }
+  };
+
+  const handleTogglePasswordVisibility = (userId: string) => {
+    setShowPasswordMap(prev => ({
+      ...prev,
+      [userId]: !prev[userId]
+    }));
   };
 
   const handleToggleBan = (userId: string, currentStatus: boolean) => {
@@ -161,11 +266,47 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
     }
   };
 
+  const handleOpenChatWithUser = (userId: string) => {
+    setSelectedThreadId(userId);
+    setActiveTab('messages');
+    setSelectedUserForView(null);
+    setActiveThreadMessages(getThreadMessages(userId));
+    markThreadReadByAdmin(userId);
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  const handleFillDemoProfile = (userId: string) => {
+    const demoProfile: UserProfile = {
+      name: 'Алихан Касымов',
+      grade: 'grade_11',
+      field: 'cs_it',
+      gpa: 4.85,
+      hasLanguageTest: true,
+      languageScore: 'IELTS 7.5',
+      hasStateExam: true,
+      stateExamScore: 'ЕНТ 128 / 140',
+      targetRegion: 'europe',
+      budget: 'full_grant',
+      targetYear: '2026',
+      portfolioText: 'Победитель республиканской олимпиады по программированию, призер хакатона LOCUS 2026, разработчик веб-сервисов.'
+    };
+    saveUserProfileForUser(userId, demoProfile);
+    loadData();
+    showNotification('Тестовый профиль успешно прикреплен к аккаунту');
+  };
+
   const handleSendAdminReply = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!selectedThreadId || !adminReplyInput.trim()) return;
 
-    sendAdminReply(selectedThreadId, adminReplyInput.trim());
+    sendAdminReply(
+      selectedThreadId,
+      adminReplyInput.trim(),
+      currentUser.name || 'Адильхан (Основатель)',
+      currentUser.email || SUPER_ADMIN_EMAIL
+    );
     setAdminReplyInput('');
     loadData();
     showNotification('Ответ отправлен пользователю в чат');
@@ -196,7 +337,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
   const totalBanned = users.filter(u => u.isBanned).length;
   const totalUnreadChat = getTotalUnreadForAdmin();
 
-  const currentThreadSummary = threadSummaries.find(t => t.threadId === selectedThreadId);
+  const currentThreadSummary =
+    threadSummaries.find(t => t.threadId === selectedThreadId) ||
+    (() => {
+      const u = users.find(user => user.id === selectedThreadId);
+      if (u) {
+        return {
+          threadId: u.id,
+          userName: u.name,
+          userEmail: u.email,
+          lastMessage: 'Новый диалог',
+          lastMessageAt: new Date().toISOString(),
+          unreadCountForAdmin: 0,
+          isPro: u.subscriptionTier === 'pro',
+          hasPaymentRequest: false
+        };
+      }
+      return null;
+    })();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-3 sm:p-6 backdrop-blur-xs animate-in fade-in duration-150">
@@ -215,7 +373,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Управление пользователями, активация подписок PRO и живой чат поддержки
+                Управление пользователями, просмотр анкет, выдача PRO и живой чат поддержки
               </p>
             </div>
           </div>
@@ -326,6 +484,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                 <thead className="sticky top-0 border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase text-slate-500">
                   <tr>
                     <th className="px-4 py-2.5">Пользователь</th>
+                    <th className="px-4 py-2.5">Академический профиль</th>
                     <th className="px-4 py-2.5">Роль</th>
                     <th className="px-4 py-2.5">Подписка</th>
                     <th className="px-4 py-2.5">Поисков / Расчетов</th>
@@ -337,13 +496,43 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                   {filteredUsers.map(u => {
                     const isSuperAccount = u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
                     const currentIsSuper = isSuperAdmin(currentUser);
+                    const hasProfile = !!u.profile;
 
                     return (
                       <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
                         <td className="px-4 py-2.5">
-                          <div className="font-semibold text-slate-900">{u.name}</div>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedUserForView(u)}
+                            className="text-left font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+                          >
+                            {u.name}
+                          </button>
                           <div className="text-[11px] text-slate-500">{u.email}</div>
                         </td>
+
+                        <td className="px-4 py-2.5">
+                          {hasProfile ? (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedUserForView(u)}
+                              className="text-left group"
+                            >
+                              <div className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-800 group-hover:bg-blue-100">
+                                <GraduationCap className="h-3 w-3 text-blue-600" />
+                                <span>{GRADE_LABELS[u.profile!.grade] || u.profile!.grade}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-500 mt-0.5">
+                                GPA: {u.profile!.gpa} • {u.profile!.languageScore || 'Языковой тест не указан'}
+                              </div>
+                            </button>
+                          ) : (
+                            <span className="text-[11px] text-slate-400 italic">
+                              Анкета не заполнена
+                            </span>
+                          )}
+                        </td>
+
                         <td className="px-4 py-2.5">
                           {isSuperAccount ? (
                             <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[11px] font-bold text-amber-900">
@@ -361,6 +550,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                             </span>
                           )}
                         </td>
+
                         <td className="px-4 py-2.5">
                           <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
                             u.subscriptionTier === 'pro'
@@ -370,9 +560,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                             {u.subscriptionTier === 'pro' ? '⭐ PRO' : 'Free'}
                           </span>
                         </td>
+
                         <td className="px-4 py-2.5 text-[11px] text-slate-600">
                           {u.usageStats?.searchesCount ?? 0} поисков • {u.usageStats?.recalculationsCount ?? 0} расчетов
                         </td>
+
                         <td className="px-4 py-2.5">
                           {u.isBanned ? (
                             <span className="rounded-md bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700">
@@ -384,35 +576,59 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-2.5 text-right">
-                          {isSuperAccount ? (
-                            <span className="text-[11px] font-bold text-amber-700">Владелец системы</span>
-                          ) : (
-                            <div className="flex items-center justify-end gap-1.5">
-                              {/* Super admin can grant/revoke admin roles */}
-                              {currentIsSuper && (
-                                u.role === 'admin' ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleToggleAdminRole(u.id, u.role, u.name)}
-                                    className="rounded-lg border border-purple-200 bg-purple-50 px-2 py-1 text-[11px] font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
-                                    title="Отозвать права администратора"
-                                  >
-                                    Снять админку
-                                  </button>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleToggleAdminRole(u.id, u.role, u.name)}
-                                    className="rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 transition-colors shadow-2xs"
-                                    title="Выдать права администратора"
-                                  >
-                                    + Выдать админку
-                                  </button>
-                                )
-                              )}
 
-                              {u.subscriptionTier === 'pro' ? (
+                        <td className="px-4 py-2.5 text-right">
+                          <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            {/* Detailed View Button */}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedUserForView(u)}
+                              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-100 transition-colors shadow-2xs"
+                              title="Просмотреть профиль, анкету и пароль"
+                            >
+                              <Eye className="h-3 w-3 text-blue-600" />
+                              <span>Просмотр</span>
+                            </button>
+
+                            {/* Direct Chat Button (non-admin) */}
+                            {!isSuperAccount && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenChatWithUser(u.id)}
+                                className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 transition-colors shadow-2xs"
+                                title="Написать пользователю в чат"
+                              >
+                                <MessageSquare className="h-3 w-3 text-blue-600" />
+                                <span>Чат</span>
+                              </button>
+                            )}
+
+                            {/* Super admin toggle */}
+                            {!isSuperAccount && currentIsSuper && (
+                              u.role === 'admin' ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleAdminRole(u.id, u.role, u.name)}
+                                  className="rounded-lg border border-purple-200 bg-purple-50 px-2 py-1 text-[11px] font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
+                                  title="Отозвать права администратора"
+                                >
+                                  Снять админку
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleAdminRole(u.id, u.role, u.name)}
+                                  className="rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 transition-colors shadow-2xs"
+                                  title="Выдать права администратора"
+                                >
+                                  + Админка
+                                </button>
+                              )
+                            )}
+
+                            {/* PRO Toggle */}
+                            {!isSuperAccount && (
+                              u.subscriptionTier === 'pro' ? (
                                 <button
                                   type="button"
                                   onClick={() => handleSetSubscription(u.id, 'free')}
@@ -424,12 +640,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                                 <button
                                   type="button"
                                   onClick={() => handleSetSubscription(u.id, 'pro')}
-                                  className="rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 shadow-2xs"
+                                  className="rounded-lg bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 shadow-2xs"
                                 >
-                                  + Выдать PRO
+                                  + PRO
                                 </button>
-                              )}
+                              )
+                            )}
 
+                            {/* Ban Toggle */}
+                            {!isSuperAccount && (
                               <button
                                 type="button"
                                 onClick={() => handleToggleBan(u.id, u.isBanned)}
@@ -439,19 +658,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                                     : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
                                 }`}
                               >
-                                {u.isBanned ? 'Разбанить' : 'Бан'}
+                                {u.isBanned ? 'Разбан' : 'Бан'}
                               </button>
+                            )}
 
+                            {/* Delete Button */}
+                            {!isSuperAccount && (
                               <button
                                 type="button"
                                 onClick={() => handleDeleteUser(u.id, u.email)}
-                                className="rounded-lg p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                                className="rounded-lg p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
                                 title="Удалить пользователя"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -466,9 +688,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
         {activeTab === 'messages' && (
           <div className="flex-1 flex overflow-hidden">
             {/* Left Thread List */}
-            <div className="w-72 border-r border-slate-200 bg-slate-50/70 overflow-y-auto flex flex-col">
-              <div className="p-3 border-b border-slate-200 bg-white font-semibold text-xs text-slate-800">
-                Диалоги пользователей ({threadSummaries.length})
+            <div className="w-80 border-r border-slate-200 bg-slate-50/70 overflow-y-auto flex flex-col">
+              <div className="p-3 border-b border-slate-200 bg-white font-semibold text-xs text-slate-800 flex items-center justify-between">
+                <span>Диалоги пользователей ({threadSummaries.length})</span>
+                {totalUnreadChat > 0 && (
+                  <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                    {totalUnreadChat} новых
+                  </span>
+                )}
               </div>
               <div className="divide-y divide-slate-200/60">
                 {threadSummaries.map(thread => {
@@ -484,7 +711,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <div className="font-semibold text-xs text-slate-900 truncate">
+                        <div className="font-semibold text-xs text-slate-900 truncate max-w-[170px]">
                           {thread.userName}
                         </div>
                         {thread.unreadCountForAdmin > 0 && (
@@ -528,85 +755,120 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
             {/* Right Chat Conversation Area */}
             {selectedThreadId && currentThreadSummary ? (
               <div className="flex-1 flex flex-col overflow-hidden bg-white">
-                {/* Conversation Header with Quick PRO Activation Button */}
+                {/* Conversation Header */}
                 <div className="flex items-center justify-between border-b border-slate-200 p-3 bg-slate-50">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-bold text-slate-900">{currentThreadSummary.userName}</h4>
-                      <span className="text-[11px] text-slate-500 font-normal">({currentThreadSummary.userEmail})</span>
-                      {currentThreadSummary.isPro ? (
-                        <span className="rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
-                          ⭐ PRO АКТИВЕН
-                        </span>
-                      ) : (
-                        <span className="rounded-md bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
-                          FREE ТАРИФ
-                        </span>
-                      )}
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-xs">
+                      {currentThreadSummary.userName.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-bold text-slate-900">{currentThreadSummary.userName}</h4>
+                        <span className="text-[11px] text-slate-500 font-normal">({currentThreadSummary.userEmail})</span>
+                        {currentThreadSummary.isPro ? (
+                          <span className="rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                            ⭐ PRO
+                          </span>
+                        ) : (
+                          <span className="rounded-md bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
+                            FREE
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* 1-CLICK PRO ACTIVATION BUTTON */}
-                  {!currentThreadSummary.isPro ? (
-                    <button
-                      type="button"
-                      onClick={handleActivateProForSelectedThread}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:from-blue-700 hover:to-indigo-700 transition-all"
-                    >
-                      <Sparkles className="h-3.5 w-3.5" />
-                      <span>⚡ Активировать PRO этому пользователю</span>
-                    </button>
-                  ) : (
-                    <div className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                      <span>PRO подписка активирована</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {/* View User Profile Button */}
+                    {(() => {
+                      const matchedUser = users.find(u => u.id === selectedThreadId || u.email.toLowerCase() === currentThreadSummary.userEmail.toLowerCase());
+                      if (matchedUser) {
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedUserForView(matchedUser)}
+                            className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors shadow-2xs"
+                          >
+                            <Eye className="h-3.5 w-3.5 text-blue-600" />
+                            <span>Анкета абитуриента</span>
+                          </button>
+                        );
+                      }
+                      return null;
+                    })()}
+
+                    {/* Quick PRO Activation Button */}
+                    {!currentThreadSummary.isPro ? (
+                      <button
+                        type="button"
+                        onClick={handleActivateProForSelectedThread}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:from-blue-700 hover:to-indigo-700 transition-all"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>⚡ Выдать PRO</span>
+                      </button>
+                    ) : (
+                      <div className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                        <span>PRO активен</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Messages Feed */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
-                  {activeThreadMessages.map(m => {
-                    const isAdmin = m.senderRole === 'admin';
-                    const isSystem = m.senderRole === 'system';
+                  {activeThreadMessages.length === 0 ? (
+                    <div className="flex h-full flex-col items-center justify-center text-center p-6 text-slate-500">
+                      <MessageSquare className="h-10 w-10 text-slate-300 mb-2" />
+                      <div className="text-xs font-bold text-slate-700">Переписка еще не начата</div>
+                      <p className="text-[11px] text-slate-500 max-w-sm mt-1">
+                        Пользователь <strong>{currentThreadSummary.userName}</strong> пока не отправлял сообщений. Напишите ему первым — ответ появится в его чате на сайте.
+                      </p>
+                    </div>
+                  ) : (
+                    activeThreadMessages.map(m => {
+                      const isAdmin = m.senderRole === 'admin';
+                      const isSystem = m.senderRole === 'system';
 
-                    if (isSystem) {
-                      return (
-                        <div key={m.id} className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-800">
-                          <div className="font-bold flex items-center gap-1 mb-0.5">
-                            <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-                            <span>Системное уведомление</span>
+                      if (isSystem) {
+                        return (
+                          <div key={m.id} className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-800">
+                            <div className="font-bold flex items-center gap-1 mb-0.5">
+                              <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                              <span>Системное уведомление</span>
+                            </div>
+                            <p>{m.text}</p>
                           </div>
-                          <p>{m.text}</p>
+                        );
+                      }
+
+                      return (
+                        <div key={m.id} className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
+                          <div className="flex items-center gap-1 mb-0.5 text-[10px] text-slate-400">
+                            <span>{isAdmin ? 'Вы (Администратор)' : m.userName}</span>
+                            <span>•</span>
+                            <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                          <div
+                            className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed shadow-2xs ${
+                              isAdmin
+                                ? 'bg-blue-600 text-white rounded-br-xs'
+                                : 'border border-slate-200 bg-white text-slate-800 rounded-bl-xs'
+                            }`}
+                          >
+                            {m.isPaymentRequest && (
+                              <div className="mb-1 text-[10px] font-bold text-amber-500 flex items-center gap-1">
+                                <CreditCard className="h-3.5 w-3.5" />
+                                <span>ЗАЯВКА НА ПОДПИСКУ PRO</span>
+                              </div>
+                            )}
+                            <p>{m.text}</p>
+                          </div>
                         </div>
                       );
-                    }
-
-                    return (
-                      <div key={m.id} className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
-                        <div className="flex items-center gap-1 mb-0.5 text-[10px] text-slate-400">
-                          <span>{isAdmin ? 'Вы (Администратор)' : m.userName}</span>
-                          <span>•</span>
-                          <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        </div>
-                        <div
-                          className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed shadow-2xs ${
-                            isAdmin
-                              ? 'bg-blue-600 text-white rounded-br-xs'
-                              : 'border border-slate-200 bg-white text-slate-800 rounded-bl-xs'
-                          }`}
-                        >
-                          {m.isPaymentRequest && (
-                            <div className="mb-1 text-[10px] font-bold text-amber-500 flex items-center gap-1">
-                              <CreditCard className="h-3.5 w-3.5" />
-                              <span>ЗАЯВКА НА ПОДПИСКУ PRO</span>
-                            </div>
-                          )}
-                          <p>{m.text}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                    })
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
 
@@ -616,16 +878,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                     type="text"
                     value={adminReplyInput}
                     onChange={e => setAdminReplyInput(e.target.value)}
-                    placeholder="Напишите ответ пользователю в чат..."
+                    placeholder={`Напишите ответ пользователю ${currentThreadSummary.userName}...`}
                     className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                   />
                   <button
                     type="submit"
                     disabled={!adminReplyInput.trim()}
-                    className="flex items-center gap-1 rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40 transition-colors shadow-2xs"
+                    className="flex items-center gap-1 rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40 transition-colors shadow-2xs shrink-0"
                   >
                     <Send className="h-3.5 w-3.5" />
-                    <span>Отправить ответ</span>
+                    <span>Отправить</span>
                   </button>
                 </form>
               </div>
@@ -660,113 +922,104 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
                     </label>
                     <input
                       type="number"
-                      min="0"
-                      max="10"
-                      value={siteSettings.guestMaxSearches ?? 1}
+                      min={0}
+                      max={20}
+                      value={siteSettings.guestMaxSearches}
                       onChange={e =>
-                        setSiteSettings({ ...siteSettings, guestMaxSearches: Math.max(0, parseInt(e.target.value) || 0) })
+                        setSiteSettings({ ...siteSettings, guestMaxSearches: Number(e.target.value) })
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                     />
-                    <span className="text-[10px] text-slate-400">По умолчанию: 1</span>
                   </div>
-
                   <div>
                     <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                      Лимит пересчетов анкеты для гостя:
+                      Лимит расчетов роадмапа:
                     </label>
                     <input
                       type="number"
-                      min="0"
-                      max="20"
-                      value={siteSettings.guestMaxRecalculations ?? 2}
+                      min={0}
+                      max={20}
+                      value={siteSettings.guestMaxRecalculations}
                       onChange={e =>
-                        setSiteSettings({ ...siteSettings, guestMaxRecalculations: Math.max(0, parseInt(e.target.value) || 0) })
+                        setSiteSettings({ ...siteSettings, guestMaxRecalculations: Number(e.target.value) })
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                     />
-                    <span className="text-[10px] text-slate-400">По умолчанию: 2</span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100">
-                  <label className="flex items-start gap-2.5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={siteSettings.allowGuestChat ?? false}
-                      onChange={e =>
-                        setSiteSettings({ ...siteSettings, allowGuestChat: e.target.checked })
-                      }
-                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <div>
-                      <span className="text-xs font-semibold text-slate-800">
-                        Разрешить гостям писать в Live-чат
-                      </span>
-                      <p className="text-[11px] text-slate-500 leading-snug">
-                        {siteSettings.allowGuestChat
-                          ? 'Гости могут свободно отправлять сообщения в чат без регистрации.'
-                          : 'Отключено (Рекомендуется): гости могут читать чат и видеть контакты, но отправлять сообщения могут только зарегистрированные пользователи.'}
-                      </p>
-                    </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="allow-guest-chat"
+                    checked={siteSettings.allowGuestChat}
+                    onChange={e =>
+                      setSiteSettings({ ...siteSettings, allowGuestChat: e.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="allow-guest-chat" className="text-xs font-semibold text-slate-700 cursor-pointer">
+                    Разрешить гостям писать в онлайн-чат без регистрации
                   </label>
                 </div>
               </div>
 
-              {/* Free Customer Settings */}
+              {/* Free Customers Settings */}
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
-                    🎓 Зарегистрированный пользователь (Free Customer)
+                    🎓 Зарегистрированные пользователи (Free)
                   </span>
                 </div>
-                <h4 className="text-sm font-bold text-slate-900">Лимиты для пользователей с бесплатным аккаунтом</h4>
+                <h4 className="text-sm font-bold text-slate-900">Квоты для бесплатного тарифа</h4>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Базовые квоты для абитуриентов, создавших бесплатный профиль.
+                  Пользователи с подтвержденным аккаунтом на бесплатном тарифе.
                 </p>
 
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                      Лимит AI-поисков (Free):
+                      Лимит поисков программ:
                     </label>
                     <input
                       type="number"
-                      min="1"
-                      max="30"
-                      value={siteSettings.freeCustomerMaxSearches ?? 6}
+                      min={1}
+                      max={100}
+                      value={siteSettings.freeCustomerMaxSearches}
                       onChange={e =>
-                        setSiteSettings({ ...siteSettings, freeCustomerMaxSearches: Math.max(1, parseInt(e.target.value) || 1) })
+                        setSiteSettings({ ...siteSettings, freeCustomerMaxSearches: Number(e.target.value) })
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                     />
-                    <span className="text-[10px] text-slate-400">По умолчанию: 6</span>
                   </div>
-
                   <div>
                     <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                      Лимит пересчетов анкеты (Free):
+                      Лимит расчетов стратегии:
                     </label>
                     <input
                       type="number"
-                      min="1"
-                      max="50"
-                      value={siteSettings.freeCustomerMaxRecalculations ?? 12}
+                      min={1}
+                      max={100}
+                      value={siteSettings.freeCustomerMaxRecalculations}
                       onChange={e =>
-                        setSiteSettings({ ...siteSettings, freeCustomerMaxRecalculations: Math.max(1, parseInt(e.target.value) || 1) })
+                        setSiteSettings({ ...siteSettings, freeCustomerMaxRecalculations: Number(e.target.value) })
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
                     />
-                    <span className="text-[10px] text-slate-400">По умолчанию: 12</span>
                   </div>
                 </div>
               </div>
 
-              {/* Announcement Banner */}
+              {/* Global Announcement Banner */}
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
-                <h4 className="text-sm font-bold text-slate-900">Информационный баннер для всех посетителей</h4>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                    📢 Глобальное объявление
+                  </span>
+                </div>
+                <h4 className="text-sm font-bold text-slate-900">Верхний информационный баннер для всех посетителей</h4>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Текст баннера будет отображаться в верхней части сайта.
+                  Текст отображается в верхней части экрана над шапкой платформы.
                 </p>
 
                 <div className="mt-3 flex items-center gap-2">
@@ -811,6 +1064,316 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, current
           </div>
         )}
       </div>
+
+      {/* ========================================================================= */}
+      {/* USER DETAILS INSPECTION MODAL */}
+      {/* ========================================================================= */}
+      {selectedUserForView && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-3 sm:p-5 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 font-bold text-base text-white shadow-xs">
+                  {selectedUserForView.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">{selectedUserForView.name}</h3>
+                    {selectedUserForView.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() ? (
+                      <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                        Супер-Админ
+                      </span>
+                    ) : selectedUserForView.role === 'admin' ? (
+                      <span className="rounded-md bg-purple-500/20 px-2 py-0.5 text-[10px] font-bold text-purple-300">
+                        Администратор
+                      </span>
+                    ) : (
+                      <span className="rounded-md bg-slate-700 px-2 py-0.5 text-[10px] font-medium text-slate-300">
+                        Студент
+                      </span>
+                    )}
+                    <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${
+                      selectedUserForView.subscriptionTier === 'pro'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-slate-800 text-slate-300'
+                    }`}>
+                      {selectedUserForView.subscriptionTier === 'pro' ? '⭐ PRO' : 'FREE'}
+                    </span>
+                    {selectedUserForView.isBanned && (
+                      <span className="rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold text-rose-300">
+                        Заблокирован
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                    <span>{selectedUserForView.email}</span>
+                    <span>•</span>
+                    <span>ID: <code className="font-mono text-[11px] text-slate-300">{selectedUserForView.id}</code></span>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedUserForView(null)}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/40">
+              {/* Account Security & Stats Box */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
+                  <Key className="h-4 w-4 text-blue-600" />
+                  <span>Данные аккаунта и безопасность</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
+                    <div className="text-[11px] text-slate-500 mb-0.5">Email аккаунта</div>
+                    <div className="flex items-center justify-between font-medium text-slate-900">
+                      <span>{selectedUserForView.email}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(selectedUserForView.email, 'email')}
+                        className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                        title="Скопировать email"
+                      >
+                        {copiedKey === 'email' ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
+                    <div className="text-[11px] text-slate-500 mb-0.5">Пароль учетной записи</div>
+                    <div className="flex items-center justify-between font-mono font-medium text-slate-900">
+                      <span>
+                        {showPasswordMap[selectedUserForView.id]
+                          ? selectedUserForView.password || '—'
+                          : '••••••••••••'}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePasswordVisibility(selectedUserForView.id)}
+                          className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                          title={showPasswordMap[selectedUserForView.id] ? 'Скрыть пароль' : 'Показать пароль'}
+                        >
+                          {showPasswordMap[selectedUserForView.id] ? (
+                            <EyeOff className="h-3.5 w-3.5" />
+                          ) : (
+                            <Eye className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                        {selectedUserForView.password && (
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(selectedUserForView.password!, 'pwd')}
+                            className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                            title="Скопировать пароль"
+                          >
+                            {copiedKey === 'pwd' ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
+                    <div className="text-[11px] text-slate-500 mb-0.5">Дата регистрации</div>
+                    <div className="font-medium text-slate-900">
+                      {new Date(selectedUserForView.createdAt).toLocaleDateString('ru-RU', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
+                    <div className="text-[11px] text-slate-500 mb-0.5">Статистика активности</div>
+                    <div className="font-semibold text-slate-800">
+                      {selectedUserForView.usageStats?.searchesCount ?? 0} поисков • {selectedUserForView.usageStats?.recalculationsCount ?? 0} расчетов
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Academic Profile Section */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <GraduationCap className="h-4 w-4 text-blue-600" />
+                    <span>Академический профиль абитуриента</span>
+                  </h4>
+                  {selectedUserForView.profile ? (
+                    <span className="rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold">
+                      ✓ Анкета заполнена
+                    </span>
+                  ) : (
+                    <span className="rounded-md bg-slate-100 text-slate-500 px-2 py-0.5 text-[10px] font-medium">
+                      Не заполнена
+                    </span>
+                  )}
+                </div>
+
+                {selectedUserForView.profile ? (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                      <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Класс / Уровень</span>
+                        <span className="font-bold text-slate-900 mt-0.5 block">
+                          {GRADE_LABELS[selectedUserForView.profile.grade] || selectedUserForView.profile.grade}
+                        </span>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Средний балл (GPA)</span>
+                        <span className="font-bold text-blue-700 mt-0.5 block text-sm">
+                          {selectedUserForView.profile.gpa} / 5.0
+                        </span>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Год поступления</span>
+                        <span className="font-bold text-slate-900 mt-0.5 block">
+                          {selectedUserForView.profile.targetYear || '2026'}
+                        </span>
+                      </div>
+
+                      <div className="col-span-2 sm:col-span-3 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Направление обучения</span>
+                        <span className="font-semibold text-slate-900 mt-0.5 block">
+                          {FIELD_LABELS[selectedUserForView.profile.field] || selectedUserForView.profile.field}
+                        </span>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Языковой экзамен</span>
+                        <span className="font-semibold text-slate-900 mt-0.5 block">
+                          {selectedUserForView.profile.hasLanguageTest
+                            ? selectedUserForView.profile.languageScore || 'Сдан'
+                            : 'Не сдавался'}
+                        </span>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Гос. экзамен (ЕНТ/SAT)</span>
+                        <span className="font-semibold text-slate-900 mt-0.5 block">
+                          {selectedUserForView.profile.hasStateExam
+                            ? selectedUserForView.profile.stateExamScore || 'Сдан'
+                            : 'Не сдавался'}
+                        </span>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Желаемый регион</span>
+                        <span className="font-semibold text-slate-900 mt-0.5 block truncate" title={REGION_LABELS[selectedUserForView.profile.targetRegion]}>
+                          {REGION_LABELS[selectedUserForView.profile.targetRegion] || selectedUserForView.profile.targetRegion}
+                        </span>
+                      </div>
+
+                      <div className="col-span-2 sm:col-span-3 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+                        <span className="text-[10px] text-slate-400 block uppercase font-semibold">Бюджет и финансирование</span>
+                        <span className="font-semibold text-slate-900 mt-0.5 block">
+                          {BUDGET_LABELS[selectedUserForView.profile.budget] || selectedUserForView.profile.budget}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Portfolio / Extracurriculars */}
+                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                      <div className="text-[11px] font-semibold text-slate-700 mb-1">
+                        Внеучебные достижения, олимпиады и портфолио:
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed italic bg-white p-2.5 rounded-lg border border-slate-200/60">
+                        {selectedUserForView.profile.portfolioText || 'Пользователь не добавил описание внеучебных достижений.'}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-slate-200 p-5 text-center bg-slate-50">
+                    <GraduationCap className="mx-auto h-8 w-8 text-slate-300 mb-1.5" />
+                    <div className="text-xs font-bold text-slate-700">Анкета абитуриента еще не заполнена</div>
+                    <p className="text-[11px] text-slate-500 max-w-md mx-auto mt-0.5 mb-3">
+                      Пользователь еще не проходил пошаговый опросник подбора вузов на главной странице.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleFillDemoProfile(selectedUserForView.id)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-2xs hover:bg-blue-50 transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                      <span>Прикрепить тестовую анкету (для жюри)</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Actions Footer */}
+            <div className="border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                {selectedUserForView.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase() && (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenChatWithUser(selectedUserForView.id)}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors"
+                  >
+                    <MessageSquare className="h-3.5 w-3.5" />
+                    <span>Написать пользователю в чат</span>
+                  </button>
+                )}
+
+                {selectedUserForView.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase() && (
+                  selectedUserForView.subscriptionTier === 'pro' ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSetSubscription(selectedUserForView.id, 'free')}
+                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors shadow-2xs"
+                    >
+                      Снять PRO
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleSetSubscription(selectedUserForView.id, 'pro')}
+                      className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-2 text-xs font-bold text-white shadow-2xs hover:from-amber-600 hover:to-amber-700 transition-all"
+                    >
+                      ⭐ Выдать PRO
+                    </button>
+                  )
+                )}
+
+                {selectedUserForView.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase() && (
+                  <button
+                    type="button"
+                    onClick={() => handleToggleBan(selectedUserForView.id, selectedUserForView.isBanned)}
+                    className={`rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
+                      selectedUserForView.isBanned
+                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                        : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                    }`}
+                  >
+                    {selectedUserForView.isBanned ? 'Разблокировать' : 'Заблокировать'}
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedUserForView(null)}
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

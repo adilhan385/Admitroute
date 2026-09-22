@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import type { UniversityProgram } from '../types';
-import { X, Calendar, Award, Building2, Briefcase, ExternalLink, FileText, CheckCircle2, Users, Clock, ShieldCheck } from 'lucide-react';
+import { X, Calendar, Award, Building2, Briefcase, ExternalLink, FileText, CheckCircle2, Users, Clock, ShieldCheck, Target, ShieldAlert } from 'lucide-react';
 
 interface UniversityDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   university: UniversityProgram | null;
   onOpenEssayModal?: (uni: UniversityProgram) => void;
+  onOpenPlanModal?: (uni: UniversityProgram) => void;
   isCompared?: boolean;
   onToggleCompare?: (id: string) => void;
 }
@@ -16,6 +17,7 @@ export const UniversityDetailModal: React.FC<UniversityDetailModalProps> = ({
   onClose,
   university,
   onOpenEssayModal,
+  onOpenPlanModal,
   isCompared,
   onToggleCompare
 }) => {
@@ -49,6 +51,16 @@ export const UniversityDetailModal: React.FC<UniversityDetailModalProps> = ({
             <p className="mt-0.5 text-xs sm:text-sm font-medium text-blue-700">
               {university.programTitle} • {university.degrees[0]}
             </p>
+
+            {university.realityCheckWarning && (
+              <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50/80 p-3 text-xs text-rose-950 flex items-start gap-2 leading-relaxed">
+                <ShieldAlert className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-rose-900">Внимание приемной комиссии: </span>
+                  <span>{university.realityCheckWarning}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <button
@@ -293,7 +305,21 @@ export const UniversityDetailModal: React.FC<UniversityDetailModalProps> = ({
 
         {/* Footer Actions */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {onOpenPlanModal && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenPlanModal(university);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-slate-800 transition"
+              >
+                <Target className="h-3.5 w-3.5 text-blue-400" />
+                <span>План подготовки</span>
+              </button>
+            )}
+
             {onOpenEssayModal && (
               <button
                 type="button"

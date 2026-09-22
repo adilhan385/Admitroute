@@ -1,4 +1,4 @@
-import type { UserAccount, UserRole, SubscriptionTier, SiteSettings } from '../types';
+import type { UserAccount, UserRole, SubscriptionTier, SiteSettings, UserProfile } from '../types';
 
 const STORAGE_USERS_KEY = 'admitroute_users_db_v1';
 const STORAGE_CURRENT_USER_KEY = 'admitroute_auth_user_v1';
@@ -53,7 +53,21 @@ const SEED_USERS: UserAccount[] = [
     isBanned: false,
     createdAt: '2026-09-10T12:30:00Z',
     usageStats: { searchesCount: 1, recalculationsCount: 2 },
-    notes: 'Тестовый пользователь'
+    notes: 'Тестовый пользователь',
+    profile: {
+      name: 'Алихан',
+      grade: 'grade_11',
+      field: 'cs_it',
+      gpa: 4.8,
+      hasLanguageTest: true,
+      languageScore: 'IELTS 7.0',
+      hasStateExam: true,
+      stateExamScore: 'ЕНТ 124 / 140',
+      targetRegion: 'europe',
+      budget: 'full_grant',
+      targetYear: '2026',
+      portfolioText: 'Победитель областной олимпиады по информатике, разработал сервис мониторинга дедлайнов для школы, капитан IT-клуба.'
+    }
   }
 ];
 
@@ -263,6 +277,24 @@ export function setSubscriptionTier(userId: string, tier: SubscriptionTier): { s
   return { success: true, user: target };
 }
 
+/**
+ * Сохранить академический профиль абитуриента в аккаунт
+ */
+export function saveUserProfileForUser(userId: string, profile: UserProfile): void {
+  const users = getAllUsers();
+  const target = users.find(u => u.id === userId);
+  if (!target) return;
+
+  target.profile = profile;
+  saveUsers(users);
+
+  const current = getCurrentUser();
+  if (current && current.id === userId) {
+    current.profile = profile;
+    localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(current));
+  }
+}
+
 export function updateUserRole(userId: string, role: UserRole): { success: boolean; user?: UserAccount } {
   const users = getAllUsers();
   const target = users.find(u => u.id === userId);
@@ -444,3 +476,4 @@ export function updateSiteSettings(settings: Partial<SiteSettings>): SiteSetting
   }
   return updated;
 }
+

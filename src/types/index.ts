@@ -106,6 +106,46 @@ export interface ProfileDiagnosis {
   riskFactors: string[];
   primaryGoal: string;
   overallReadinessScore: number; // 0 - 100
+  readinessLevel?: 'critical' | 'low' | 'moderate' | 'high';
+  criticalWarnings?: string[];
+}
+
+export interface PrepPlanPhase {
+  phaseNumber: number;
+  title: string;
+  durationMonths: string;
+  focusArea: 'academic' | 'language' | 'exams' | 'portfolio' | 'documents';
+  tasks: string[];
+  criticalMilestone: string;
+}
+
+export interface UniversityPreparationPlan {
+  targetUniId: string;
+  targetUniName: string;
+  targetProgram: string;
+  country: string;
+  city: string;
+  admissionChancePercentage: number;
+  matchCategory: MatchCategory;
+  gapAnalysis: {
+    gpaCurrent: number;
+    gpaTarget: number;
+    gpaGap: number;
+    gpaStatus: 'met' | 'minor_gap' | 'critical_gap';
+    languageCurrent: string;
+    languageTarget: string;
+    languageStatus: 'met' | 'minor_gap' | 'critical_gap';
+    examCurrent: string;
+    examTarget: string;
+    examStatus: 'met' | 'minor_gap' | 'critical_gap';
+    portfolioStatus: 'strong' | 'needs_work' | 'empty';
+    overallFeasibility: 'high' | 'moderate' | 'low' | 'near_impossible';
+    verdictMessage: string;
+    estimatedPrepMonths: number;
+  };
+  phases: PrepPlanPhase[];
+  aiPersonalizedAdvice?: string;
+  createdAt: string;
 }
 
 export interface PortfolioAudit {
@@ -160,6 +200,7 @@ export interface UserAccount {
   usageStats: UserUsageStats;
   notes?: string;
   isSuperAdmin?: boolean;
+  profile?: UserProfile;
 }
 
 export interface SupportMessage {

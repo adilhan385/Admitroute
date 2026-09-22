@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RotateCcw, Printer, Calendar, Shield, LogIn, LogOut, MessageSquare, Sparkles } from 'lucide-react';
 import type { UserAccount } from '../types';
 import { checkActionAllowed } from '../services/auth';
+import { getTotalUnreadForAdmin } from '../services/chat';
 
 interface HeaderProps {
   onReset: () => void;
@@ -9,7 +10,7 @@ interface HeaderProps {
   onExportCalendar?: () => void;
   currentUser: UserAccount | null;
   onOpenAuth: (mode?: 'login' | 'register') => void;
-  onOpenAdmin: () => void;
+  onOpenAdmin: (tab?: 'users' | 'messages' | 'settings') => void;
   onOpenSupport: (topic?: string) => void;
   onOpenPricing?: () => void;
   onLogout: () => void;
@@ -26,6 +27,20 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenPricing,
   onLogout
 }) => {
+  const [unreadChatForAdmin, setUnreadChatForAdmin] = useState<number>(() => getTotalUnreadForAdmin());
+
+  useEffect(() => {
+    const handleSync = () => {
+      setUnreadChatForAdmin(getTotalUnreadForAdmin());
+    };
+    window.addEventListener('admitroute_chat_update', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('admitroute_chat_update', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, []);
+
   const handlePrint = () => {
     window.print();
   };
@@ -60,16 +75,33 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Center/Right Status & User Actions */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Support / Buy Pro button */}
-          <button
-            type="button"
-            onClick={() => onOpenSupport(isPro ? 'Вопрос по поступлению' : 'PRO')}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
-            title="Чат с основателем (WhatsApp / Telegram / Сайт)"
-          >
-            <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
-            <span>Чат с админом</span>
-          </button>
+          {/* Support / Chat / Admin messages button */}
+          {isAdmin ? (
+            <button
+              type="button"
+              onClick={() => onOpenAdmin('messages')}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/80 px-2.5 py-1.5 text-xs font-semibold text-blue-700 shadow-2xs hover:bg-blue-100 transition-colors"
+              title="Переписка и заявки студентов в чате"
+            >
+              <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
+              <span>Сообщения</span>
+              {unreadChatForAdmin > 0 && (
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[10px] text-white font-bold">
+                  {unreadChatForAdmin}
+                </span>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onOpenSupport(isPro ? 'Вопрос по поступлению' : 'PRO')}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
+              title="Чат с основателем (WhatsApp / Telegram / Сайт)"
+            >
+              <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
+              <span>Чат с админом</span>
+            </button>
+          )}
 
           {/* If Not PRO, show Buy PRO button */}
           {!isPro && !isAdmin && (
@@ -87,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({
           {isAdmin && (
             <button
               type="button"
-              onClick={onOpenAdmin}
+              onClick={() => onOpenAdmin('users')}
               className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 shadow-xs hover:bg-amber-400 transition-colors"
             >
               <Shield className="h-3.5 w-3.5" />

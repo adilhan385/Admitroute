@@ -8,6 +8,7 @@ interface RecommendationsProps {
   onToggleCompare: (id: string) => void;
   onOpenCompareModal: () => void;
   onOpenEssayModal?: (uni: UniversityProgram) => void;
+  onOpenPlanModal?: (uni: UniversityProgram) => void;
   onSelectUniversity?: (uni: UniversityProgram) => void;
   onRefreshVariants?: () => void;
   onRequestAiVariants?: () => void;
@@ -20,6 +21,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
   onToggleCompare,
   onOpenCompareModal,
   onOpenEssayModal,
+  onOpenPlanModal,
   onSelectUniversity,
   onRefreshVariants,
   onRequestAiVariants,
@@ -297,7 +299,19 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
 
               {/* Card Footer Actions */}
               <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-4">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {onOpenPlanModal && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenPlanModal(uni)}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 transition shadow-2xs"
+                      title="Открыть индивидуальный пошаговый план подготовки"
+                    >
+                      <Target className="h-3.5 w-3.5 text-blue-400" />
+                      <span>План подготовки</span>
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => onToggleCompare(uni.id)}

@@ -1,4 +1,4 @@
-import { setSubscriptionTier, getAllUsers, getSiteSettings } from './auth';
+import { setSubscriptionTier, getAllUsers, getSiteSettings, SUPER_ADMIN_EMAIL } from './auth';
 
 export interface ChatMessage {
   id: string;
@@ -154,13 +154,18 @@ export function sendUserMessage(
 /**
  * Ответ администратора в конкретный тред
  */
-export function sendAdminReply(threadId: string, text: string): ChatMessage {
+export function sendAdminReply(
+  threadId: string,
+  text: string,
+  adminName: string = 'Адильхан (Основатель)',
+  adminEmail: string = 'adilhananuar426@gmail.com'
+): ChatMessage {
   const all = getAllChatMessages();
   const newMsg: ChatMessage = {
     id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     threadId,
-    userName: 'Адильхан (Основатель)',
-    userEmail: 'adilhananuar426@gmail.com',
+    userName: adminName,
+    userEmail: adminEmail,
     senderRole: 'admin',
     text: text.trim(),
     createdAt: new Date().toISOString(),
@@ -230,16 +235,28 @@ export function getAllThreadSummaries(): ChatThreadSummary[] {
     threadsMap[msg.threadId].push(msg);
   }
 
+  // CRITICAL: Ensure ALL registered non-admin users are visible in dialogs list
+  for (const u of allUsers) {
+    if (u.role === 'admin' || u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+      continue;
+    }
+    if (!threadsMap[u.id]) {
+      threadsMap[u.id] = [];
+    }
+  }
+
   const summaries: ChatThreadSummary[] = [];
 
   for (const threadId in threadsMap) {
     const msgs = threadsMap[threadId];
-    const lastMsg = msgs[msgs.length - 1];
+    const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
     const userMsg = msgs.find(m => m.senderRole === 'user') || lastMsg;
 
     // Check if user is pro
     const userEmailClean = userMsg?.userEmail ? userMsg.userEmail.toLowerCase() : '';
-    const matchedUser = allUsers.find(u => u.id === threadId || (userEmailClean && u.email.toLowerCase() === userEmailClean));
+    const matchedUser = allUsers.find(
+      u => u.id === threadId || (userEmailClean && u.email.toLowerCase() === userEmailClean)
+    );
     const isPro = matchedUser ? matchedUser.subscriptionTier === 'pro' : false;
 
     const unreadCount = msgs.filter(m => !m.isReadByAdmin && m.senderRole === 'user').length;
@@ -247,18 +264,23 @@ export function getAllThreadSummaries(): ChatThreadSummary[] {
 
     summaries.push({
       threadId,
-      userName: userMsg.userName || 'Пользователь',
-      userEmail: userMsg.userEmail || 'guest@admitroute.kz',
-      lastMessage: lastMsg.text,
-      lastMessageAt: lastMsg.createdAt,
+      userName: matchedUser?.name || userMsg?.userName || (threadId === 'guest-session' ? 'Гость сайта' : 'Пользователь'),
+      userEmail: matchedUser?.email || userMsg?.userEmail || (threadId === 'guest-session' ? 'guest@admitroute.kz' : ''),
+      lastMessage: lastMsg ? lastMsg.text : 'Диалог еще не начат (нажмите, чтобы написать)',
+      lastMessageAt: lastMsg ? lastMsg.createdAt : (matchedUser?.createdAt || new Date().toISOString()),
       unreadCountForAdmin: unreadCount,
       isPro,
       hasPaymentRequest
     });
   }
 
-  // Sort by latest message
-  return summaries.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+  // Sort by unread first, then by latest message date
+  return summaries.sort((a, b) => {
+    if (a.unreadCountForAdmin !== b.unreadCountForAdmin) {
+      return b.unreadCountForAdmin - a.unreadCountForAdmin;
+    }
+    return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime();
+  });
 }
 
 /**

@@ -23,6 +23,7 @@ interface UniversitySearchProps {
   profile: UserProfile;
   onSelectUniversity: (uni: UniversityProgram) => void;
   onOpenEssayModal?: (uni: UniversityProgram) => void;
+  onOpenPlanModal?: (uni: UniversityProgram) => void;
   selectedForCompare: string[];
   onToggleCompare: (id: string) => void;
   onAddCustomUniversity?: (uni: UniversityProgram) => void;
@@ -35,6 +36,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   profile,
   onSelectUniversity,
   onOpenEssayModal,
+  onOpenPlanModal,
   selectedForCompare,
   onToggleCompare,
   onAddCustomUniversity,
@@ -445,6 +447,18 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           {/* Actions */}
           <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 pt-4">
             <div className="flex flex-wrap items-center gap-2">
+              {onOpenPlanModal && (
+                <button
+                  type="button"
+                  onClick={() => onOpenPlanModal(selectedUni)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 transition shadow-2xs"
+                  title="Открыть пошаговый план подготовки"
+                >
+                  <Target className="h-3.5 w-3.5 text-blue-400" />
+                  <span>План подготовки</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => onToggleCompare(selectedUni.id)}
