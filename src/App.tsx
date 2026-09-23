@@ -99,10 +99,12 @@ export const App: React.FC = () => {
 
     window.addEventListener('storage', handleSync);
     window.addEventListener('admitroute_chat_update', handleSync);
+    window.addEventListener('admitroute_users_update', handleSync);
 
     return () => {
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('admitroute_chat_update', handleSync);
+      window.removeEventListener('admitroute_users_update', handleSync);
     };
   }, []);
 

@@ -145,6 +145,7 @@ export function getAllUsers(): UserAccount[] {
     if (modified) {
       localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
       window.dispatchEvent(new Event('admitroute_chat_update'));
+      window.dispatchEvent(new Event('admitroute_users_update'));
       window.dispatchEvent(new Event('storage'));
     }
     return users;
@@ -175,6 +176,7 @@ export function purgeAllFakeUsers(): UserAccount[] {
 
     localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
     window.dispatchEvent(new Event('admitroute_chat_update'));
+    window.dispatchEvent(new Event('admitroute_users_update'));
     window.dispatchEvent(new Event('storage'));
     return users;
   } catch {
@@ -187,6 +189,7 @@ function saveUsers(users: UserAccount[]): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
   window.dispatchEvent(new Event('admitroute_chat_update'));
+  window.dispatchEvent(new Event('admitroute_users_update'));
   window.dispatchEvent(new Event('storage'));
   void pushSharedState();
 }

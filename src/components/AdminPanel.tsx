@@ -43,6 +43,7 @@ import {
   type ChatThreadSummary,
   type ChatMessage
 } from '../services/chat';
+import { pullSharedState } from '../services/remoteSync';
 import type { UserAccount, SiteSettings, SubscriptionTier } from '../types';
 
 interface AdminPanelProps {
@@ -150,6 +151,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         setSelectedThreadId(initialThreadId);
       }
       loadData();
+      void pullSharedState();
+
+      const pollTimer = window.setInterval(() => {
+        void pullSharedState();
+      }, 2500);
+
+      return () => {
+        window.clearInterval(pollTimer);
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialTab, initialThreadId]);
@@ -160,10 +170,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     };
 
     window.addEventListener('admitroute_chat_update', handleLiveSync);
+    window.addEventListener('admitroute_users_update', handleLiveSync);
     window.addEventListener('storage', handleLiveSync);
 
     return () => {
       window.removeEventListener('admitroute_chat_update', handleLiveSync);
+      window.removeEventListener('admitroute_users_update', handleLiveSync);
       window.removeEventListener('storage', handleLiveSync);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
