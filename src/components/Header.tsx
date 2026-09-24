@@ -15,7 +15,6 @@ interface HeaderProps {
   onOpenSupport: (topic?: string) => void;
   onOpenPricing?: () => void;
   onOpenTelegram?: () => void;
-  onOpenShare?: () => void;
   onOpenReferral?: () => void;
   onLogout: () => void;
 }
@@ -30,7 +29,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSupport,
   onOpenPricing,
   onOpenTelegram,
-  onOpenShare,
   onOpenReferral,
   onLogout
 }) => {
@@ -135,12 +133,11 @@ export const Header: React.FC<HeaderProps> = ({
           )}
 
           {/* Gamification, Streak & Telegram Widgets */}
-          {currentUser && onOpenTelegram && onOpenShare && onOpenReferral && (
+          {currentUser && onOpenTelegram && onOpenReferral && (
             <div className="hidden sm:flex items-center">
               <GamificationHeaderWidget
                 user={currentUser}
                 onOpenTelegram={onOpenTelegram}
-                onOpenShare={onOpenShare}
                 onOpenReferral={onOpenReferral}
               />
             </div>

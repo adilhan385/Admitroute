@@ -17,7 +17,7 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
   const [loading, setLoading] = useState(isOpen);
   const [isConnected, setIsConnected] = useState(false);
   const [maskedChatId, setMaskedChatId] = useState<string | null>(null);
-  const [botUsername, setBotUsername] = useState('admitroute_bot');
+  const [botUsername, setBotUsername] = useState('admitroute_kz_bot');
   const [linkCode, setLinkCode] = useState<string | null>(null);
   const [deepLink, setDeepLink] = useState<string | null>(null);
   const [settings, setSettings] = useState<TelegramSettings>({
@@ -35,7 +35,7 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
         if (!isMounted) return;
         setIsConnected(data.isConnected);
         setMaskedChatId(data.telegramChatId);
-        setBotUsername(data.botUsername || 'admitroute_bot');
+        setBotUsername(data.botUsername || 'admitroute_kz_bot');
         if (data.settings) setSettings(data.settings);
         setLoading(false);
       });
@@ -47,12 +47,18 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
 
   const handleGenerateCode = async () => {
     setLoading(true);
-    const res = await generateTelegramLinkCode();
-    if (res.success && res.code && res.deepLink) {
-      setLinkCode(res.code);
-      setDeepLink(res.deepLink);
+    try {
+      const res = await generateTelegramLinkCode();
+      if (res && res.code && res.deepLink) {
+        setLinkCode(res.code);
+        setDeepLink(res.deepLink);
+        if (res.botUsername) setBotUsername(res.botUsername);
+      }
+    } catch (err) {
+      console.error('[Error generating Telegram link]:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleCopyLink = () => {

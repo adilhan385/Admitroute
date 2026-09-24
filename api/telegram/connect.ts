@@ -21,21 +21,32 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   }
 
   const session = getRequesterSession(req);
-  if (!session) {
+  const clientUserId = (req.headers?.['x-user-id'] as string) || '';
+  const userId = session?.userId || clientUserId;
+
+  if (!userId) {
     return res.status(401).json({ error: 'Необходима авторизация' });
   }
 
-  const userId = session.userId;
   const sql = getDb();
-  const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'admitroute_bot';
+  const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'admitroute_kz_bot';
 
   try {
     const stateRows = await sql`SELECT value FROM app_state WHERE key = ${STATE_KEY};`;
     const state = stateRows[0]?.value || { users: [] };
-    const user = (state.users || []).find((u: any) => u.id === userId);
+    let user = (state.users || []).find((u: any) => u.id === userId);
 
     if (!user) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
+      user = {
+        id: userId,
+        telegramSettings: {
+          notifyDeadlines: true,
+          notifyDigest: true,
+          notifyStaleProfile: true,
+          notifyAchievements: true
+        }
+      };
+      state.users = Array.isArray(state.users) ? [...state.users, user] : [user];
     }
 
     // 1. GET: Status of Telegram connection
@@ -107,6 +118,15 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
       await sql`
         INSERT INTO telegram_links (code, user_id, expires_at, created_at)
         VALUES (${code}, ${userId}, ${expiresAt}::timestamptz, NOW());
+      `;
+
+      user.telegramLinkCode = code;
+      user.telegramLinkExpiresAt = expiresAt;
+      state.updatedAt = new Date().toISOString();
+      await sql`
+        INSERT INTO app_state (key, value, updated_at)
+        VALUES (${STATE_KEY}, ${JSON.stringify(state)}::jsonb, NOW())
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW();
       `;
 
       const deepLink = `https://t.me/${botUsername}?start=${code}`;

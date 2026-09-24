@@ -28,7 +28,6 @@ import { startSharedSync } from './services/remoteSync';
 import type { UserAccount, SiteSettings, ApplicationTracker, PostSubmissionChecklistItem } from './types';
 import { ApplicationTrackerKanban } from './components/ApplicationTrackerKanban';
 import { TelegramNotificationModal } from './components/TelegramNotificationModal';
-import { ShareRoadmapModal } from './components/ShareRoadmapModal';
 import { ReferralModal } from './components/ReferralModal';
 import { SharedRoadmapView } from './components/SharedRoadmapView';
 import { StaleProfileBanner } from './components/StaleProfileBanner';
@@ -117,7 +116,6 @@ export const App: React.FC = () => {
     return params.get('share');
   });
   const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [applications, setApplications] = useState<ApplicationTracker[]>([]);
   const [toastBadge, setToastBadge] = useState<string | null>(null);
@@ -438,7 +436,6 @@ export const App: React.FC = () => {
         onOpenSupport={handleOpenSupport}
         onOpenPricing={() => setIsPricingModalOpen(true)}
         onOpenTelegram={() => setIsTelegramModalOpen(true)}
-        onOpenShare={() => setIsShareModalOpen(true)}
         onOpenReferral={() => setIsReferralModalOpen(true)}
         onLogout={handleLogout}
       />
@@ -696,11 +693,6 @@ export const App: React.FC = () => {
         onStatusChanged={() => setCurrentUser(getCurrentUser())}
       />
 
-      {/* Share Roadmap with Parents/Mentors Modal */}
-      <ShareRoadmapModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-      />
 
       {/* Referral Program Modal */}
       <ReferralModal

@@ -55,20 +55,30 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
           LIMIT 1;
         `;
 
-        if (linkRows.length > 0) {
-          const matchedUserId = linkRows[0].user_id;
+        let matchedUserId = linkRows[0]?.user_id;
 
+        if (linkRows.length > 0) {
           // Mark code as used
           await sql`
             UPDATE telegram_links
             SET used_at = NOW(), telegram_chat_id = ${chatId}
             WHERE code = ${linkCode};
           `;
+        } else {
+          const fallbackUser = users.find(
+            (u: any) => u.telegramLinkCode === linkCode && (!u.telegramLinkExpiresAt || new Date(u.telegramLinkExpiresAt) > new Date())
+          );
+          if (fallbackUser) {
+            matchedUserId = fallbackUser.id;
+          }
+        }
 
+        if (matchedUserId) {
           // Update user in global state
-          const targetUser = users.find(u => u.id === matchedUserId);
+          const targetUser = users.find((u: any) => u.id === matchedUserId);
           if (targetUser) {
             targetUser.telegramChatId = chatId;
+            targetUser.telegramLinkCode = null;
             targetUser.telegramSettings = targetUser.telegramSettings || {
               notifyDeadlines: true,
               notifyDigest: true,

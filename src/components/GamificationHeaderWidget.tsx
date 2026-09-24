@@ -4,14 +4,12 @@ import type { UserAccount } from '../types';
 interface Props {
   user: UserAccount | null;
   onOpenTelegram: () => void;
-  onOpenShare: () => void;
   onOpenReferral: () => void;
 }
 
 export const GamificationHeaderWidget: React.FC<Props> = ({
   user,
   onOpenTelegram,
-  onOpenShare,
   onOpenReferral
 }) => {
   if (!user) return null;
@@ -57,16 +55,6 @@ export const GamificationHeaderWidget: React.FC<Props> = ({
         <span>✈️</span>
         <span className="hidden sm:inline">{isTgLinked ? 'TG подключен' : 'Бот в TG'}</span>
         {isTgLinked && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
-      </button>
-
-      {/* 4. Parent / Mentor Read-Only Sharing */}
-      <button
-        onClick={onOpenShare}
-        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-xs font-bold text-indigo-900 transition shadow-xs"
-        title="Поделиться дорожной картой с родителями или ментором (только для чтения)"
-      >
-        <span>👥</span>
-        <span className="hidden md:inline">Ментор</span>
       </button>
     </div>
   );
