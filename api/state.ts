@@ -1,161 +1,232 @@
-type Request = { method?: string; body?: unknown };
-type Response = {
-  status: (code: number) => Response;
-  json: (data: unknown) => void;
-  setHeader: (name: string, value: string) => void;
-};
+import { z } from 'zod';
+import {
+  type RequestLike,
+  type ResponseLike,
+  applyCors,
+  checkRateLimit,
+  getClientIp,
+  getDb,
+  getRequesterSession,
+  sendSanitizedError,
+  hashPassword
+} from './_security';
 
-const NEON_HOST = 'ep-shy-butterfly-b4s3isp6-pooler.c-6.us-east-2.aws.neon.tech';
-const NEON_URL = `https://${NEON_HOST}/sql`;
-const NEON_CONN =
-  process.env.DATABASE_URL ||
-  `postgresql://neondb_owner:npg_f51BdGjPnHkM@${NEON_HOST}/neondb?sslmode=require`;
+const STATE_KEY = 'admitroute_global_state_v1';
 
-const SUPER_ADMIN_EMAIL = 'adilhananuar426@gmail.com';
-const SEED_ADMIN = {
-  id: 'user-admin-01',
-  email: 'adilhananuar426@gmail.com',
-  name: 'Адильхан (Главный Администратор)',
-  password: 'Lolkek4ik',
-  role: 'admin',
-  subscriptionTier: 'pro',
-  isSuperAdmin: true,
-  isBanned: false,
-  createdAt: '2026-09-01T10:00:00Z',
-  usageStats: { searchesCount: 42, recalculationsCount: 18 },
-  notes: 'Создатель и Главный Администратор платформы AdmitRoute'
-};
+const UpdateStateSchema = z.object({
+  users: z.array(z.record(z.string(), z.any())).optional(),
+  messages: z.array(z.record(z.string(), z.any())).optional(),
+  settings: z.record(z.string(), z.any()).optional(),
+  deletedUserIds: z.array(z.string()).optional()
+});
 
-const FAKE_DEMO_EMAILS = [
-  'student@admitroute.kz',
-  'aizada.sat@gmail.com',
-  'daniyar.nurgali@mail.kz',
-  'madina.k@inbox.ru',
-  'timur.b@gmail.com',
-  'kamila.yerzhan@gmail.com',
-  'yerassyl.m@gmail.com'
-];
+const ALLOWED_USER_FIELDS = new Set([
+  'name',
+  'profile',
+  'usageStats',
+  'notes',
+  'emailVerified'
+]);
 
-async function executeNeonSql(sql: string) {
-  const res = await fetch(NEON_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Neon-Connection-String': NEON_CONN
-    },
-    body: JSON.stringify({ query: sql })
-  });
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Neon error ${res.status}: ${errText}`);
-  }
-  return res.json() as Promise<{ rows?: any[] }>;
+const ALLOWED_MESSAGE_FIELDS = new Set([
+  'id',
+  'threadId',
+  'userEmail',
+  'userName',
+  'senderRole',
+  'text',
+  'createdAt',
+  'isReadByAdmin',
+  'isReadByUser',
+  'isPaymentRequest',
+  'isProActivated'
+]);
+
+function getSuperAdminTemplate() {
+  const email = process.env.ADMIN_EMAIL || 'admin@admitroute.kz';
+  const initialPass = process.env.ADMIN_INITIAL_PASSWORD || 'ChangeMeImmediately123!';
+  return {
+    id: 'user-admin-01',
+    email,
+    name: 'Главный Администратор AdmitRoute',
+    password: hashPassword(initialPass),
+    role: 'admin',
+    subscriptionTier: 'pro',
+    isSuperAdmin: true,
+    isBanned: false,
+    createdAt: '2026-09-01T10:00:00Z',
+    usageStats: { searchesCount: 42, recalculationsCount: 18 },
+    notes: 'Главный Администратор платформы AdmitRoute'
+  };
 }
 
-async function readState() {
-  const query = "SELECT value, updated_at FROM app_state WHERE key = 'admitroute_global_state_v1';";
-  const result = await executeNeonSql(query);
-  const row = result.rows?.[0];
+async function readGlobalState(sql: any) {
+  const rows = await sql`SELECT value, updated_at FROM app_state WHERE key = ${STATE_KEY};`;
+  const row = rows[0];
   if (row && row.value && typeof row.value === 'object') {
     return {
-      users: Array.isArray(row.value.users) ? row.value.users : [SEED_ADMIN],
+      users: Array.isArray(row.value.users) ? row.value.users : [getSuperAdminTemplate()],
       messages: Array.isArray(row.value.messages) ? row.value.messages : [],
       settings: row.value.settings || {},
       updatedAt: row.updated_at || new Date().toISOString()
     };
   }
-  return { users: [SEED_ADMIN], messages: [], settings: {}, updatedAt: new Date().toISOString() };
+  return {
+    users: [getSuperAdminTemplate()],
+    messages: [],
+    settings: {},
+    updatedAt: new Date().toISOString()
+  };
 }
 
-export default async function handler(req: Request, res: Response) {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req: RequestLike, res: ResponseLike) {
+  if (applyCors(req, res)) return;
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).json({ ok: true });
+  const clientIp = getClientIp(req);
+  if (!checkRateLimit(clientIp, 60, 60000)) {
+    return res.status(429).json({ error: 'Слишком много запросов. Подождите 1 минуту.' });
   }
 
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+
   try {
+    const sql = getDb();
+    const session = getRequesterSession(req);
+    const isAdmin = session?.role === 'admin' || !!session?.isSuperAdmin;
+
+    // GET: Retrieve state
     if (req.method === 'GET') {
-      const state = await readState();
-      return res.status(200).json({ state });
+      const state = await readGlobalState(sql);
+
+      // Strip sensitive password hashes from public user roster
+      const sanitizedUsers = state.users.map((u: any) => {
+        const { password: _p, ...safeUser } = u;
+        return safeUser;
+      });
+
+      return res.status(200).json({
+        state: {
+          ...state,
+          users: sanitizedUsers
+        }
+      });
     }
 
-    if (req.method !== 'POST' || !req.body || typeof req.body !== 'object') {
-      return res.status(400).json({ error: 'Invalid request body' });
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const current = await readState();
-    const incoming = req.body as { users?: any[]; messages?: any[]; settings?: any };
+    const parsed = UpdateStateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Некорректная структура запроса синхронизации' });
+    }
 
-    // 1. Merge users intelligently
+    const incoming = parsed.data;
+    const current = await readGlobalState(sql);
+
+    // 1. Process deleted users
+    const deletedSet = new Set(incoming.deletedUserIds || []);
+
+    // 2. Intelligent & Secure User Merging
     const userMap = new Map<string, any>();
     for (const u of current.users) {
-      if (u && u.id) {
+      if (u && u.id && !deletedSet.has(u.id)) {
         userMap.set(u.id, u);
         if (u.email) userMap.set(u.email.toLowerCase(), u);
       }
     }
 
     if (Array.isArray(incoming.users)) {
-      for (const u of incoming.users) {
-        if (!u || !u.id) continue;
-        const emailKey = (u.email || '').toLowerCase();
-        // Ignore fake demo users
-        if (u.id.startsWith('user-demo-') || FAKE_DEMO_EMAILS.includes(emailKey)) {
-          continue;
-        }
-        const existing = (emailKey ? userMap.get(emailKey) : null) || userMap.get(u.id);
+      for (const rawUser of incoming.users) {
+        if (!rawUser || !rawUser.id || deletedSet.has(rawUser.id)) continue;
+        const emailKey = (rawUser.email || '').toLowerCase();
+        const existing = (emailKey ? userMap.get(emailKey) : null) || userMap.get(rawUser.id);
+
         if (existing) {
-          const merged = { ...existing, ...u };
-          userMap.set(u.id, merged);
-          if (emailKey) userMap.set(emailKey, merged);
+          // If requester is not admin, only merge whitelisted fields! Prevent privilege escalation!
+          if (!isAdmin) {
+            const safeUpdate: Record<string, any> = {};
+            for (const key of Object.keys(rawUser)) {
+              if (ALLOWED_USER_FIELDS.has(key)) {
+                safeUpdate[key] = rawUser[key];
+              }
+            }
+            const merged = { ...existing, ...safeUpdate };
+            userMap.set(existing.id, merged);
+            if (existing.email) userMap.set(existing.email.toLowerCase(), merged);
+          } else {
+            // Admin can update roles, bans, tiers, etc.
+            const merged = { ...existing, ...rawUser };
+            userMap.set(existing.id, merged);
+            if (existing.email) userMap.set(existing.email.toLowerCase(), merged);
+          }
         } else {
-          userMap.set(u.id, u);
-          if (emailKey) userMap.set(emailKey, u);
+          // New user creation via sync
+          const safeNewUser: Record<string, any> = {
+            id: rawUser.id,
+            email: rawUser.email,
+            name: rawUser.name || 'Пользователь',
+            role: isAdmin ? (rawUser.role || 'customer') : 'customer', // Non-admin cannot register themselves as admin!
+            subscriptionTier: isAdmin ? (rawUser.subscriptionTier || 'free') : 'free',
+            isSuperAdmin: false,
+            isBanned: false,
+            createdAt: rawUser.createdAt || new Date().toISOString(),
+            usageStats: rawUser.usageStats || { searchesCount: 0, recalculationsCount: 0 },
+            profile: rawUser.profile || undefined
+          };
+          userMap.set(rawUser.id, safeNewUser);
+          if (emailKey) userMap.set(emailKey, safeNewUser);
         }
       }
     }
 
     const uniqueUsers: any[] = [];
     const seenIds = new Set<string>();
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@admitroute.kz').toLowerCase();
+
     for (const u of userMap.values()) {
-      if (!seenIds.has(u.id)) {
+      if (!seenIds.has(u.id) && !deletedSet.has(u.id)) {
         seenIds.add(u.id);
-        const email = (u.email || '').toLowerCase();
-        if (!u.id.startsWith('user-demo-') && !FAKE_DEMO_EMAILS.includes(email)) {
-          uniqueUsers.push(u);
-        }
+        uniqueUsers.push(u);
       }
     }
 
-    // Always ensure super admin is present and has admin role
-    const adminIdx = uniqueUsers.findIndex(u => (u.email || '').toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+    // Always guarantee Super-Admin presence
+    const adminIdx = uniqueUsers.findIndex(u => (u.email || '').toLowerCase() === adminEmail);
     if (adminIdx === -1) {
-      uniqueUsers.unshift(SEED_ADMIN);
+      uniqueUsers.unshift(getSuperAdminTemplate());
     } else {
       uniqueUsers[adminIdx].role = 'admin';
       uniqueUsers[adminIdx].isSuperAdmin = true;
       uniqueUsers[adminIdx].subscriptionTier = 'pro';
     }
 
-    // 2. Merge messages
+    // 3. Message Merging & Sanitization
     const msgMap = new Map<string, any>();
     for (const m of current.messages) {
-      if (m && m.id && !m.id.startsWith('msg-seed-')) msgMap.set(m.id, m);
+      if (m && m.id) msgMap.set(m.id, m);
     }
 
     if (Array.isArray(incoming.messages)) {
       for (const m of incoming.messages) {
-        if (m && m.id && !m.id.startsWith('msg-seed-')) {
-          const existing = msgMap.get(m.id);
-          if (existing) {
-            msgMap.set(m.id, { ...existing, ...m });
-          } else {
-            msgMap.set(m.id, m);
+        if (!m || !m.id || !m.text || typeof m.text !== 'string') continue;
+
+        // Prevent spoofing senderRole as 'admin' if not authenticated as admin
+        const senderRole = (!isAdmin && m.senderRole === 'admin') ? 'user' : (m.senderRole || 'user');
+
+        const cleanMsg: Record<string, any> = {};
+        for (const k of Object.keys(m)) {
+          if (ALLOWED_MESSAGE_FIELDS.has(k)) {
+            cleanMsg[k] = m[k];
           }
+        }
+        cleanMsg.senderRole = senderRole;
+
+        const existing = msgMap.get(m.id);
+        if (existing) {
+          msgMap.set(m.id, { ...existing, ...cleanMsg });
+        } else {
+          msgMap.set(m.id, cleanMsg);
         }
       }
     }
@@ -164,23 +235,35 @@ export default async function handler(req: Request, res: Response) {
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
 
-    const mergedSettings = { ...current.settings, ...(incoming.settings || {}) };
+    // 4. Settings merging (only admin can change site settings)
+    const mergedSettings = isAdmin
+      ? { ...current.settings, ...(incoming.settings || {}) }
+      : current.settings;
 
-    const state = {
+    const nextState = {
       users: uniqueUsers,
       messages: uniqueMessages,
       settings: mergedSettings,
       updatedAt: new Date().toISOString()
     };
 
-    const escapedJson = JSON.stringify(state).replace(/'/g, "''");
-    await executeNeonSql(
-      `INSERT INTO app_state (key, value, updated_at) VALUES ('admitroute_global_state_v1', '${escapedJson}'::jsonb, NOW()) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW();`
-    );
+    // 5. Parameterized SQL execution via @neondatabase/serverless (No String Concatenation!)
+    await sql`
+      INSERT INTO app_state (key, value, updated_at)
+      VALUES (${STATE_KEY}, ${JSON.stringify(nextState)}::jsonb, NOW())
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW();
+    `;
 
-    return res.status(200).json({ state });
+    // Strip password hashes from response
+    const sanitizedOutputUsers = uniqueUsers.map(({ password: _p, ...u }) => u);
+
+    return res.status(200).json({
+      state: {
+        ...nextState,
+        users: sanitizedOutputUsers
+      }
+    });
   } catch (error) {
-    console.error('API state error:', error);
-    return res.status(500).json({ error: error instanceof Error ? error.message : 'Database error' });
+    return sendSanitizedError(res, error, 500, 'Ошибка синхронизации базы данных');
   }
 }

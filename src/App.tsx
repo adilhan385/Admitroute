@@ -570,7 +570,7 @@ export const App: React.FC = () => {
         isPro={currentUser?.subscriptionTier === 'pro'}
       />
 
-      {/* Admin Panel (Accessible by adilhananuar426@gmail.com) */}
+      {/* Admin Panel (Accessible by Administrator) */}
       {currentUser && (
         <AdminPanel
           isOpen={isAdminPanelOpen}

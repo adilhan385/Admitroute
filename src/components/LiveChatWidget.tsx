@@ -44,7 +44,7 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
   const [unreadCountAdmin, setUnreadCountAdmin] = useState<number>(() => getTotalUnreadForAdmin());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.email.toLowerCase() === 'adilhananuar426@gmail.com';
+  const isAdmin = currentUser?.role === 'admin' || !!currentUser?.isSuperAdmin;
   const isGuest = !currentUser || currentUser.role === 'guest';
   const threadId = currentUser ? currentUser.id : 'guest-session';
   const userName = currentUser ? currentUser.name : 'Гость сайта';

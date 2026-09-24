@@ -35,7 +35,7 @@ export const ADMIN_CONTACTS = {
   telegram: '@nftkoroi',
   telegramUrl: 'https://t.me/nftkoroi',
   whatsappUrl: 'https://wa.me/77752530110?text=' + encodeURIComponent('Здравствуйте! Хочу оформить подписку AdmitRoute PRO на поступление.'),
-  email: 'adilhananuar426@gmail.com'
+  email: (import.meta.env.VITE_ADMIN_EMAIL as string) || 'support@admitroute.kz'
 };
 
 function notifyChatChange(): void {
@@ -101,7 +101,7 @@ export function sendUserMessage(
 ): ChatMessage {
   const all = getAllChatMessages();
   const newMsg: ChatMessage = {
-    id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    id: `msg-${crypto.randomUUID()}`,
     threadId,
     userName: userName || 'Гость сайта',
     userEmail: userEmail || 'guest@admitroute.kz',
@@ -125,11 +125,11 @@ export function sendAdminReply(
   threadId: string,
   text: string,
   adminName: string = 'Адильхан (Основатель)',
-  adminEmail: string = 'adilhananuar426@gmail.com'
+  adminEmail: string = SUPER_ADMIN_EMAIL
 ): ChatMessage {
   const all = getAllChatMessages();
   const newMsg: ChatMessage = {
-    id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    id: `msg-${crypto.randomUUID()}`,
     threadId,
     userName: adminName,
     userEmail: adminEmail,

@@ -4,13 +4,10 @@ import { UNIVERSITIES_DATABASE } from '../data/universities';
 import { findUniversityByAliasOrName, generateRealisticUnknownUniversity } from '../utils/universityMatcher';
 
 /**
- * Сервис интеграции с Google Gemini API (gemini-3.6-flash) + Автономный аналитический движок (No-Fail Engine)
- * Проверяет VITE_GEMINI_API_KEY из .env, а при отсутствии ключа или сбое сети
+ * Защищенный сервис интеграции с Google Gemini API (gemini-2.5-flash) через серверный /api/gemini
+ * Использует GEMINI_API_KEY на сервере без экспонирования секретов в браузер, а при сбое сети
  * мгновенно формирует достоверную экспертную карточку любого вуза через встроенную базу знаний.
  */
-
-const PRIMARY_MODEL = 'gemini-3.6-flash';
-const FALLBACK_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
 
 /**
  * Извлекает валидный JSON блок из ответа модели, отсекая любые обрамляющие комментарии или markdown
@@ -35,58 +32,36 @@ function extractJsonBlock(raw: string): string {
 }
 
 /**
- * Надежный вызов Google Gemini API с поддержкой актуальных версий моделей
+ * Безопасный вызов Gemini через серверную функцию /api/gemini без экспорта API-ключа в браузер
  */
-async function callGeminiApi(prompt: string, apiKey: string, responseMimeType: string = 'application/json'): Promise<string | null> {
-  const modelsToTry = [PRIMARY_MODEL, ...FALLBACK_MODELS];
-  const cleanKey = apiKey.trim();
+async function callGeminiApi(prompt: string, _apiKey?: string, responseMimeType: string = 'application/json'): Promise<string | null> {
+  try {
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt,
+        responseMimeType,
+        temperature: 0.3
+      })
+    });
 
-  for (const model of modelsToTry) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType,
-            temperature: 0.3,
-          },
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) {
-          return responseMimeType === 'application/json' ? extractJsonBlock(text) : text.trim();
-        }
-      } else {
-        const errData = await response.json().catch(() => ({}));
-        console.warn(`[Gemini API ${model}] Status ${response.status}:`, errData?.error?.message || response.statusText);
-        if (response.status === 401 || response.status === 403) {
-          break;
-        }
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.content) {
+        return responseMimeType === 'application/json' ? extractJsonBlock(data.content) : data.content.trim();
       }
-    } catch (err) {
-      console.warn(`[Gemini API ${model}] Network error:`, err);
     }
+  } catch (err) {
+    console.warn('Backend /api/gemini unavailable, falling back to autonomous engine:', err);
   }
 
   return null;
 }
 
 export function getGeminiApiKey(): string {
-  const envKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (envKey && envKey.trim() !== '') {
-    return envKey.trim();
-  }
-  if (typeof window !== 'undefined') {
-    const local = localStorage.getItem('admitroute_gemini_api_key');
-    if (local && local.trim() !== '') return local.trim();
-  }
-  return '';
+  // Ключ безопасно хранится на сервере в GEMINI_API_KEY
+  return 'server-managed';
 }
 
 export function setGeminiApiKey(key: string): void {
@@ -297,7 +272,7 @@ export async function searchOrGenerateUniversityWithAi(
       if (text) {
         const parsed = JSON.parse(text) as UniversityProgram;
         parsed.isAiGenerated = true;
-        if (!parsed.id) parsed.id = `ai-${Date.now()}`;
+        if (!parsed.id) parsed.id = `ai-${crypto.randomUUID()}`;
         return parsed;
       }
     } catch (e) {
@@ -1050,7 +1025,7 @@ export async function testGeminiConnection(apiKey?: string): Promise<{ success: 
   try {
     const text = await callGeminiApi('Answer in one word: ok', key, 'text/plain');
     if (text) {
-      return { success: true, message: `Успешное подключение к Gemini (${PRIMARY_MODEL})!` };
+      return { success: true, message: 'Успешное подключение к Gemini (gemini-2.5-flash)!' };
     }
     return { success: false, message: 'Gemini не вернул ответ' };
   } catch (e: any) {

@@ -22,20 +22,20 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   allowGuestChat: true
 };
 
-export const SUPER_ADMIN_EMAIL = 'adilhananuar426@gmail.com';
+export const SUPER_ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL as string) || 'admin@admitroute.kz';
 
 export function isSuperAdmin(user?: UserAccount | null): boolean {
   if (!user) return false;
-  return user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() || !!user.isSuperAdmin;
+  return user.role === 'admin' || !!user.isSuperAdmin || user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
 }
 
 // Default system users: ONLY the Super-Admin, no fake demo users
 const SEED_USERS: UserAccount[] = [
   {
     id: 'user-admin-01',
-    email: 'adilhananuar426@gmail.com',
+    email: SUPER_ADMIN_EMAIL,
     name: 'Адильхан (Главный Администратор)',
-    password: 'Lolkek4ik',
+    password: '',
     role: 'admin',
     subscriptionTier: 'pro',
     isSuperAdmin: true,
@@ -71,12 +71,11 @@ export function initializeAuthDatabase(): void {
         u => !u.id.startsWith('user-demo-') && !FAKE_DEMO_EMAILS.includes(u.email.toLowerCase())
       );
 
-      const adminIndex = users.findIndex(u => u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+      const adminIndex = users.findIndex(u => isSuperAdmin(u));
       if (adminIndex === -1) {
         users.unshift(SEED_USERS[0]);
       } else {
         users[adminIndex].role = 'admin';
-        users[adminIndex].password = 'Lolkek4ik';
         users[adminIndex].subscriptionTier = 'pro';
         users[adminIndex].isSuperAdmin = true;
         users[adminIndex].isBanned = false;
@@ -133,11 +132,10 @@ export function getAllUsers(): UserAccount[] {
       modified = true;
     } else {
       const admin = users[adminIndex];
-      if (admin.role !== 'admin' || !admin.isSuperAdmin || admin.subscriptionTier !== 'pro' || admin.password !== 'Lolkek4ik') {
+      if (admin.role !== 'admin' || !admin.isSuperAdmin || admin.subscriptionTier !== 'pro') {
         admin.role = 'admin';
         admin.isSuperAdmin = true;
         admin.subscriptionTier = 'pro';
-        admin.password = 'Lolkek4ik';
         modified = true;
       }
     }
@@ -169,7 +167,6 @@ export function purgeAllFakeUsers(): UserAccount[] {
       users.unshift(SEED_USERS[0]);
     } else {
       users[adminIndex].role = 'admin';
-      users[adminIndex].password = 'Lolkek4ik';
       users[adminIndex].subscriptionTier = 'pro';
       users[adminIndex].isSuperAdmin = true;
     }
@@ -264,6 +261,23 @@ export function login(email: string, password: string): { success: boolean; user
   }
 
   localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(found));
+
+  // Asynchronously authenticate against serverless backend to get signed token
+  if (typeof window !== 'undefined') {
+    fetch('/api/auth?action=login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, password: cleanPass })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.token) {
+          localStorage.setItem('admitroute_auth_token_v1', data.token);
+        }
+      })
+      .catch(() => {});
+  }
+
   return { success: true, user: found };
 }
 
@@ -276,13 +290,17 @@ export function register(name: string, email: string, password: string): { succe
     return { success: false, error: 'Заполните все обязательные поля.' };
   }
 
+  if (cleanPass.length < 6) {
+    return { success: false, error: 'Пароль должен содержать минимум 6 символов.' };
+  }
+
   const users = getAllUsers();
   if (users.some(u => u.email.toLowerCase() === cleanEmail)) {
     return { success: false, error: 'Пользователь с таким email уже существует.' };
   }
 
   const newUser: UserAccount = {
-    id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    id: `user-${crypto.randomUUID()}`,
     email: cleanEmail,
     name: cleanName,
     password: cleanPass,
@@ -297,12 +315,29 @@ export function register(name: string, email: string, password: string): { succe
   saveUsers(users);
   localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(newUser));
 
+  // Asynchronously register on serverless backend to obtain signed token
+  if (typeof window !== 'undefined') {
+    fetch('/api/auth?action=register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: cleanName, email: cleanEmail, password: cleanPass })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.token) {
+          localStorage.setItem('admitroute_auth_token_v1', data.token);
+        }
+      })
+      .catch(() => {});
+  }
+
   return { success: true, user: newUser };
 }
 
 export function logout(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(STORAGE_CURRENT_USER_KEY);
+  localStorage.removeItem('admitroute_auth_token_v1');
 }
 
 export function toggleBanUser(userId: string): { success: boolean; user?: UserAccount } {
@@ -310,7 +345,7 @@ export function toggleBanUser(userId: string): { success: boolean; user?: UserAc
   const target = users.find(u => u.id === userId);
   if (!target) return { success: false };
 
-  if (target.email.toLowerCase() === 'adilhananuar426@gmail.com') {
+  if (isSuperAdmin(target)) {
     return { success: false };
   }
 
@@ -364,7 +399,7 @@ export function updateUserRole(userId: string, role: UserRole): { success: boole
   const target = users.find(u => u.id === userId);
   if (!target) return { success: false };
 
-  if (target.email.toLowerCase() === 'adilhananuar426@gmail.com') {
+  if (isSuperAdmin(target)) {
     return { success: false };
   }
 
@@ -419,8 +454,16 @@ export function deleteUser(userId: string): { success: boolean } {
   const target = users.find(u => u.id === userId);
   if (!target) return { success: false };
 
-  if (target.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+  if (isSuperAdmin(target)) {
     return { success: false };
+  }
+
+  if (typeof window !== 'undefined') {
+    const deletedList: string[] = JSON.parse(localStorage.getItem('admitroute_deleted_user_ids_v1') || '[]');
+    if (!deletedList.includes(userId)) {
+      deletedList.push(userId);
+      localStorage.setItem('admitroute_deleted_user_ids_v1', JSON.stringify(deletedList));
+    }
   }
 
   const filtered = users.filter(u => u.id !== userId);

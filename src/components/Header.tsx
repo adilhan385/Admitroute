@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
     window.print();
   };
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.email.toLowerCase() === 'adilhananuar426@gmail.com';
+  const isAdmin = currentUser?.role === 'admin' || !!currentUser?.isSuperAdmin;
   const isPro = currentUser?.subscriptionTier === 'pro';
 
   const searchLimits = checkActionAllowed('search');

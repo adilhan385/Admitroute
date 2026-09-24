@@ -1,18 +1,13 @@
 /**
  * Глобальный сервис синхронизации базы пользователей, переписок и настроек
- * Подключен к глобальной базе данных Neon PostgreSQL (AWS).
- * Работает как через Serverless API (/api/state), так и с прямым отказоустойчивым каналом к БД.
+ * Работает через защищенный Serverless API (/api/state) без раскрытия учетных данных БД клиенту.
  */
 
 const USERS = 'admitroute_users_db_v1';
 const CHAT = 'admitroute_live_chat_threads_v2';
 const SETTINGS = 'admitroute_site_settings_v1';
-
-const NEON_HOST = 'ep-shy-butterfly-b4s3isp6-pooler.c-6.us-east-2.aws.neon.tech';
-const NEON_URL = `https://${NEON_HOST}/sql`;
-const NEON_CONN = `postgresql://neondb_owner:npg_f51BdGjPnHkM@${NEON_HOST}/neondb?sslmode=require`;
-
 const DELETED_USERS_KEY = 'admitroute_deleted_user_ids_v1';
+const TOKEN_KEY = 'admitroute_auth_token_v1';
 
 const FAKE_DEMO_EMAILS = [
   'student@admitroute.kz',
@@ -35,22 +30,17 @@ const getLocalState = () => ({
   deletedUserIds: JSON.parse(localStorage.getItem(DELETED_USERS_KEY) || '[]')
 });
 
-/**
- * Прямой запрос к Neon SQL по HTTP (работает в браузере с CORS)
- */
-async function executeDirectNeonSql(sql: string): Promise<any> {
-  const res = await fetch(NEON_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Neon-Connection-String': NEON_CONN
-    },
-    body: JSON.stringify({ query: sql })
-  });
-  if (!res.ok) {
-    throw new Error(`Direct Neon HTTP error: ${res.status}`);
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json'
+  };
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
   }
-  return res.json();
+  return headers;
 }
 
 /**
@@ -60,13 +50,15 @@ function applyRemoteState(remote: any): void {
   if (!remote || typeof remote !== 'object') return;
 
   try {
+    const deletedIds = new Set<string>(JSON.parse(localStorage.getItem(DELETED_USERS_KEY) || '[]'));
+
     // 1. Объединение пользователей
     if (Array.isArray(remote.users)) {
       const localUsers: any[] = JSON.parse(localStorage.getItem(USERS) || '[]');
       const userMap = new Map<string, any>();
 
       for (const u of localUsers) {
-        if (u && u.id) {
+        if (u && u.id && !deletedIds.has(u.id)) {
           const emailKey = (u.email || '').toLowerCase();
           if (!u.id.startsWith('user-demo-') && !FAKE_DEMO_EMAILS.includes(emailKey)) {
             userMap.set(u.id, u);
@@ -76,7 +68,7 @@ function applyRemoteState(remote: any): void {
       }
 
       for (const u of remote.users) {
-        if (u && u.id) {
+        if (u && u.id && !deletedIds.has(u.id)) {
           const emailKey = (u.email || '').toLowerCase();
           if (!u.id.startsWith('user-demo-') && !FAKE_DEMO_EMAILS.includes(emailKey)) {
             const existing = (emailKey ? userMap.get(emailKey) : null) || userMap.get(u.id);
@@ -95,7 +87,7 @@ function applyRemoteState(remote: any): void {
       const mergedUsers: any[] = [];
       const seenIds = new Set<string>();
       for (const u of userMap.values()) {
-        if (!seenIds.has(u.id)) {
+        if (!seenIds.has(u.id) && !deletedIds.has(u.id)) {
           seenIds.add(u.id);
           mergedUsers.push(u);
         }
@@ -149,38 +141,30 @@ function applyRemoteState(remote: any): void {
 }
 
 /**
- * Получение свежего состояния из глобальной БД
+ * Получение свежего состояния из защищенного Serverless API
  */
 export async function pullSharedState(): Promise<void> {
   if (typeof window === 'undefined' || !navigator.onLine) return;
 
-  // 1. Попытка через Serverless API
   try {
-    const res = await fetch('/api/state', { cache: 'no-store' });
+    const res = await fetch('/api/state', {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      cache: 'no-store'
+    });
     if (res.ok) {
       const data = await res.json();
       if (data && data.state) {
         applyRemoteState(data.state);
-        return;
       }
     }
-  } catch {}
-
-  // 2. Резервный прямой канал в Neon PostgreSQL
-  try {
-    const sql = "SELECT value FROM app_state WHERE key = 'admitroute_global_state_v1';";
-    const res = await executeDirectNeonSql(sql);
-    const row = res.rows?.[0];
-    if (row && row.value) {
-      applyRemoteState(row.value);
-    }
-  } catch (err) {
+  } catch {
     // Бесшумный fallback при отсутствии сети
   }
 }
 
 /**
- * Отправка локальных изменений в глобальную БД
+ * Отправка локальных изменений в защищенный Serverless API
  */
 export async function pushSharedState(): Promise<void> {
   if (typeof window === 'undefined' || !navigator.onLine || isPushing) return;
@@ -189,10 +173,9 @@ export async function pushSharedState(): Promise<void> {
   const currentLocal = getLocalState();
 
   try {
-    // 1. Попытка через Serverless API
     const res = await fetch('/api/state', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(currentLocal)
     });
 
@@ -200,23 +183,10 @@ export async function pushSharedState(): Promise<void> {
       const data = await res.json();
       if (data && data.state) {
         applyRemoteState(data.state);
-        isPushing = false;
-        return;
       }
     }
-  } catch {}
-
-  // 2. Резервная прямая запись в Neon PostgreSQL
-  try {
-    const stateJson = JSON.stringify(currentLocal).replace(/'/g, "''");
-    const sql = `INSERT INTO app_state (key, value, updated_at) VALUES ('admitroute_global_state_v1', '${stateJson}'::jsonb, NOW()) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW() RETURNING value;`;
-    const res = await executeDirectNeonSql(sql);
-    const row = res.rows?.[0];
-    if (row && row.value) {
-      applyRemoteState(row.value);
-    }
-  } catch (err) {
-    console.warn('Global push failed:', err);
+  } catch {
+    // Бесшумный fallback при временном отсутствии сети
   } finally {
     isPushing = false;
   }
