@@ -194,7 +194,14 @@ export function getRequesterSession(req: RequestLike): SessionPayload | null {
     token = authHeader.substring(7).trim();
   } else {
     const customHeader = req.headers?.['x-session-token'];
-    if (typeof customHeader === 'string') token = customHeader.trim();
+    if (typeof customHeader === 'string') {
+      token = customHeader.trim();
+    } else if (req.headers?.['cookie']) {
+      const rawCookie = req.headers['cookie'];
+      const cookieStr = Array.isArray(rawCookie) ? rawCookie.join('; ') : rawCookie;
+      const match = cookieStr.match(/(?:^|;\s*)admitroute_token=([^;]+)/);
+      if (match) token = decodeURIComponent(match[1]);
+    }
   }
 
   if (!token) return null;
@@ -208,6 +215,57 @@ export function getDb() {
     throw new Error('DATABASE_URL environment variable is not configured on the server.');
   }
   return neon(connString);
+}
+
+// 5.1 Telegram Bot Integration Helpers
+export async function sendTelegramMessage(chatId: string, text: string): Promise<boolean> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || !chatId) return false;
+
+  try {
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      })
+    });
+    return res.ok;
+  } catch (err) {
+    console.error('[Telegram Send Error]:', err);
+    return false;
+  }
+}
+
+export async function canSendNotification(sql: any, userId: string, notificationType: string): Promise<boolean> {
+  try {
+    const rows = await sql`
+      SELECT id FROM notification_logs
+      WHERE user_id = ${userId}
+        AND notification_type = ${notificationType}
+        AND sent_at > NOW() - INTERVAL '24 hours'
+      LIMIT 1;
+    `;
+    return rows.length === 0;
+  } catch {
+    return true;
+  }
+}
+
+export async function logNotificationSent(sql: any, userId: string, notificationType: string, channel: string = 'telegram') {
+  try {
+    const id = crypto.randomUUID();
+    await sql`
+      INSERT INTO notification_logs (id, user_id, notification_type, channel, sent_at)
+      VALUES (${id}, ${userId}, ${notificationType}, ${channel}, NOW());
+    `;
+  } catch (err) {
+    console.error('[Log Notification Error]:', err);
+  }
 }
 
 // 6. Have I Been Pwned (HIBP) k-Anonymity Leak Check

@@ -25,7 +25,13 @@ const ALLOWED_USER_FIELDS = new Set([
   'profile',
   'usageStats',
   'notes',
-  'emailVerified'
+  'emailVerified',
+  'telegramSettings',
+  'selectedPrograms',
+  'roadmap',
+  'gamification',
+  'profileLastUpdatedAt',
+  'postSubmissionChecklist'
 ]);
 
 const ALLOWED_MESSAGE_FIELDS = new Set([

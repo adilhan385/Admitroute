@@ -25,7 +25,15 @@ import { AdminPanel } from './components/AdminPanel';
 import { PricingModal } from './components/PricingModal';
 import { getCurrentUser, logout as authLogout, getSiteSettings, recordActionUsage, saveUserProfileForUser } from './services/auth';
 import { startSharedSync } from './services/remoteSync';
-import type { UserAccount, SiteSettings } from './types';
+import type { UserAccount, SiteSettings, ApplicationTracker, PostSubmissionChecklistItem } from './types';
+import { ApplicationTrackerKanban } from './components/ApplicationTrackerKanban';
+import { TelegramNotificationModal } from './components/TelegramNotificationModal';
+import { ShareRoadmapModal } from './components/ShareRoadmapModal';
+import { ReferralModal } from './components/ReferralModal';
+import { SharedRoadmapView } from './components/SharedRoadmapView';
+import { StaleProfileBanner } from './components/StaleProfileBanner';
+import { PostSubmissionChecklist } from './components/PostSubmissionChecklist';
+import { fetchUserApplications, DEFAULT_POST_SUBMISSION_CHECKLIST } from './services/retention';
 import { Bell } from 'lucide-react';
 import { Sparkles, SlidersHorizontal } from 'lucide-react';
 
@@ -80,8 +88,20 @@ export const App: React.FC = () => {
 
   // Authentication and Roles State
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getCurrentUser());
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('ref')) return 'register';
+    }
+    return 'login';
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('ref')) return true;
+    }
+    return false;
+  });
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
   const [supportTopic, setSupportTopic] = useState<string>('PRO');
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
@@ -89,6 +109,47 @@ export const App: React.FC = () => {
   const [adminInitialThreadId, setAdminInitialThreadId] = useState<string | undefined>(undefined);
   const [isPricingModalOpen, setIsPricingModalOpen] = useState<boolean>(false);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => getSiteSettings());
+
+  // Retention & Growth States
+  const [sharedToken, setSharedToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('share');
+  });
+  const [isTelegramModalOpen, setIsTelegramModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+  const [applications, setApplications] = useState<ApplicationTracker[]>([]);
+  const [toastBadge, setToastBadge] = useState<string | null>(null);
+  const [postSubmissionChecklist, setPostSubmissionChecklist] = useState<PostSubmissionChecklistItem[]>(() => {
+    return currentUser?.postSubmissionChecklist || DEFAULT_POST_SUBMISSION_CHECKLIST;
+  });
+
+  const refreshApplications = async () => {
+    if (currentUser) {
+      const apps = await fetchUserApplications();
+      setApplications(apps);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+    if (currentUser) {
+      fetchUserApplications().then(apps => {
+        if (isMounted) setApplications(apps);
+      });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (toastBadge) {
+      const timer = setTimeout(() => setToastBadge(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastBadge]);
 
   // Listen to live chat and auth updates (e.g. when admin activates PRO)
   useEffect(() => {
@@ -339,8 +400,33 @@ export const App: React.FC = () => {
     })
     .filter((u): u is UniversityProgram => u !== null);
 
+  if (sharedToken) {
+    return (
+      <SharedRoadmapView
+        shareToken={sharedToken}
+        onExit={() => {
+          if (typeof window !== 'undefined') {
+            window.history.replaceState({}, '', '/');
+          }
+          setSharedToken(null);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans">
+      {/* Achievement & Badge Toast Notification */}
+      {toastBadge && (
+        <div className="fixed top-16 right-4 z-50 p-4 bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 animate-bounce">
+          <span className="text-2xl">🏆</span>
+          <div>
+            <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">Новое достижение!</div>
+            <div className="text-xs font-semibold">{toastBadge}</div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <Header
         onReset={handleReset}
@@ -351,6 +437,9 @@ export const App: React.FC = () => {
         onOpenAdmin={handleOpenAdmin}
         onOpenSupport={handleOpenSupport}
         onOpenPricing={() => setIsPricingModalOpen(true)}
+        onOpenTelegram={() => setIsTelegramModalOpen(true)}
+        onOpenShare={() => setIsShareModalOpen(true)}
+        onOpenReferral={() => setIsReferralModalOpen(true)}
         onLogout={handleLogout}
       />
 
@@ -365,7 +454,9 @@ export const App: React.FC = () => {
       )}
 
       {/* Main Content Area */}
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 space-y-6">
+        {/* Stale Profile Warning Banner (Data not updated in 60+ days) */}
+        <StaleProfileBanner user={currentUser} onEditProfile={() => setIsEditing(true)} />
         {!profile && !isEditing ? (
           <Hero
             onStart={() => setIsEditing(true)}
@@ -493,6 +584,20 @@ export const App: React.FC = () => {
               onToggleStep={handleToggleStep}
             />
 
+            {/* RETENTION: Application Status Tracker (Kanban by Program) */}
+            <ApplicationTrackerKanban
+              selectedPrograms={recommendedUnis.slice(0, 6)}
+              applications={applications}
+              onRefreshApplications={refreshApplications}
+              onBadgeEarned={badge => setToastBadge(badge)}
+            />
+
+            {/* RETENTION: Post-Submission Stage (Enrollment, Visa, Housing Checklist) */}
+            <PostSubmissionChecklist
+              checklist={postSubmissionChecklist}
+              onUpdateChecklist={updated => setPostSubmissionChecklist(updated)}
+            />
+
             {/* STAGE 5: Comparison Modal */}
             <ComparisonModal
               isOpen={isCompareOpen}
@@ -583,6 +688,26 @@ export const App: React.FC = () => {
           initialThreadId={adminInitialThreadId}
         />
       )}
+
+      {/* Telegram Notification Settings Modal */}
+      <TelegramNotificationModal
+        isOpen={isTelegramModalOpen}
+        onClose={() => setIsTelegramModalOpen(false)}
+        onStatusChanged={() => setCurrentUser(getCurrentUser())}
+      />
+
+      {/* Share Roadmap with Parents/Mentors Modal */}
+      <ShareRoadmapModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+      />
+
+      {/* Referral Program Modal */}
+      <ReferralModal
+        isOpen={isReferralModalOpen}
+        onClose={() => setIsReferralModalOpen(false)}
+        referralCode={currentUser?.referralCode || 'AR-7X9K2M'}
+      />
 
       {/* Footer */}
       <footer className="mt-16 border-t border-slate-200 bg-white py-8">

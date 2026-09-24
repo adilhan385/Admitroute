@@ -24,6 +24,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [refCode, setRefCode] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    const params = new URLSearchParams(window.location.search);
+    return params.get('ref') || '';
+  });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,7 +49,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           setError(res.error || 'Ошибка входа');
         }
       } else {
-        const res = register(name, email, password);
+        const res = register(name, email, password, refCode);
         if (res.success && res.user) {
           onAuthSuccess(res.user);
           onClose();
@@ -169,6 +174,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               />
             </div>
           </div>
+
+          {mode === 'register' && (
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Реферальный код (бонус +5 AI-поисков)
+              </label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-2.5 text-xs">🎁</span>
+                <input
+                  type="text"
+                  value={refCode}
+                  onChange={e => setRefCode(e.target.value.toUpperCase())}
+                  placeholder="AR-XXXXXX (если есть)"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs font-mono uppercase tracking-wider text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

@@ -281,7 +281,7 @@ export function login(email: string, password: string): { success: boolean; user
   return { success: true, user: found };
 }
 
-export function register(name: string, email: string, password: string): { success: boolean; user?: UserAccount; error?: string } {
+export function register(name: string, email: string, password: string, refCode?: string): { success: boolean; user?: UserAccount; error?: string } {
   const cleanName = name.trim();
   const cleanEmail = email.trim().toLowerCase();
   const cleanPass = password.trim();
@@ -290,14 +290,17 @@ export function register(name: string, email: string, password: string): { succe
     return { success: false, error: 'Заполните все обязательные поля.' };
   }
 
-  if (cleanPass.length < 6) {
-    return { success: false, error: 'Пароль должен содержать минимум 6 символов.' };
+  if (cleanPass.length < 8) {
+    return { success: false, error: 'Пароль должен содержать минимум 8 символов.' };
   }
 
   const users = getAllUsers();
   if (users.some(u => u.email.toLowerCase() === cleanEmail)) {
     return { success: false, error: 'Пользователь с таким email уже существует.' };
   }
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const myRefCode = `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
   const newUser: UserAccount = {
     id: `user-${crypto.randomUUID()}`,
@@ -307,6 +310,18 @@ export function register(name: string, email: string, password: string): { succe
     role: 'customer',
     subscriptionTier: 'free',
     isBanned: false,
+    referralCode: myRefCode,
+    profileLastUpdatedAt: new Date().toISOString(),
+    dailySearches: {
+      count: 0,
+      date: todayStr,
+      maxPerDay: 5,
+      bonusCount: refCode ? 5 : 0
+    },
+    gamification: {
+      streak: { currentStreak: 1, longestStreak: 1, lastActiveDate: todayStr },
+      badges: ['profile_started']
+    },
     createdAt: new Date().toISOString(),
     usageStats: { searchesCount: 0, recalculationsCount: 0 }
   };
@@ -315,12 +330,12 @@ export function register(name: string, email: string, password: string): { succe
   saveUsers(users);
   localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(newUser));
 
-  // Asynchronously register on serverless backend to obtain signed token
+  // Asynchronously register on serverless backend to obtain signed token and process referral bonus
   if (typeof window !== 'undefined') {
     fetch('/api/auth?action=register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: cleanName, email: cleanEmail, password: cleanPass })
+      body: JSON.stringify({ name: cleanName, email: cleanEmail, password: cleanPass, refCode })
     })
       .then(r => r.json())
       .then(data => {

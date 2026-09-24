@@ -3,6 +3,7 @@ import { RotateCcw, Printer, Calendar, Shield, LogIn, LogOut, MessageSquare, Spa
 import type { UserAccount } from '../types';
 import { checkActionAllowed } from '../services/auth';
 import { getTotalUnreadForAdmin } from '../services/chat';
+import { GamificationHeaderWidget } from './GamificationHeaderWidget';
 
 interface HeaderProps {
   onReset: () => void;
@@ -13,6 +14,9 @@ interface HeaderProps {
   onOpenAdmin: (tab?: 'users' | 'messages' | 'settings') => void;
   onOpenSupport: (topic?: string) => void;
   onOpenPricing?: () => void;
+  onOpenTelegram?: () => void;
+  onOpenShare?: () => void;
+  onOpenReferral?: () => void;
   onLogout: () => void;
 }
 
@@ -25,6 +29,9 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAdmin,
   onOpenSupport,
   onOpenPricing,
+  onOpenTelegram,
+  onOpenShare,
+  onOpenReferral,
   onLogout
 }) => {
   const [unreadChatForAdmin, setUnreadChatForAdmin] = useState<number>(() => getTotalUnreadForAdmin());
@@ -125,6 +132,18 @@ export const Header: React.FC<HeaderProps> = ({
               <Shield className="h-3.5 w-3.5" />
               <span>Админ-панель</span>
             </button>
+          )}
+
+          {/* Gamification, Streak & Telegram Widgets */}
+          {currentUser && onOpenTelegram && onOpenShare && onOpenReferral && (
+            <div className="hidden sm:flex items-center">
+              <GamificationHeaderWidget
+                user={currentUser}
+                onOpenTelegram={onOpenTelegram}
+                onOpenShare={onOpenShare}
+                onOpenReferral={onOpenReferral}
+              />
+            </div>
           )}
 
           {/* User Account / Role Badge */}

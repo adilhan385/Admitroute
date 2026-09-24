@@ -194,6 +194,58 @@ export interface UserUsageStats {
   recalculationsCount: number;
 }
 
+export interface DailySearchesQuota {
+  count: number;
+  date: string;
+  maxPerDay: number;
+  bonusCount?: number;
+  remaining?: number;
+  resetsAt?: string;
+}
+
+export interface StreakInfo {
+  currentStreak: number;
+  longestStreak: number;
+  lastActiveDate: string;
+}
+
+export interface UserGamification {
+  streak: StreakInfo;
+  badges: string[];
+}
+
+export interface TelegramSettings {
+  notifyDeadlines: boolean;
+  notifyDigest: boolean;
+  notifyStaleProfile: boolean;
+  notifyAchievements: boolean;
+}
+
+export interface PostSubmissionChecklistItem {
+  id: string;
+  title: string;
+  category: 'visa' | 'housing' | 'scholarship' | 'enrollment' | 'medical' | 'logistics';
+  description: string;
+  completed: boolean;
+  deadline?: string;
+}
+
+export interface ApplicationTrackerStage {
+  status: 'not_started' | 'in_progress' | 'completed' | 'pending' | 'accepted' | 'rejected' | 'waitlist';
+  notes?: string;
+  date?: string;
+  updatedAt?: string;
+}
+
+export interface ApplicationTracker {
+  id: string;
+  programId: string;
+  programName: string;
+  stages: Record<string, ApplicationTrackerStage>;
+  status: 'in_progress' | 'submitted' | 'accepted' | 'rejected';
+  updatedAt: string;
+}
+
 export interface UserAccount {
   id: string;
   email: string;
@@ -207,6 +259,16 @@ export interface UserAccount {
   notes?: string;
   isSuperAdmin?: boolean;
   profile?: UserProfile;
+  referralCode?: string;
+  telegramChatId?: string | null;
+  telegramSettings?: TelegramSettings;
+  dailySearches?: DailySearchesQuota;
+  gamification?: UserGamification;
+  profileLastUpdatedAt?: string;
+  emailVerified?: boolean;
+  postSubmissionChecklist?: PostSubmissionChecklistItem[];
+  roadmap?: RoadmapStep[];
+  selectedPrograms?: UniversityProgram[];
 }
 
 export interface SupportMessage {
@@ -231,4 +293,5 @@ export interface SiteSettings {
   freeCustomerMaxRecalculations: number;
   allowGuestChat: boolean;
 }
+
 
