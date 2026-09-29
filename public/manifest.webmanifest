@@ -1,0 +1,18 @@
+{
+  "name": "AdmitRoute — Персональный AI-маршрут поступления",
+  "short_name": "AdmitRoute",
+  "description": "Умный AI-навигатор поступления в университеты Казахстана и мира: расчет шансов на грант по ЕНТ, IELTS, SAT и GPA, пошаговый план с дедлайнами и AI-проверка эссе.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
