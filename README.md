@@ -1,5 +1,6 @@
 # AdmitRoute — Персональный AI-маршрут поступления
 
+🌐 **Официальный сайт (Live Demo):** [https://admitroute.vercel.app](https://admitroute.vercel.app/)  
 **Кейс 02: Персональный маршрут поступления**  
 **Код сабмита / участия:** `LOCUSCASE2`  
 **Хакатон:** LOCUS Startup Hackathon 2026 (16–19 сентября 2026 г.)  
