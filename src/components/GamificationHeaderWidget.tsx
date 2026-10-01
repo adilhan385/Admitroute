@@ -19,7 +19,7 @@ export const GamificationHeaderWidget: React.FC<Props> = ({
   const quota = getSearchQuota();
   const maxSearches = quota?.max ?? 0;
   const remainingSearches = quota?.remaining ?? 0;
-  const isUnlimited = quota?.max === null || user.subscriptionTier === 'pro' || user.role === 'admin';
+  const isUnlimited = quota?.max === null || user.subscriptionTier === 'pro' || user.role === 'admin' || !!user.isSuperAdmin;
   const isTgLinked = !!user.telegramChatId;
 
   return (

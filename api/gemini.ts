@@ -41,12 +41,6 @@ function extractJsonBlock(raw: string): string {
 export default async function handler(req: RequestLike, res: ResponseLike) {
   if (applyCors(req, res)) return;
 
-  const clientIp = getClientIp(req);
-  // Rate limit: 20 AI requests per minute per IP
-  if (!checkRateLimit(clientIp, 20, 60000)) {
-    return res.status(429).json({ error: 'Слишком много запросов к AI. Пожалуйста, подождите минуту.' });
-  }
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -70,6 +64,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   let globalState: any = null;
   let currentUser: any = null;
   let quotaInfo: any = null;
+  let isAdmin = false;
 
   // Server-side rolling quota check
   if (session) {
@@ -80,47 +75,46 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
       currentUser = (globalState.users || []).find((u: any) => u.id === session.userId);
 
       if (currentUser) {
-        const isAdmin = currentUser.role === 'admin' || currentUser.isSuperAdmin;
-        const maxDaily = isAdmin ? 100 : (currentUser.subscriptionTier === 'pro' ? 50 : 5);
+        isAdmin = !currentUser.isBanned && (currentUser.role === 'admin' || currentUser.isSuperAdmin === true);
+        if (isAdmin) {
+          quotaInfo = { remaining: null, max: null, count: null, resetsAt: null };
+        } else {
+          const maxDaily = currentUser.subscriptionTier === 'pro' ? 50 : 5;
+          currentUser.dailySearches = currentUser.dailySearches || {
+            count: 0, date: todayStr, maxPerDay: maxDaily, bonusCount: 0
+          };
 
-        currentUser.dailySearches = currentUser.dailySearches || {
-          count: 0,
-          date: todayStr,
-          maxPerDay: maxDaily,
-          bonusCount: 0
-        };
+          if (currentUser.dailySearches.date !== todayStr) {
+            currentUser.dailySearches.count = 0;
+            currentUser.dailySearches.date = todayStr;
+            currentUser.dailySearches.maxPerDay = maxDaily;
+          }
 
-        // Reset if date changed
-        if (currentUser.dailySearches.date !== todayStr) {
-          currentUser.dailySearches.count = 0;
-          currentUser.dailySearches.date = todayStr;
-          currentUser.dailySearches.maxPerDay = maxDaily;
+          const totalAllowed = (currentUser.dailySearches.maxPerDay || maxDaily) + (currentUser.dailySearches.bonusCount || 0);
+          if (currentUser.dailySearches.count >= totalAllowed) {
+            return res.status(429).json({
+              error: `Дневной лимит AI-поисков исчерпан (${currentUser.dailySearches.count}/${totalAllowed}). Лимит обновится в 00:00 UTC. Пригласите друга по реферальной ссылке для получения +5 бонусных поисков!`,
+              dailyQuota: {
+                remaining: 0, max: totalAllowed, count: currentUser.dailySearches.count, resetsAt: '00:00 UTC'
+              }
+            });
+          }
+
+          quotaInfo = {
+            remaining: Math.max(0, totalAllowed - currentUser.dailySearches.count - 1),
+            max: totalAllowed,
+            count: currentUser.dailySearches.count + 1,
+            resetsAt: '00:00 UTC'
+          };
         }
-
-        const totalAllowed = (currentUser.dailySearches.maxPerDay || maxDaily) + (currentUser.dailySearches.bonusCount || 0);
-
-        if (!isAdmin && currentUser.dailySearches.count >= totalAllowed) {
-          return res.status(429).json({
-            error: `Дневной лимит AI-поисков исчерпан (${currentUser.dailySearches.count}/${totalAllowed}). Лимит обновится в 00:00 UTC. Пригласите друга по реферальной ссылке для получения +5 бонусных поисков!`,
-            dailyQuota: {
-              remaining: 0,
-              max: totalAllowed,
-              count: currentUser.dailySearches.count,
-              resetsAt: '00:00 UTC'
-            }
-          });
-        }
-
-        quotaInfo = {
-          remaining: Math.max(0, totalAllowed - currentUser.dailySearches.count - 1),
-          max: totalAllowed,
-          count: currentUser.dailySearches.count + 1,
-          resetsAt: '00:00 UTC'
-        };
       }
     } catch (e) {
       console.warn('[Gemini Quota Check warn]:', e);
     }
+  }
+
+  if (!isAdmin && !checkRateLimit(getClientIp(req), 20, 60000)) {
+    return res.status(429).json({ error: 'Слишком много запросов к AI. Пожалуйста, подождите минуту.' });
   }
 
   const { prompt, responseMimeType, temperature } = parsed.data;
@@ -149,7 +143,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 
           // Persist quota decrement and update streak
           if (currentUser && sql && globalState) {
-            currentUser.dailySearches.count = (currentUser.dailySearches.count || 0) + 1;
+            if (!isAdmin) currentUser.dailySearches.count = (currentUser.dailySearches.count || 0) + 1;
             currentUser.usageStats = currentUser.usageStats || {};
             currentUser.usageStats.searchesCount = (currentUser.usageStats.searchesCount || 0) + 1;
 

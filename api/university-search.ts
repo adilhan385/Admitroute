@@ -107,10 +107,6 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
-  if (!checkRateLimit(getClientIp(req), 30, 60000)) {
-    return res.status(429).json({ error: 'Слишком много запросов. Повторите позже.' });
-  }
-
   const session = getRequesterSession(req);
   const secret = process.env.JWT_SECRET || 'admitroute-guest-quota';
   const actorId = session?.userId || `guest:${crypto.createHmac('sha256', secret).update(getClientIp(req)).digest('hex')}`;
@@ -122,7 +118,11 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     const stateRows = await sql`SELECT value FROM app_state WHERE key = ${STATE_KEY};`;
     const state = stateRows[0]?.value || {};
     const user = session ? (state.users || []).find((u: any) => u.id === session.userId && !u.isBanned) : null;
-    const isPro = !!user && (user.role === 'admin' || user.subscriptionTier === 'pro');
+    const isAdmin = !!user && (user.role === 'admin' || user.isSuperAdmin === true);
+    const isPro = !!user && (isAdmin || user.subscriptionTier === 'pro');
+    if (!isAdmin && !checkRateLimit(getClientIp(req), 30, 60000)) {
+      return res.status(429).json({ error: 'Слишком много запросов. Повторите позже.' });
+    }
     const settings = state.settings || {};
     const configuredMax = user ? settings.freeCustomerMaxSearches : settings.guestMaxSearches;
     const baseMax = Math.max(1, Math.min(100, Number(configuredMax) || (user ? 8 : 2)));

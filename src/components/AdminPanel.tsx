@@ -201,7 +201,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const searchUsageLabel = (user: UserAccount) => {
     if (!serverSearchUsage) return searchUsageLoadFailed ? 'Статистика поисков недоступна' : 'Статистика поисков загружается';
     const usage = serverSearchUsage[user.id] || { total: 0, today: 0 };
-    const unlimited = user.role === 'admin' || user.subscriptionTier === 'pro';
+    const unlimited = user.role === 'admin' || user.isSuperAdmin || user.subscriptionTier === 'pro';
     const baseMax = Math.max(1, Math.min(100, Number(siteSettings.freeCustomerMaxSearches) || 8));
     const bonus = Math.max(0, Number(user.dailySearches?.bonusCount) || 0);
     return `${usage.total} поисков вузов • ${usage.today}${unlimited ? ' сегодня (без лимита)' : `/${baseMax + bonus} сегодня`}`;

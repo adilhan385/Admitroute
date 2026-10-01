@@ -470,6 +470,10 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
   const settings = getSiteSettings();
 
   if (action === 'search') {
+    if (current?.role === 'admin' || current?.isSuperAdmin) {
+      return { allowed: true, remaining: 999999, maxLimit: 999999, currentCount: 0,
+        role: current.role, isPro: true };
+    }
     const quota = getSearchQuota();
     if (quota) {
       return {
@@ -481,7 +485,7 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
         isPro: quota.max === null
       };
     }
-    const initialLimit = current?.role === 'admin' || current?.subscriptionTier === 'pro'
+    const initialLimit = current?.subscriptionTier === 'pro'
       ? 999999
       : current ? (settings.freeCustomerMaxSearches ?? FREE_CUSTOMER_MAX_SEARCHES)
         : (settings.guestMaxSearches ?? GUEST_MAX_SEARCHES);
@@ -491,7 +495,7 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
 
   if (current) {
     const usage = current.usageStats || { searchesCount: 0, recalculationsCount: 0 };
-    if (current.role === 'admin' || current.subscriptionTier === 'pro') {
+    if (current.role === 'admin' || current.isSuperAdmin || current.subscriptionTier === 'pro') {
       return {
         allowed: true,
         remaining: 999999,
@@ -535,7 +539,7 @@ export function recordActionUsage(action: 'search' | 'recalculation'): void {
   const current = getCurrentUser();
 
   if (current) {
-    if (current.role === 'admin' || current.subscriptionTier === 'pro') {
+    if (current.role === 'admin' || current.isSuperAdmin || current.subscriptionTier === 'pro') {
       return;
     }
     const users = getAllUsers();

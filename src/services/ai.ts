@@ -36,9 +36,10 @@ function extractJsonBlock(raw: string): string {
  */
 async function callGeminiApi(prompt: string, _apiKey?: string, responseMimeType: string = 'application/json'): Promise<string | null> {
   try {
+    const token = localStorage.getItem('admitroute_auth_token_v1');
     const response = await fetch('/api/gemini', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({
         prompt,
         responseMimeType,

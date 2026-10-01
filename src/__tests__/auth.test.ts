@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { isSuperAdmin, SUPER_ADMIN_EMAIL } from '../services/auth';
+import { describe, it, expect, vi } from 'vitest';
+import { checkActionAllowed, isSuperAdmin, SUPER_ADMIN_EMAIL } from '../services/auth';
 import { hashPassword, verifyPassword, signSessionToken, verifySessionToken, checkRateLimit } from '../../api/_security';
 
 describe('Auth & Role Security Tests', () => {
@@ -28,6 +28,31 @@ describe('Auth & Role Security Tests', () => {
     })).toBe(false);
 
     expect(isSuperAdmin(null)).toBe(false);
+  });
+
+  it('does not block an admin with an old exhausted search quota', () => {
+    const values = new Map<string, string>();
+    const admin = {
+      id: 'user-admin-01', email: SUPER_ADMIN_EMAIL, name: 'Admin', role: 'admin',
+      subscriptionTier: 'pro', isSuperAdmin: true, isBanned: false,
+      createdAt: '2026-01-01', usageStats: { searchesCount: 99, recalculationsCount: 99 }
+    };
+    values.set('admitroute_auth_user_v1', JSON.stringify(admin));
+    values.set('admitroute_users_db_v1', JSON.stringify([admin]));
+    values.set('admitroute_ai_search_quota_v1', JSON.stringify({
+      [admin.id]: { used: 2, max: 2, remaining: 0, resetsAt: '2099-01-01T00:00:00.000Z' }
+    }));
+    vi.stubGlobal('window', { dispatchEvent: vi.fn() });
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => { values.set(key, value); }
+    });
+    try {
+      expect(checkActionAllowed('search').allowed).toBe(true);
+      expect(checkActionAllowed('recalculation').allowed).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('securely hashes and verifies passwords using PBKDF2 with salt', () => {
