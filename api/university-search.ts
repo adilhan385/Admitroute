@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
   type RequestLike, type ResponseLike, applyCors, checkRateLimit,
   getClientIp, getDb, getRequesterSession
-} from './_security';
+} from './_security.js';
 
 const STATE_KEY = 'admitroute_global_state_v1';
 const MODEL = 'gemini-2.5-flash';

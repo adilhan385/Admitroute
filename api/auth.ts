@@ -14,7 +14,7 @@ import {
   ensureAppStateTable,
   checkPasswordBreach,
   sendSanitizedError
-} from './_security';
+} from './_security.js';
 
 const RegisterSchema = z.object({
   name: z.string().min(2, 'Имя должно содержать минимум 2 символа').max(100),

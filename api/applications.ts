@@ -9,7 +9,7 @@ import {
   getDb,
   getRequesterSession,
   sendSanitizedError
-} from './_security';
+} from './_security.js';
 
 const STAGE_KEYS = [
   'questionnaire',

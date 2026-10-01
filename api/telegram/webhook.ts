@@ -4,7 +4,7 @@ import {
   getDb,
   sendTelegramMessage,
   sendSanitizedError
-} from '../_security';
+} from '../_security.js';
 
 const STATE_KEY = 'admitroute_global_state_v1';
 

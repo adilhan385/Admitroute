@@ -7,7 +7,7 @@ import {
   getClientIp,
   getDb,
   getRequesterSession
-} from './_security';
+} from './_security.js';
 
 const PRIMARY_MODEL = 'gemini-2.5-flash';
 const FALLBACK_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-1.5-flash'];

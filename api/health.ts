@@ -1,4 +1,4 @@
-import { type RequestLike, type ResponseLike, getDb } from './_security';
+import { type RequestLike, type ResponseLike, getDb } from './_security.js';
 
 export default async function handler(req: RequestLike, res: ResponseLike) {
   res.setHeader('Cache-Control', 'no-store');
