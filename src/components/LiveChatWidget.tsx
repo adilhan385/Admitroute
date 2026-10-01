@@ -139,7 +139,7 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
       {/* Floating Chat Window */}
       {isOpen && (
-        <div className="mb-3 flex h-[540px] w-[92vw] max-w-[390px] flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xl animate-in slide-in-from-bottom-5 duration-200">
+        <div className="mb-3 flex h-[540px] w-[92vw] max-w-[390px] flex-col overflow-hidden rounded-lg border border-slate-300 bg-white shadow-lg animate-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-4 py-3 text-white">
             <div className="flex items-center gap-2.5">
@@ -201,7 +201,7 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
           </div>
 
           {/* Subscription Offer Ribbon */}
-          <div className="border-b border-slate-100 bg-gradient-to-r from-blue-50 via-indigo-50/70 to-purple-50 p-2.5 text-xs">
+          <div className="border-b border-slate-200 bg-slate-50 p-2.5 text-xs">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-blue-600 shrink-0" />
@@ -354,7 +354,7 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
           onClick={() => {
             setIsOpen(true);
           }}
-          className="group flex items-center gap-2 rounded-full border border-slate-700/60 bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
+          className="group flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-slate-700 transition-colors"
         >
           <div className="relative flex h-5 w-5 items-center justify-center">
             <MessageSquare className="h-4 w-4 text-sky-400 group-hover:rotate-6 transition-transform" />

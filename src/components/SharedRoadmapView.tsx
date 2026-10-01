@@ -68,7 +68,7 @@ export const SharedRoadmapView: React.FC<Props> = ({ shareToken, onExit }) => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-16">
       {/* Read-only Banner */}
-      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-900 text-white py-3 px-4 shadow-sm">
+      <div className="bg-slate-900 text-white py-3 px-4">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <span className="text-base">👁️</span>

@@ -116,8 +116,8 @@ export const PricingModal: React.FC<PricingModalProps> = ({
             </div>
 
             {/* Plan 2: PRO */}
-            <div className="relative flex flex-col rounded-2xl border-2 border-blue-600 bg-gradient-to-b from-blue-50/40 via-white to-white p-5 shadow-lg shadow-blue-500/10">
-              <div className="absolute -top-3 right-5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-xs">
+            <div className="relative flex flex-col border-t-2 border-slate-900 bg-slate-50 p-5">
+              <div className="absolute -top-3 right-5 bg-slate-900 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
                 🔥 Рекомендуется
               </div>
 
@@ -204,7 +204,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                     onClose();
                     onProceedToChat();
                   }}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 text-xs font-bold text-white shadow-md hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-md bg-slate-900 py-3 text-xs font-semibold text-white hover:bg-slate-700 transition-colors"
                 >
                   <MessageSquare className="h-4 w-4" />
                   <span>Перейти к оформлению в чате →</span>

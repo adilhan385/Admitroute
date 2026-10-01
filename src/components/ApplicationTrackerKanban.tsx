@@ -28,7 +28,7 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
 
   if (selectedPrograms.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-8 text-center text-slate-500 shadow-sm">
+      <div className="border-t border-slate-300 py-8 text-center text-slate-500">
         <p className="text-3xl mb-3">🏛️</p>
         <h4 className="text-base font-semibold text-slate-800 mb-1">Список программ пуст</h4>
         <p className="text-sm">Выберите целевые университеты в результатах подбора, чтобы отслеживать этапы подачи документов.</p>
@@ -89,7 +89,7 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
           return (
             <div
               key={uni.id}
-              className="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all p-5"
+              className="border-b border-slate-300 py-5"
             >
               {/* Program Header */}
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">

@@ -153,7 +153,7 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
   ];
 
   return (
-    <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm sm:p-8">
+    <div className="mx-auto max-w-2xl border-t border-slate-300 pt-8">
       {/* Progress Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between text-xs font-medium text-slate-500">
@@ -259,7 +259,7 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
       {step === 2 && (
         <div className="space-y-6">
           {/* 1. GPA WITH SCALE SELECTOR (4.0 vs 5.0) */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
+          <div className="border-t border-slate-200 pt-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
@@ -382,7 +382,7 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
           </div>
 
           {/* 2. LANGUAGE CERTIFICATE SELECTOR (IELTS / TOEFL / DUOLINGO / CEFR) */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
+          <div className="border-t border-slate-200 pt-5">
             <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
               <div>
                 <div className="flex items-center gap-1.5">
@@ -556,7 +556,7 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
           </div>
 
           {/* 3. UNT (ЕНТ КАЗАХСТАН) SELECTOR */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
+          <div className="border-t border-slate-200 pt-5">
             <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
               <div>
                 <div className="flex items-center gap-1.5">
@@ -654,11 +654,11 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
           </div>
 
           {/* 4. SAT (SCHOLASTIC ASSESSMENT TEST) SELECTOR */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
+          <div className="border-t border-slate-200 pt-5">
             <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
               <div>
                 <div className="flex items-center gap-1.5">
-                  <Award className="h-4 w-4 text-purple-600" />
+                  <Award className="h-4 w-4 text-slate-600" />
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                     Экзамен SAT
                   </span>
@@ -692,7 +692,7 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
 
                   <div>
                     {satScore >= 1500 ? (
-                      <span className="rounded-md bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700 border border-purple-200">
+                      <span className="rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-200">
                         Ivy League / MIT / Stanford
                       </span>
                     ) : satScore >= 1420 ? (
@@ -723,7 +723,7 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
                     setSatScore(val);
                     updateExamScores(isUntEnabled, untScore, true, val);
                   }}
-                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-purple-600"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-slate-800"
                 />
 
                 {/* Quick SAT Presets */}
@@ -739,7 +739,7 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({
                       }}
                       className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition ${
                         satScore === val
-                          ? 'border-purple-700 bg-purple-700 text-white shadow-2xs'
+                          ? 'border-slate-900 bg-slate-900 text-white'
                           : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-100'
                       }`}
                     >

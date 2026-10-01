@@ -69,8 +69,8 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
-              Этап 04: Персональный подбор программ
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              04 / Подбор программ
             </span>
           </div>
           <h2 className="mt-1 text-xl font-semibold text-slate-900">
@@ -156,7 +156,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
       </div>
 
       {/* University Cards Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-10 gap-y-2 lg:grid-cols-2">
         {filteredUnis.map((uni) => {
           const isCompared = selectedForCompare.includes(uni.id);
           const chance = uni.admissionChancePercentage;
@@ -164,7 +164,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
           return (
             <div
               key={uni.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs transition hover:border-slate-300 hover:shadow-sm"
+              className="flex flex-col justify-between border-b border-slate-300 py-6 transition"
             >
               <div>
                 {/* Badges row */}
@@ -186,7 +186,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                       {chance === undefined ? 'Шанс: нет данных' : `Шанс: ${chance}%`}
                     </span>
                     {uni.isAiGenerated && (
-                      <span className="rounded-md border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700">
+                      <span className="text-[10px] font-medium text-slate-500">
                         ИИ-подбор
                       </span>
                     )}
@@ -222,7 +222,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                 )}
 
                 {/* 3 Application Waves Strip */}
-                <div className="mt-3.5 rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 text-xs space-y-1.5">
+                <div className="mt-4 border-t border-slate-200 pt-3 text-xs space-y-1.5">
                   <div className="flex items-center justify-between text-[11px] text-slate-700">
                     <span className="flex items-center gap-1.5">
                       <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -247,7 +247,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                 </div>
 
                 {/* Last year grants banner */}
-                <div className="mt-2.5 rounded-xl border border-blue-100 bg-blue-50/40 p-2.5 text-[11px] text-blue-950">
+                <div className="mt-3 border-t border-slate-200 pt-3 text-[11px] text-slate-700">
                   <span className="font-semibold block text-blue-800">
                     Гранты и проходной порог прошлого года:
                   </span>

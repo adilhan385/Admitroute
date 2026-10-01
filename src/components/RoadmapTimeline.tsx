@@ -42,13 +42,13 @@ export const RoadmapTimeline: React.FC<RoadmapTimelineProps> = ({ steps, onToggl
   const progressPercent = Math.round((completedCount / steps.length) * 100) || 0;
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs sm:p-8">
+    <section className="border-t border-slate-300 pt-8">
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
-              Этап 06: Персональный Roadmap
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              06 / План действий
             </span>
             <span className="text-xs text-slate-500 font-mono">
               Выполнено: {completedCount} из {steps.length} ({progressPercent}%)
@@ -102,10 +102,10 @@ export const RoadmapTimeline: React.FC<RoadmapTimelineProps> = ({ steps, onToggl
 
               {/* Step Card */}
               <div
-                className={`rounded-xl border p-4 sm:p-5 transition ${
+                className={`border-b border-slate-200 pb-6 transition ${
                   step.completed
-                    ? 'border-slate-200/60 bg-slate-50/50 opacity-80'
-                    : 'border-slate-200 bg-white shadow-xs'
+                    ? 'opacity-65'
+                    : ''
                 }`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -163,6 +163,6 @@ export const RoadmapTimeline: React.FC<RoadmapTimelineProps> = ({ steps, onToggl
           <strong className="font-semibold text-slate-700">Официальная пометка:</strong> Все даты экзаменов, дедлайны подачи и проходные пороги носят ориентировочный и демонстрационный характер согласно правилам хакатона. Рекомендуется сверять финальные сроки с официальными правилами приемных комиссий вузов.
         </p>
       </div>
-    </div>
+    </section>
   );
 };

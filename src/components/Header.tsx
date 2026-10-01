@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-300 bg-[#f7f7f5]">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
         {/* Brand */}
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -108,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="hidden text-[11px] text-slate-500 sm:block">
-              Персональный AI-маршрут поступления
+              План поступления в университет
             </p>
           </div>
         </div>
@@ -120,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onOpenAdmin('messages')}
-              className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/80 px-2.5 py-1.5 text-xs font-semibold text-blue-700 shadow-2xs hover:bg-blue-100 transition-colors"
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
               title="Переписка и заявки студентов в чате"
             >
               <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
@@ -148,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onOpenPricing || (() => onOpenSupport('PRO'))}
-              className="hidden xl:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:from-blue-700 hover:to-indigo-700 transition-all"
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-700 transition-colors"
             >
               <Sparkles className="h-3.5 w-3.5" />
               <span>Купить PRO</span>
@@ -160,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onOpenAdmin('users')}
-              className="hidden xl:inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-slate-950 shadow-xs hover:bg-amber-400 transition-colors"
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
             >
               <Shield className="h-3.5 w-3.5" />
               <span>Админ-панель</span>
@@ -280,7 +280,7 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             )}
             {currentUser && onOpenTelegram && <button type="button" className={menuItemClass} onClick={() => runFromMenu(onOpenTelegram)}><Send className="h-4 w-4 text-sky-600" />Telegram</button>}
-            {currentUser && onOpenReferral && <button type="button" className={menuItemClass} onClick={() => runFromMenu(onOpenReferral)}><Gift className="h-4 w-4 text-violet-600" />Пригласить друга</button>}
+            {currentUser && onOpenReferral && <button type="button" className={menuItemClass} onClick={() => runFromMenu(onOpenReferral)}><Gift className="h-4 w-4 text-slate-600" />Пригласить друга</button>}
             {hasProfile && <>
               {onExportCalendar && <button type="button" className={menuItemClass} onClick={() => runFromMenu(onExportCalendar)}><Calendar className="h-4 w-4 text-blue-600" />Экспорт календаря</button>}
               <button type="button" className={menuItemClass} onClick={() => runFromMenu(handlePrint)}><Printer className="h-4 w-4 text-slate-500" />Печать плана</button>

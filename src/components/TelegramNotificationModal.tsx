@@ -224,7 +224,7 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
             ) : (
               <button
                 onClick={handleGenerateCode}
-                className="w-full py-3 px-4 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-2xl font-bold text-sm shadow-md shadow-sky-500/20 transition flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-slate-900 hover:bg-slate-700 text-white rounded-md font-semibold text-sm transition flex items-center justify-center gap-2"
               >
                 <span>✈️</span> Подключить Telegram-бота
               </button>

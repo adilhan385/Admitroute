@@ -41,13 +41,13 @@ export const DiagnosticCard: React.FC<DiagnosticCardProps> = ({
   const hasNoStrengths = diagnosis.strengths.length === 1 && diagnosis.strengths[0].includes('отсутствуют');
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs sm:p-8">
+    <section className="border-t border-slate-300 pt-8">
       {/* Top Bar with Readiness Score */}
       <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
-              Этап 03: Диагностика профиля
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              03 / Диагностика профиля
             </span>
             <span className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${levelBadgeConfig.bg}`}>
               {levelBadgeConfig.label}
@@ -65,7 +65,7 @@ export const DiagnosticCard: React.FC<DiagnosticCardProps> = ({
         </div>
 
         {/* Readiness Meter */}
-        <div className="flex items-center gap-4 rounded-xl border border-slate-100 bg-slate-50/60 p-3.5 sm:text-right">
+        <div className="flex items-center gap-4 sm:text-right">
           <div>
             <div className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
               Индекс готовности
@@ -105,7 +105,7 @@ export const DiagnosticCard: React.FC<DiagnosticCardProps> = ({
       )}
 
       {/* Primary Goal Banner */}
-      <div className="mt-5 rounded-xl border border-slate-200/70 bg-slate-50 p-4">
+      <div className="mt-5 border-l-2 border-slate-400 py-1 pl-4">
         <div className="flex items-start gap-3">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white">
             <Target className="h-4 w-4" />
@@ -125,7 +125,7 @@ export const DiagnosticCard: React.FC<DiagnosticCardProps> = ({
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Strengths / Growth Zone */}
         {hasNoStrengths ? (
-          <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+          <div className="border-t border-slate-200 pt-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
               <span>Зона роста (Конкурентные преимущества)</span>
@@ -135,7 +135,7 @@ export const DiagnosticCard: React.FC<DiagnosticCardProps> = ({
             </p>
           </div>
         ) : (
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 p-4">
+          <div className="border-t border-slate-200 pt-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800">
               <CheckCircle2 className="h-4 w-4 text-emerald-600" />
               <span>Сильные стороны и конкурентные преимущества</span>
@@ -152,7 +152,7 @@ export const DiagnosticCard: React.FC<DiagnosticCardProps> = ({
         )}
 
         {/* Risk Factors / Bottlenecks */}
-        <div className="rounded-xl border border-amber-100 bg-amber-50/30 p-4">
+        <div className="border-t border-slate-200 pt-4">
           <div className="flex items-center gap-2 text-xs font-semibold text-amber-800">
             <AlertCircle className="h-4 w-4 text-amber-600" />
             <span>Факторы риска и ключевые ограничения</span>
@@ -167,6 +167,6 @@ export const DiagnosticCard: React.FC<DiagnosticCardProps> = ({
           </ul>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

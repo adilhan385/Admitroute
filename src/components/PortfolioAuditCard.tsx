@@ -37,14 +37,14 @@ export const PortfolioAuditCard: React.FC<PortfolioAuditCardProps> = ({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs sm:p-8">
+    <section className="border-t border-slate-300 pt-8">
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
               <Sparkles className="h-3 w-3" />
-              <span>Честный AI-аудит портфолио</span>
+              <span>Анализ портфолио</span>
             </span>
             <span className="text-xs text-slate-500">
               Оценка внеучебных активностей ({profile.name})
@@ -59,7 +59,7 @@ export const PortfolioAuditCard: React.FC<PortfolioAuditCardProps> = ({
         </div>
 
         {/* Abroad Readiness Meter */}
-        <div className="flex items-center gap-4 rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 sm:text-right">
+        <div className="flex items-center gap-4 sm:text-right">
           <div>
             <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
               Конкурентоспособность
@@ -80,7 +80,7 @@ export const PortfolioAuditCard: React.FC<PortfolioAuditCardProps> = ({
       </div>
 
       {/* Honest Verdict Callout */}
-      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+      <div className="mt-6 border-l-2 border-slate-400 py-1 pl-4">
         <div className="flex items-start gap-3">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white">
             <Compass className="h-4 w-4" />
@@ -99,7 +99,7 @@ export const PortfolioAuditCard: React.FC<PortfolioAuditCardProps> = ({
       {/* Grid: Strengths vs Gaps */}
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Strong points */}
-        <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 p-4">
+        <div className="border-t border-slate-200 pt-4">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-900">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             <span>Подтвержденные преимущества профиля</span>
@@ -115,7 +115,7 @@ export const PortfolioAuditCard: React.FC<PortfolioAuditCardProps> = ({
         </div>
 
         {/* Critical gaps (Honest breakdown!) */}
-        <div className="rounded-xl border border-rose-100 bg-rose-50/30 p-4">
+        <div className="border-t border-slate-200 pt-4">
           <div className="flex items-center gap-2 text-xs font-semibold text-rose-900">
             <AlertCircle className="h-4 w-4 text-rose-600" />
             <span>Критические пробелы для топ-вузов</span>
@@ -148,7 +148,7 @@ export const PortfolioAuditCard: React.FC<PortfolioAuditCardProps> = ({
         </div>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
           {audit.recommendedNextActivities.map((act, idx) => (
-            <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-700">
+            <div key={idx} className="border-t border-slate-200 pt-3 text-xs text-slate-700">
               <span className="font-mono text-[11px] font-semibold text-blue-600 block mb-1">
                 Шаг 0{idx + 1}
               </span>
@@ -157,6 +157,6 @@ export const PortfolioAuditCard: React.FC<PortfolioAuditCardProps> = ({
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };

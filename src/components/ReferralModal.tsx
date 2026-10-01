@@ -42,7 +42,7 @@ export const ReferralModal: React.FC<Props> = ({ isOpen, onClose, referralCode =
         </button>
 
         <div className="text-center mb-5">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-400 to-orange-500 text-white flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg shadow-amber-500/20">
+          <div className="w-16 h-16 rounded-md bg-slate-900 text-white flex items-center justify-center text-3xl mx-auto mb-3">
             🎁
           </div>
           <h3 className="text-xl font-black text-slate-900">Пригласи друга в AdmitRoute</h3>

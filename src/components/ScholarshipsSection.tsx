@@ -12,12 +12,12 @@ export const ScholarshipsSection: React.FC = () => {
   });
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs sm:p-8">
+    <section className="border-t border-slate-300 pt-8">
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
               <Award className="h-3 w-3" />
               <span>Каталог финансирования</span>
             </span>
@@ -69,11 +69,11 @@ export const ScholarshipsSection: React.FC = () => {
       </div>
 
       {/* Grid of Scholarships */}
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-2 lg:grid-cols-2">
         {filtered.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/40 p-5 transition hover:border-slate-300 hover:bg-white"
+            className="flex flex-col justify-between border-b border-slate-200 py-5"
           >
             <div>
               <div className="flex items-start justify-between gap-2">
@@ -90,7 +90,7 @@ export const ScholarshipsSection: React.FC = () => {
                 {item.title}
               </h3>
 
-              <div className="mt-3 rounded-lg border border-emerald-200/80 bg-emerald-50/50 p-2.5 text-xs text-emerald-900">
+              <div className="mt-3 text-xs text-slate-700">
                 <strong className="font-semibold block text-[11px] uppercase tracking-wider text-emerald-800">
                   Покрытие:
                 </strong>
@@ -119,6 +119,6 @@ export const ScholarshipsSection: React.FC = () => {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };

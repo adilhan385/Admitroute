@@ -235,15 +235,15 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const remainingSeconds = Math.max(0, estimatedSeconds - elapsedSeconds);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
+    <section className="border-t border-slate-300 pt-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700">
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500">
               <Search className="h-3 w-3" />
               <span>Поиск любого университета в мире</span>
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500">
               <Sparkles className="h-3 w-3" />
               <span>AI-поиск с источниками</span>
             </span>
@@ -352,35 +352,35 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
         )}
       </form>
       {isAiLoading && (
-        <div role="status" aria-live="polite" className="mt-4 rounded-2xl border border-purple-200 bg-purple-50 p-5 sm:p-6">
+        <div role="status" aria-live="polite" className="mt-4 border-l-2 border-slate-400 bg-slate-100/70 p-4 sm:p-5">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100">
-              <Loader2 className="h-6 w-6 animate-spin text-purple-700" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-slate-700" />
             </div>
             <div className="min-w-0 flex-1">
-              <h4 className="text-sm font-semibold text-purple-950">
+              <h4 className="text-sm font-semibold text-slate-900">
                 {loadingMode === 'research' ? `Ищем сведения о «${searchQuery}»` : `Открываем данные о «${searchQuery}»`}
               </h4>
-              <p className="mt-1 text-xs text-purple-800">
+              <p className="mt-1 text-xs text-slate-600">
                 {loadingMode === 'research' ? 'Проверяем источники и требования к поступлению.' : 'Проверяем доступ и рассчитываем результат.'}
               </p>
-              <p className="mt-2 text-xs font-medium text-purple-900">
+              <p className="mt-2 text-xs font-medium text-slate-700">
                 Прошло {elapsedSeconds} с · {remainingSeconds > 0
                   ? `ориентировочно ещё ${remainingSeconds} с`
                   : 'поиск занимает дольше обычного, продолжаем проверку'}
               </p>
             </div>
           </div>
-          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-purple-100">
-            <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-purple-400 to-blue-500" />
+          <div className="mt-4 h-1 overflow-hidden bg-slate-200">
+            <div className="h-full w-1/2 animate-pulse bg-slate-600" />
           </div>
-          <p className="mt-2 text-[11px] text-purple-600">Время примерное; результат появится сразу после ответа сервера.</p>
+          <p className="mt-2 text-[11px] text-slate-500">Время примерное; результат появится сразу после ответа сервера.</p>
         </div>
       )}
       {searchError && <div role="alert" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">{searchError}</div>}
 
       {selectedWorldUni && !isAiLoading && (
-        <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50/50 p-5 text-sm">
+        <div className="mt-6 border-l-2 border-slate-400 py-2 pl-4 text-sm">
           <span className="text-xs font-semibold text-blue-700">Мировой справочник Hipo</span>
           <h4 className="mt-1 text-lg font-bold text-slate-900">{selectedWorldUni.name}</h4>
           <p className="mt-1 text-xs text-slate-600">{[selectedWorldUni.stateProvince, selectedWorldUni.country].filter(Boolean).join(', ')}</p>
@@ -419,7 +419,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
 
       {/* Evaluated University Result Card */}
       {selectedUni && !isAiLoading && (
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/50 p-5 sm:p-6">
+        <div className="mt-6 border-t border-slate-300 pt-6">
           {/* Header row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
             <div>
@@ -450,7 +450,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 )}
 
                 {selectedUni.isAiGenerated && (
-                  <span className="rounded-md border border-purple-200 bg-purple-100/70 px-2 py-0.5 text-[11px] font-semibold text-purple-800">
+                  <span className="text-[11px] font-medium text-slate-500">
                     Анализ AdmitRoute AI
                   </span>
                 )}
@@ -465,7 +465,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             </div>
 
             {/* Chance display */}
-            <div className="flex sm:flex-col items-center sm:items-end justify-between rounded-xl bg-white p-3 border border-slate-200 shadow-2xs">
+            <div className="flex sm:flex-col items-center sm:items-end justify-between">
               <span className="text-[11px] font-medium text-slate-500">Оценка шанса:</span>
               <div className="flex items-baseline gap-1">
                 <span
@@ -500,7 +500,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
 
           {/* Key Metrics Grid */}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 text-xs">
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
+            <div className="border-t border-slate-200 pt-3">
               <span className="text-[11px] text-slate-400 block">Проходной GPA</span>
               <span className="mt-0.5 font-semibold text-slate-800">
                 {selectedUni.avgGpa > 0 ? `от ${selectedUni.avgGpa.toFixed(1)} / 5.0` : 'Не опубликован'}
@@ -510,7 +510,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               </span>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
+            <div className="border-t border-slate-200 pt-3">
               <span className="text-[11px] text-slate-400 block">Языковой порог</span>
               <span className="mt-0.5 font-semibold text-slate-800">
                 {selectedUni.languageRequirement}
@@ -520,7 +520,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               </span>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
+            <div className="border-t border-slate-200 pt-3">
               <span className="text-[11px] text-slate-400 block">Селективность</span>
               <span className="mt-0.5 font-semibold text-slate-800">
                 {selectedUni.acceptanceRate === 'Не опубликовано' ? 'Не опубликована' : `${selectedUni.acceptanceRate} прием`}
@@ -530,7 +530,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               </span>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
+            <div className="border-t border-slate-200 pt-3">
               <span className="text-[11px] text-slate-400 block">Финансирование</span>
               <span className="mt-0.5 font-semibold text-slate-800">
                 {selectedUni.scholarshipAvailability}
@@ -549,22 +549,22 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           )}
 
           {/* 3 Waves Strip */}
-          {!selectedUni.isAiGenerated && !selectedUni.needsResearch && <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 text-xs space-y-2">
+          {!selectedUni.isAiGenerated && !selectedUni.needsResearch && <div className="mt-4 border-t border-slate-200 pt-4 text-xs space-y-2">
             <span className="font-semibold text-slate-700 text-[11px] block">
               3 раунда подачи документов:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
-              <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
+              <div className="border-l border-slate-200 pl-3">
                 <span className="font-semibold text-emerald-700 block">1. Ранняя подача:</span>
                 <span className="text-slate-600 block">{selectedUni.details.rounds.early.deadline}</span>
                 <span className="text-[10px] text-slate-500 block mt-0.5">{selectedUni.details.rounds.early.recommendedFor}</span>
               </div>
-              <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
+              <div className="border-l border-slate-200 pl-3">
                 <span className="font-semibold text-blue-700 block">2. Основной поток:</span>
                 <span className="text-slate-600 block">{selectedUni.details.rounds.regular.deadline}</span>
                 <span className="text-[10px] text-slate-500 block mt-0.5">{selectedUni.details.rounds.regular.recommendedFor}</span>
               </div>
-              <div className="rounded-lg bg-slate-50 p-2 border border-slate-100">
+              <div className="border-l border-slate-200 pl-3">
                 <span className="font-semibold text-amber-700 block">3. Поздний добор:</span>
                 <span className="text-slate-600 block">{selectedUni.details.rounds.late.deadline}</span>
                 <span className="text-[10px] text-slate-500 block mt-0.5">{selectedUni.details.rounds.late.recommendedFor}</span>
@@ -700,6 +700,6 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };

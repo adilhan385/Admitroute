@@ -42,7 +42,7 @@ export const PostSubmissionChecklist: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-gradient-to-br from-white to-blue-50/30 rounded-3xl border border-blue-100 p-6 shadow-sm space-y-5">
+    <section className="border-t border-slate-300 pt-8 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-blue-100/70">
         <div>
           <div className="flex items-center gap-2">
@@ -78,10 +78,10 @@ export const PostSubmissionChecklist: React.FC<Props> = ({
             <div
               key={item.id}
               onClick={() => handleToggle(item.id)}
-              className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 ${
+              className={`border-b border-slate-200 py-4 transition-all cursor-pointer flex items-start gap-3.5 ${
                 item.completed
-                  ? 'bg-emerald-50/60 border-emerald-200/90 text-emerald-950'
-                  : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800'
+                  ? 'text-slate-500'
+                  : 'text-slate-800'
               }`}
             >
               <input
@@ -112,6 +112,6 @@ export const PostSubmissionChecklist: React.FC<Props> = ({
           );
         })}
       </div>
-    </div>
+    </section>
   );
 };
