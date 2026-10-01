@@ -3,7 +3,7 @@ import type { UserProfile, UniversityProgram } from '../types';
 import { findUniversityByAliasOrName, searchUniversitiesWithAliases } from '../utils/universityMatcher';
 import { evaluateUniversityProgram } from '../utils/engine';
 import { consumeCatalogueSearch, researchUniversity, refreshSearchQuota } from '../services/universityResearch';
-import { checkActionAllowed } from '../services/auth';
+import { checkActionAllowed, getCurrentUser, isSuperAdmin, logout } from '../services/auth';
 import { findExactWorldUniversity, loadWorldUniversities, searchWorldUniversities } from '../services/worldUniversityDirectory';
 import type { WorldUniversity } from '../services/worldUniversityDirectory';
 import {
@@ -96,6 +96,24 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       .filter(university => !localNames.has(university.name.toLocaleLowerCase()));
   }, [worldDirectory, searchQuery, suggestions]);
 
+  const verifySearchSession = async (): Promise<boolean> => {
+    const quota = await refreshSearchQuota();
+    if (!isSuperAdmin(getCurrentUser())) return true;
+    if (quota?.max === null) return true;
+
+    if (quota) {
+      logout();
+      window.dispatchEvent(new Event('admitroute_users_update'));
+      setSearchError('Сессия администратора истекла. Войдите снова, чтобы искать без лимита.');
+      setSelectedUni(null);
+      setSelectedWorldUni(null);
+      onOpenAuth?.('login');
+    } else {
+      setSearchError('Не удалось проверить сессию администратора. Повторите поиск позже.');
+    }
+    return false;
+  };
+
   // Handle selection from local DB
   const handleSelectFromDb = async (uni: UniversityProgram) => {
     setSearchError(null);
@@ -105,6 +123,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       await handleAiSearch(uni.name, uni);
       return;
     }
+    if (!await verifySearchSession()) return;
     setIsAiLoading(true);
     try {
       await consumeCatalogueSearch(uni.name, profile);
@@ -162,7 +181,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   };
 
   const handleAiSearch = async (query: string, directoryEntry?: UniversityProgram) => {
-    await refreshSearchQuota();
+    if (!await verifySearchSession()) return;
     const limits = checkActionAllowed('search');
     if (!limits.allowed) {
       setIsLimitModalOpen(true);

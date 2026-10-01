@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { checkActionAllowed, isSuperAdmin, SUPER_ADMIN_EMAIL } from '../services/auth';
-import { hashPassword, verifyPassword, signSessionToken, verifySessionToken, checkRateLimit } from '../../api/_security';
+import { hashPassword, verifyPassword, signSessionToken, verifySessionToken, getRequesterSession, checkRateLimit } from '../../api/_security';
 
 describe('Auth & Role Security Tests', () => {
   it('correctly identifies super admin by role or isSuperAdmin flag', () => {
@@ -72,6 +72,17 @@ describe('Auth & Role Security Tests', () => {
     expect(hash1).not.toBe(hash2);
     expect(verifyPassword(pass, hash1)).toBe(true);
     expect(verifyPassword(pass, hash2)).toBe(true);
+  });
+
+  it('accepts a valid session cookie when a stale bearer token is present', () => {
+    const token = signSessionToken({
+      userId: 'admin-1', email: SUPER_ADMIN_EMAIL, role: 'admin', isSuperAdmin: true
+    });
+    const session = getRequesterSession({ headers: {
+      authorization: 'Bearer expired-token', cookie: `admitroute_token=${encodeURIComponent(token)}`
+    } });
+    expect(session?.userId).toBe('admin-1');
+    expect(session?.role).toBe('admin');
   });
 
   it('signs and verifies session tokens securely with HMAC-SHA256', () => {

@@ -188,24 +188,27 @@ export function verifySessionToken(token: string): SessionPayload | null {
 
 export function getRequesterSession(req: RequestLike): SessionPayload | null {
   const authHeader = req.headers?.['authorization'] || req.headers?.['Authorization'];
-  let token = '';
+  const tokens: string[] = [];
 
   if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7).trim();
-  } else {
-    const customHeader = req.headers?.['x-session-token'];
-    if (typeof customHeader === 'string') {
-      token = customHeader.trim();
-    } else if (req.headers?.['cookie']) {
-      const rawCookie = req.headers['cookie'];
-      const cookieStr = Array.isArray(rawCookie) ? rawCookie.join('; ') : rawCookie;
-      const match = cookieStr.match(/(?:^|;\s*)admitroute_token=([^;]+)/);
-      if (match) token = decodeURIComponent(match[1]);
+    tokens.push(authHeader.substring(7).trim());
+  }
+  const customHeader = req.headers?.['x-session-token'];
+  if (typeof customHeader === 'string') tokens.push(customHeader.trim());
+  if (req.headers?.['cookie']) {
+    const rawCookie = req.headers['cookie'];
+    const cookieStr = Array.isArray(rawCookie) ? rawCookie.join('; ') : rawCookie;
+    const match = cookieStr.match(/(?:^|;\s*)admitroute_token=([^;]+)/);
+    if (match) {
+      try { tokens.push(decodeURIComponent(match[1])); } catch { /* Ignore malformed cookie. */ }
     }
   }
 
-  if (!token) return null;
-  return verifySessionToken(token);
+  for (const token of tokens) {
+    const session = verifySessionToken(token);
+    if (session) return session;
+  }
+  return null;
 }
 
 // 5. Parameterized Database Connection (Neon Serverless)

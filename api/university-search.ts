@@ -109,7 +109,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   }
   const session = getRequesterSession(req);
   const secret = process.env.JWT_SECRET || 'admitroute-guest-quota';
-  const actorId = session?.userId || `guest:${crypto.createHmac('sha256', secret).update(getClientIp(req)).digest('hex')}`;
+  const guestActorId = `guest:${crypto.createHmac('sha256', secret).update(getClientIp(req)).digest('hex')}`;
   const day = new Date().toISOString().slice(0, 10);
 
   try {
@@ -117,7 +117,10 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     await ensureSearchUsageTable(sql);
     const stateRows = await sql`SELECT value FROM app_state WHERE key = ${STATE_KEY};`;
     const state = stateRows[0]?.value || {};
-    const user = session ? (state.users || []).find((u: any) => u.id === session.userId && !u.isBanned) : null;
+    const user = session ? (state.users || []).find((u: any) =>
+      !u.isBanned && (u.id === session.userId ||
+        (typeof session.email === 'string' && u.email?.toLowerCase() === session.email.toLowerCase()))) : null;
+    const actorId = user?.id || guestActorId;
     const isAdmin = !!user && (user.role === 'admin' || user.isSuperAdmin === true);
     const isPro = !!user && (isAdmin || user.subscriptionTier === 'pro');
     if (!isAdmin && !checkRateLimit(getClientIp(req), 30, 60000)) {

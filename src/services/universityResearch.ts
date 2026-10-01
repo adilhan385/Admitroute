@@ -14,14 +14,16 @@ function authHeaders(): Record<string, string> {
   return { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
 }
 
-export async function refreshSearchQuota(): Promise<void> {
+export async function refreshSearchQuota(): Promise<SearchQuota | null> {
   try {
     const response = await fetch('/api/university-search', { headers: authHeaders(), cache: 'no-store' });
-    if (!response.ok) return;
+    if (!response.ok) return null;
     const data = await response.json() as ResearchResponse;
     if (data.quota) setSearchQuota(data.quota);
+    return data.quota || null;
   } catch {
     // The server remains the authority when it becomes reachable again.
+    return null;
   }
 }
 
