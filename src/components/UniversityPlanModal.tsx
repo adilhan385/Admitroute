@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { UniversityProgram, UserProfile, UniversityPreparationPlan } from '../types';
 import { generateUniversityPreparationPlan } from '../utils/engine';
-import { getGeminiApiKey } from '../services/ai';
+import { requestGeminiText } from '../services/ai';
 import {
   X,
   CheckCircle2,
@@ -53,27 +53,6 @@ export const UniversityPlanModal: React.FC<UniversityPlanModalProps> = ({
 
   const handleGenerateAiDeepDive = async () => {
     setIsAiLoading(true);
-    const key = getGeminiApiKey();
-
-    if (!key) {
-      // Offline fallback deep-dive based on gap analysis
-      setTimeout(() => {
-        const gap = plan.gapAnalysis;
-        let advice = `🎯 Стратегический фокус для ${uni.name}:\n\n`;
-        if (gap.overallFeasibility === 'near_impossible' || gap.overallFeasibility === 'low') {
-          advice += `1. Приоритет №1: Экстренная ликвидация академического долга. На текущем этапе подавать документы не имеет смысла, так как сработает автоматический фильтр отсева.\n`;
-          advice += `2. Стратегия Gap Year (академический год подготовки): 6 месяцев интенсива по языку (${gap.languageTarget}) + 4 месяца отработки типовых тестов позволят подать сильную заявку в следующем сезоне.\n`;
-          advice += `3. Запасной аэродром: параллельно рассмотрите подготовительный факультет (Foundation) или колледж-партнер с возможностью трансфера на 2-й курс.`;
-        } else {
-          advice += `1. Приоритет №1: Подача на ранний раунд (дедлайн ${uni.details.rounds.early.deadline}). В этот период конкурс на гранты в 1.8 раза ниже, чем в регулярную волну.\n`;
-          advice += `2. Формулировка эссе: сделайте акцент на ваших исследовательских интересах по специальности «${uni.programTitle}» и объясните, почему вам нужна именно лаборатория ${uni.shortName}.\n`;
-          advice += `3. Рекомендательные письма: запросите у преподавателей математики или информатики с акцентом на вашу самостоятельность и проектную работу.`;
-        }
-        setAiAdvice(advice);
-        setIsAiLoading(false);
-      }, 700);
-      return;
-    }
 
     try {
       const prompt = `Ты — ведущий ментор по поступлению в университеты.
@@ -88,32 +67,11 @@ export const UniversityPlanModal: React.FC<UniversityPlanModalProps> = ({
 3. Какая альтернативная или переходная стратегия (Foundation, трансфер, 2-я волна) убережет от потери года.
 Пиши структурированно, емко, профессионально на русском языке.`;
 
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.3 }
-          })
-        }
-      );
-
-      if (res.ok) {
-        const data = await res.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) {
-          setAiAdvice(text);
-        } else {
-          setAiAdvice('Не удалось получить ответ модели. Используйте стандартный пошаговый план ниже.');
-        }
-      } else {
-        setAiAdvice('Сервис AI временно недоступен. Ниже представлен проверенный автономный маршрут подготовки.');
-      }
+      const advice = await requestGeminiText(prompt);
+      setAiAdvice(advice || 'AI сейчас не ответил. Попробуйте позже; пошаговый план ниже доступен без AI.');
     } catch (e) {
       console.warn('AI call failed:', e);
-      setAiAdvice('Сервис AI временно недоступен. Ниже представлен проверенный автономный маршрут подготовки.');
+      setAiAdvice('AI сейчас не ответил. Попробуйте позже; пошаговый план ниже доступен без AI.');
     } finally {
       setIsAiLoading(false);
     }

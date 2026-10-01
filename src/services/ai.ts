@@ -60,6 +60,10 @@ async function callGeminiApi(prompt: string, _apiKey?: string, responseMimeType:
   return null;
 }
 
+export function requestGeminiText(prompt: string): Promise<string | null> {
+  return callGeminiApi(prompt, undefined, 'text/plain');
+}
+
 export function getGeminiApiKey(): string {
   // Ключ безопасно хранится на сервере в GEMINI_API_KEY
   return 'server-managed';

@@ -9,8 +9,8 @@ import {
   getRequesterSession
 } from './_security.js';
 
-const PRIMARY_MODEL = 'gemini-2.5-flash';
-const FALLBACK_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+const PRIMARY_MODEL = 'gemini-3.8-flash';
+const FALLBACK_MODELS = ['gemini-3.5-flash-lite'];
 const STATE_KEY = 'admitroute_global_state_v1';
 
 const GeminiRequestSchema = z.object({
@@ -122,22 +122,24 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 
   for (const model of modelsToTry) {
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             responseMimeType,
             temperature
           }
-        })
+        }),
+        signal: AbortSignal.timeout(30000)
       });
 
       if (response.ok) {
         const data = (await response.json()) as any;
-        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const rawText = data.candidates?.[0]?.content?.parts
+          ?.map((part: { text?: string }) => part.text || '').join('');
         if (rawText) {
           const content = responseMimeType === 'application/json' ? extractJsonBlock(rawText) : rawText.trim();
 
