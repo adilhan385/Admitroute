@@ -51,6 +51,8 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const [selectedWorldUni, setSelectedWorldUni] = useState<WorldUniversity | null>(null);
   const [worldDirectory, setWorldDirectory] = useState<WorldUniversity[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [loadingMode, setLoadingMode] = useState<'catalogue' | 'research'>('research');
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
   const [isDropdownDismissed, setIsDropdownDismissed] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -59,6 +61,13 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const searchLimits = checkActionAllowed('search');
 
   useEffect(() => { void refreshSearchQuota().then(() => setUsageTick(v => v + 1)); }, []);
+  useEffect(() => {
+    if (!isAiLoading) return;
+    const timer = window.setInterval(() => {
+      setElapsedSeconds(seconds => seconds + 1);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [isAiLoading]);
   useEffect(() => {
     let mounted = true;
     void loadWorldUniversities().then(entries => {
@@ -96,6 +105,14 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       .filter(university => !localNames.has(university.name.toLocaleLowerCase()));
   }, [worldDirectory, searchQuery, suggestions]);
 
+  const beginLoading = (mode: 'catalogue' | 'research') => {
+    setLoadingMode(mode);
+    setElapsedSeconds(0);
+    setIsAiLoading(true);
+    setSearchError(null);
+    setIsDropdownDismissed(true);
+  };
+
   const verifySearchSession = async (): Promise<boolean> => {
     const quota = await refreshSearchQuota();
     if (!isSuperAdmin(getCurrentUser())) return true;
@@ -116,6 +133,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
 
   // Handle selection from local DB
   const handleSelectFromDb = async (uni: UniversityProgram) => {
+    if (isAiLoading) return;
     setSearchError(null);
     setSelectedWorldUni(null);
     if (uni.needsResearch) {
@@ -123,9 +141,9 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       await handleAiSearch(uni.name, uni);
       return;
     }
-    if (!await verifySearchSession()) return;
-    setIsAiLoading(true);
+    beginLoading('catalogue');
     try {
+      if (!await verifySearchSession()) return;
       await consumeCatalogueSearch(uni.name, profile);
       setUsageTick(prev => prev + 1);
     } catch (error) {
@@ -150,6 +168,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   // Handle Search submit or AI analysis
   const handleSearchSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (isAiLoading) return;
     const query = searchQuery.trim();
     if (!query) return;
 
@@ -173,6 +192,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   };
 
   const handleWorldSelection = async (university: WorldUniversity) => {
+    if (isAiLoading) return;
     setSearchQuery(university.name);
     setIsDropdownDismissed(true);
     setSelectedUni(null);
@@ -181,15 +201,15 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   };
 
   const handleAiSearch = async (query: string, directoryEntry?: UniversityProgram) => {
-    if (!await verifySearchSession()) return;
-    const limits = checkActionAllowed('search');
-    if (!limits.allowed) {
-      setIsLimitModalOpen(true);
-      return;
-    }
-    setIsAiLoading(true);
-    setSearchError(null);
+    if (isAiLoading) return;
+    beginLoading('research');
     try {
+      if (!await verifySearchSession()) return;
+      const limits = checkActionAllowed('search');
+      if (!limits.allowed) {
+        setIsLimitModalOpen(true);
+        return;
+      }
       const result = await researchUniversity(query, profile);
       setUsageTick(prev => prev + 1);
       if (result.kind === 'found') {
@@ -211,6 +231,8 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   };
 
   const isCompared = selectedUni ? selectedForCompare.includes(selectedUni.id) : false;
+  const estimatedSeconds = loadingMode === 'catalogue' ? 8 : 45;
+  const remainingSeconds = Math.max(0, estimatedSeconds - elapsedSeconds);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
@@ -243,6 +265,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             <input
               type="text"
               value={searchQuery}
+              disabled={isAiLoading}
               onChange={e => {
                 setSearchQuery(e.target.value);
                 setIsDropdownDismissed(false);
@@ -253,6 +276,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             {searchQuery && (
               <button
                 type="button"
+                disabled={isAiLoading}
                 onClick={() => {
                   setSearchQuery('');
                   setIsDropdownDismissed(true);
@@ -284,7 +308,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
         </div>
 
         {/* Live Suggestions Dropdown */}
-        {(suggestions.length > 0 || worldSuggestions.length > 0) && !isDropdownDismissed && (
+        {(suggestions.length > 0 || worldSuggestions.length > 0) && !isDropdownDismissed && !isAiLoading && (
           <div className="absolute z-20 mt-1 max-h-80 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
             {suggestions.length > 0 && <div className="px-2 py-1 text-[11px] font-semibold text-slate-400 uppercase">
               Программы AdmitRoute
@@ -327,6 +351,32 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           </div>
         )}
       </form>
+      {isAiLoading && (
+        <div role="status" aria-live="polite" className="mt-4 rounded-2xl border border-purple-200 bg-purple-50 p-5 sm:p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-700" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-sm font-semibold text-purple-950">
+                {loadingMode === 'research' ? `Ищем сведения о «${searchQuery}»` : `Открываем данные о «${searchQuery}»`}
+              </h4>
+              <p className="mt-1 text-xs text-purple-800">
+                {loadingMode === 'research' ? 'Проверяем источники и требования к поступлению.' : 'Проверяем доступ и рассчитываем результат.'}
+              </p>
+              <p className="mt-2 text-xs font-medium text-purple-900">
+                Прошло {elapsedSeconds} с · {remainingSeconds > 0
+                  ? `ориентировочно ещё ${remainingSeconds} с`
+                  : 'поиск занимает дольше обычного, продолжаем проверку'}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-purple-100">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-purple-400 to-blue-500" />
+          </div>
+          <p className="mt-2 text-[11px] text-purple-600">Время примерное; результат появится сразу после ответа сервера.</p>
+        </div>
+      )}
       {searchError && <div role="alert" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">{searchError}</div>}
 
       {selectedWorldUni && !isAiLoading && (
@@ -349,6 +399,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           <button
             key={preset.name}
             type="button"
+            disabled={isAiLoading}
             onClick={() => {
               setSearchQuery(preset.name);
               const found = findUniversityByAliasOrName(preset.name);
@@ -359,25 +410,12 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 void handleAiSearch(preset.name);
               }
             }}
-            className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-white transition"
+            className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-white transition disabled:cursor-wait disabled:opacity-50"
           >
             {preset.label}
           </button>
         ))}
       </div>
-
-      {/* AI Loading State */}
-      {isAiLoading && (
-        <div className="mt-6 rounded-2xl border border-purple-200 bg-purple-50/40 p-6 text-center">
-          <Loader2 className="mx-auto h-7 w-7 animate-spin text-purple-600" />
-          <h4 className="mt-2 text-xs font-semibold text-purple-900">
-            ИИ анализирует требования «{searchQuery}»
-          </h4>
-          <p className="mt-1 text-[11px] text-purple-700">
-            Проверка официальных страниц, программы и опубликованных требований...
-          </p>
-        </div>
-      )}
 
       {/* Evaluated University Result Card */}
       {selectedUni && !isAiLoading && (
