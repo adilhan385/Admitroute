@@ -4,6 +4,8 @@ import { findUniversityByAliasOrName, searchUniversitiesWithAliases } from '../u
 import { evaluateUniversityProgram } from '../utils/engine';
 import { consumeCatalogueSearch, researchUniversity, refreshSearchQuota } from '../services/universityResearch';
 import { checkActionAllowed } from '../services/auth';
+import { findExactWorldUniversity, loadWorldUniversities, searchWorldUniversities } from '../services/worldUniversityDirectory';
+import type { WorldUniversity } from '../services/worldUniversityDirectory';
 import {
   Search,
   Sparkles,
@@ -46,6 +48,8 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUni, setSelectedUni] = useState<UniversityProgram | null>(null);
+  const [selectedWorldUni, setSelectedWorldUni] = useState<WorldUniversity | null>(null);
+  const [worldDirectory, setWorldDirectory] = useState<WorldUniversity[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
   const [isDropdownDismissed, setIsDropdownDismissed] = useState(false);
@@ -55,6 +59,13 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const searchLimits = checkActionAllowed('search');
 
   useEffect(() => { void refreshSearchQuota().then(() => setUsageTick(v => v + 1)); }, []);
+  useEffect(() => {
+    let mounted = true;
+    void loadWorldUniversities().then(entries => {
+      if (mounted) setWorldDirectory(entries);
+    }).catch(() => { /* AI search remains available if the directory cannot load. */ });
+    return () => { mounted = false; };
+  }, []);
 
   // Popular quick-search presets with real abbreviations and international universities
   const popularPresets = [
@@ -79,10 +90,16 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const suggestions = useMemo(() => {
     return searchUniversitiesWithAliases(searchQuery, 6);
   }, [searchQuery]);
+  const worldSuggestions = useMemo(() => {
+    const localNames = new Set(suggestions.map(university => university.name.toLocaleLowerCase()));
+    return searchWorldUniversities(worldDirectory, searchQuery, 5)
+      .filter(university => !localNames.has(university.name.toLocaleLowerCase()));
+  }, [worldDirectory, searchQuery, suggestions]);
 
   // Handle selection from local DB
   const handleSelectFromDb = async (uni: UniversityProgram) => {
     setSearchError(null);
+    setSelectedWorldUni(null);
     if (uni.needsResearch) {
       setSelectedUni(uni);
       await handleAiSearch(uni.name, uni);
@@ -125,8 +142,23 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       return;
     }
 
+    const worldMatch = findExactWorldUniversity(worldDirectory, query);
+    if (worldMatch) {
+      await handleWorldSelection(worldMatch);
+      return;
+    }
+
     // Otherwise trigger dynamic search
+    setSelectedWorldUni(null);
     await handleAiSearch(query);
+  };
+
+  const handleWorldSelection = async (university: WorldUniversity) => {
+    setSearchQuery(university.name);
+    setIsDropdownDismissed(true);
+    setSelectedUni(null);
+    setSelectedWorldUni(university);
+    await handleAiSearch(university.name);
   };
 
   const handleAiSearch = async (query: string, directoryEntry?: UniversityProgram) => {
@@ -143,12 +175,13 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
       setUsageTick(prev => prev + 1);
       if (result.kind === 'found') {
         setSelectedUni(result.university);
+        setSelectedWorldUni(null);
         if (onAddCustomUniversity) {
           onAddCustomUniversity(result.university);
         }
       } else {
         setSelectedUni(directoryEntry || null);
-        setSearchError(`AI не нашёл подтверждённых сведений о «${query}». Проверьте написание или официальный сайт.`);
+        setSearchError(`AI не нашёл подтверждённых сведений о поступлении в «${query}». Проверьте программу и требования на сайте университета.`);
       }
     } catch (error) {
       setSelectedUni(directoryEntry || null);
@@ -178,7 +211,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             Найдите университет и проверьте требования
           </h3>
           <p className="text-xs text-slate-500">
-            Если вуза нет в каталоге, AI проверит открытые источники. При нехватке данных процент поступления не показывается.
+            {worldDirectory.length > 0 ? `${worldDirectory.length.toLocaleString('ru-RU')} вузов в мировом справочнике. ` : ''}AI проверяет требования; без подтверждённых данных процент поступления не показывается.
           </p>
         </div>
       </div>
@@ -232,11 +265,11 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
         </div>
 
         {/* Live Suggestions Dropdown */}
-        {suggestions.length > 0 && !isDropdownDismissed && (
-          <div className="absolute z-20 mt-1 w-full rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
-            <div className="px-2 py-1 text-[11px] font-semibold text-slate-400 uppercase">
-              Найдено в верифицированной базе:
-            </div>
+        {(suggestions.length > 0 || worldSuggestions.length > 0) && !isDropdownDismissed && (
+          <div className="absolute z-20 mt-1 max-h-80 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+            {suggestions.length > 0 && <div className="px-2 py-1 text-[11px] font-semibold text-slate-400 uppercase">
+              Программы AdmitRoute
+            </div>}
             {suggestions.map(uni => (
               <button
                 key={uni.id}
@@ -258,10 +291,37 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 </span>
               </button>
             ))}
+            {worldSuggestions.length > 0 && <div className="px-2 pt-2 pb-1 text-[11px] font-semibold text-slate-400 uppercase">
+              Мировой справочник Hipo · условия проверит AI
+            </div>}
+            {worldSuggestions.map(university => (
+              <button
+                key={`${university.countryCode}-${university.domain}-${university.name}`}
+                type="button"
+                onClick={() => { void handleWorldSelection(university); }}
+                className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-xs hover:bg-slate-50 transition"
+              >
+                <span className="font-semibold text-slate-800">{university.name}</span>
+                <span className="shrink-0 text-[11px] text-slate-500">{university.country}</span>
+              </button>
+            ))}
           </div>
         )}
       </form>
       {searchError && <div role="alert" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">{searchError}</div>}
+
+      {selectedWorldUni && !isAiLoading && (
+        <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50/50 p-5 text-sm">
+          <span className="text-xs font-semibold text-blue-700">Мировой справочник Hipo</span>
+          <h4 className="mt-1 text-lg font-bold text-slate-900">{selectedWorldUni.name}</h4>
+          <p className="mt-1 text-xs text-slate-600">{[selectedWorldUni.stateProvince, selectedWorldUni.country].filter(Boolean).join(', ')}</p>
+          <p className="mt-3 text-xs text-slate-700">Данные о программе, требованиях и шансах поступления пока не подтверждены.</p>
+          <div className="mt-3 flex flex-wrap gap-3 text-xs">
+            {selectedWorldUni.website && <a href={selectedWorldUni.website} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-700 underline">Сайт из справочника</a>}
+            <a href="https://github.com/Hipo/university-domains-list" target="_blank" rel="noopener noreferrer" className="font-medium text-blue-700 underline">Источник каталога</a>
+          </div>
+        </div>
+      )}
 
       {/* Popular Quick Pills */}
       <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
@@ -276,7 +336,8 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               if (found) {
                 void handleSelectFromDb(found);
               } else {
-                handleAiSearch(preset.name);
+                setSelectedWorldUni(null);
+                void handleAiSearch(preset.name);
               }
             }}
             className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:border-slate-300 hover:bg-white transition"
@@ -431,7 +492,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           )}
 
           {/* 3 Waves Strip */}
-          {!selectedUni.isAiGenerated && <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 text-xs space-y-2">
+          {!selectedUni.isAiGenerated && !selectedUni.needsResearch && <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 text-xs space-y-2">
             <span className="font-semibold text-slate-700 text-[11px] block">
               3 раунда подачи документов:
             </span>
@@ -469,7 +530,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 </button>
               )}
 
-              <button
+              {!selectedUni.needsResearch && <button
                 type="button"
                 onClick={() => onToggleCompare(selectedUni.id)}
                 className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
@@ -480,18 +541,18 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               >
                 <Scale className="h-3.5 w-3.5" />
                 <span>{isCompared ? 'В сравнении' : 'Добавить к сравнению'}</span>
-              </button>
+              </button>}
 
-              <button
+              {!selectedUni.needsResearch && <button
                 type="button"
                 onClick={() => onSelectUniversity(selectedUni)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
               >
                 <Info className="h-3.5 w-3.5 text-slate-500" />
                 <span>Все подробности</span>
-              </button>
+              </button>}
 
-              {onOpenEssayModal && (
+              {onOpenEssayModal && !selectedUni.needsResearch && (
                 <button
                   type="button"
                   onClick={() => onOpenEssayModal(selectedUni)}
@@ -502,7 +563,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 </button>
               )}
 
-              {onAddCustomUniversity && (
+              {onAddCustomUniversity && !selectedUni.needsResearch && (
                 <button
                   type="button"
                   onClick={() => onAddCustomUniversity(selectedUni)}
