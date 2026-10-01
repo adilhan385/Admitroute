@@ -87,6 +87,8 @@ export interface UniversityProgram {
   admissionChancePercentage?: number; // 5 - 98%
   realityCheckWarning?: string; // Honest warning if candidate does not meet minimums
   isAiGenerated?: boolean;
+  needsResearch?: boolean;
+  sourceUrls?: string[];
   whyFits: string[];
   keyStrengths: string[];
   avgGraduateSalary: string;

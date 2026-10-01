@@ -11,6 +11,7 @@ import {
   signSessionToken,
   getRequesterSession,
   getDb,
+  ensureAppStateTable,
   checkPasswordBreach,
   sendSanitizedError
 } from './_security';
@@ -49,7 +50,17 @@ async function getGlobalState(sql: any) {
       updatedAt: new Date().toISOString()
     };
   }
-  return { users: [], messages: [], settings: {}, updatedAt: new Date().toISOString() };
+  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@admitroute.kz').toLowerCase();
+  const initialPassword = process.env.ADMIN_INITIAL_PASSWORD;
+  return {
+    users: initialPassword ? [{
+      id: 'user-admin-01', email: adminEmail, name: 'Главный Администратор AdmitRoute',
+      password: hashPassword(initialPassword), role: 'admin', subscriptionTier: 'pro',
+      isSuperAdmin: true, isBanned: false, createdAt: new Date().toISOString(),
+      usageStats: { searchesCount: 0, recalculationsCount: 0 }
+    }] : [],
+    messages: [], settings: {}, updatedAt: new Date().toISOString()
+  };
 }
 
 function setAuthCookie(res: ResponseLike, token: string) {
@@ -71,6 +82,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 
   try {
     const sql = getDb();
+    await ensureAppStateTable(sql);
 
     // 1. Session verification endpoint
     if (req.method === 'GET' && action === 'me') {
@@ -139,6 +151,10 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
       const { name, email, password, refCode } = parsed.data;
       const cleanEmail = email.trim().toLowerCase();
 
+      if (cleanEmail === (process.env.ADMIN_EMAIL || 'admin@admitroute.kz').toLowerCase()) {
+        return res.status(403).json({ error: 'Администратор входит по заданному на сервере паролю.' });
+      }
+
       // Check for password in breach database (HIBP)
       const isBreached = await checkPasswordBreach(password);
       if (isBreached) {
@@ -152,8 +168,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
         return res.status(409).json({ error: 'Пользователь с таким email уже зарегистрирован' });
       }
 
-      const superAdminEmail = (process.env.ADMIN_EMAIL || 'admin@admitroute.kz').toLowerCase();
-      const isAdminAccount = cleanEmail === superAdminEmail;
+      const isAdminAccount = false;
       const newUserId = `user-${crypto.randomUUID()}`;
       const myReferralCode = `AR-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
       const todayStr = new Date().toISOString().slice(0, 10);

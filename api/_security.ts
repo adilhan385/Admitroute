@@ -80,7 +80,7 @@ export function applyCors(req: RequestLike, res: ResponseLike): boolean {
   }
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Guest-Thread-ID');
   res.setHeader('Access-Control-Max-Age', '86400');
   res.setHeader('Vary', 'Origin');
 
@@ -215,6 +215,18 @@ export function getDb() {
     throw new Error('DATABASE_URL environment variable is not configured on the server.');
   }
   return neon(connString);
+}
+
+// A fresh Neon database has no application tables. Creating this small core
+// table here makes the auth and chat endpoints usable on the first request.
+export async function ensureAppStateTable(sql: ReturnType<typeof getDb>): Promise<void> {
+  await sql`
+    CREATE TABLE IF NOT EXISTS app_state (
+      key TEXT PRIMARY KEY,
+      value JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `;
 }
 
 // 5.1 Telegram Bot Integration Helpers

@@ -34,14 +34,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
     try {
       if (mode === 'login') {
-        const res = login(email, password);
+        const res = await login(email, password);
         if (res.success && res.user) {
           onAuthSuccess(res.user);
           onClose();
@@ -49,7 +49,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           setError(res.error || 'Ошибка входа');
         }
       } else {
-        const res = register(name, email, password, refCode);
+        const res = await register(name, email, password, refCode);
         if (res.success && res.user) {
           onAuthSuccess(res.user);
           onClose();
@@ -57,6 +57,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           setError(res.error || 'Ошибка регистрации');
         }
       }
+    } catch {
+      setError('Не удалось связаться с сервером. Попробуйте позже.');
     } finally {
       setIsLoading(false);
     }

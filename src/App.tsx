@@ -3,7 +3,7 @@ import type { UserProfile, RoadmapStep, UniversityProgram, EssayDraft } from './
 import { calculateDiagnosis, recommendUniversities, generateRoadmap, evaluateUniversityProgram } from './utils/engine';
 import { evaluatePortfolio } from './utils/portfolioEvaluator';
 import { exportRoadmapToIcs } from './utils/calendar';
-import { generateEssayStructure, generateAiUniversityRecommendations } from './services/ai';
+import { generateEssayStructure } from './services/ai';
 import { UNIVERSITIES_DATABASE } from './data/universities';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -71,7 +71,6 @@ export const App: React.FC = () => {
   // Diversity & AI Recommendations state
   const [customUniversities, setCustomUniversities] = useState<UniversityProgram[]>([]);
   const [shuffleSeed, setShuffleSeed] = useState<number>(0);
-  const [isAiGenerating, setIsAiGenerating] = useState<boolean>(false);
 
   // University Detail Modal state
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
@@ -341,24 +340,6 @@ export const App: React.FC = () => {
     setShuffleSeed(prev => prev + 1);
   };
 
-  // Request fresh AI recommendations via Gemini
-  const handleRequestAiVariants = async () => {
-    if (!profile) return;
-    setIsAiGenerating(true);
-    try {
-      const existingIds = [
-        ...customUniversities.map(u => u.id),
-        ...UNIVERSITIES_DATABASE.map(u => u.id)
-      ];
-      const aiUnis = await generateAiUniversityRecommendations(profile, existingIds);
-      if (aiUnis && aiUnis.length > 0) {
-        setCustomUniversities(prev => [...aiUnis, ...prev]);
-      }
-    } finally {
-      setIsAiGenerating(false);
-    }
-  };
-
   // Add custom university from Search component
   const handleAddCustomUniversity = (uni: UniversityProgram) => {
     setCustomUniversities(prev => [uni, ...prev.filter(u => u.id !== uni.id)]);
@@ -568,8 +549,6 @@ export const App: React.FC = () => {
                 setIsDetailModalOpen(true);
               }}
               onRefreshVariants={handleRefreshVariants}
-              onRequestAiVariants={handleRequestAiVariants}
-              isAiGenerating={isAiGenerating}
             />
 
             {/* SCHOLARSHIPS FINDER */}
@@ -636,6 +615,7 @@ export const App: React.FC = () => {
 
       {/* Auth Modal (Login / Register / Quick Demo Login) */}
       <AuthModal
+        key={`${authModalMode}-${isAuthModalOpen}`}
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authModalMode}

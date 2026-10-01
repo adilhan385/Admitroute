@@ -5,6 +5,37 @@ const STORAGE_USERS_KEY = 'admitroute_users_db_v1';
 const STORAGE_CURRENT_USER_KEY = 'admitroute_auth_user_v1';
 const STORAGE_GUEST_STATS_KEY = 'admitroute_guest_usage_v1';
 const STORAGE_SETTINGS_KEY = 'admitroute_site_settings_v1';
+const STORAGE_SEARCH_QUOTA_KEY = 'admitroute_ai_search_quota_v1';
+
+export interface SearchQuota {
+  used: number;
+  max: number | null;
+  remaining: number | null;
+  resetsAt: string;
+}
+
+export function getSearchQuota(): SearchQuota | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const all = JSON.parse(localStorage.getItem(STORAGE_SEARCH_QUOTA_KEY) || '{}');
+    const quota = all[getCurrentUser()?.id || 'guest'] as SearchQuota | undefined;
+    return quota && new Date(quota.resetsAt).getTime() > Date.now() ? quota : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setSearchQuota(quota: SearchQuota): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const all = JSON.parse(localStorage.getItem(STORAGE_SEARCH_QUOTA_KEY) || '{}');
+    all[getCurrentUser()?.id || 'guest'] = quota;
+    localStorage.setItem(STORAGE_SEARCH_QUOTA_KEY, JSON.stringify(all));
+    window.dispatchEvent(new Event('admitroute_quota_update'));
+  } catch {
+    // Quota still remains enforced by the server.
+  }
+}
 
 export const GUEST_MAX_SEARCHES = 1;
 export const GUEST_MAX_RECALCULATIONS = 2;
@@ -241,47 +272,34 @@ function saveGuestStats(stats: { searchesCount: number; recalculationsCount: num
   localStorage.setItem(STORAGE_GUEST_STATS_KEY, JSON.stringify(stats));
 }
 
-export function login(email: string, password: string): { success: boolean; user?: UserAccount; error?: string } {
-  const cleanEmail = email.trim().toLowerCase();
-  const cleanPass = password.trim();
-
-  const users = getAllUsers();
-  const found = users.find(u => u.email.toLowerCase() === cleanEmail);
-
-  if (!found) {
-    return { success: false, error: 'Пользователь с таким email не найден.' };
-  }
-
-  if (found.password && found.password !== cleanPass) {
-    return { success: false, error: 'Неверный пароль.' };
-  }
-
-  if (found.isBanned) {
-    return { success: false, error: 'Ваш аккаунт заблокирован администратором.' };
-  }
-
-  localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(found));
-
-  // Asynchronously authenticate against serverless backend to get signed token
-  if (typeof window !== 'undefined') {
-    fetch('/api/auth?action=login', {
+async function authenticate(action: 'login' | 'register', data: Record<string, string>): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
+  try {
+    const response = await fetch(`/api/auth?action=${action}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: cleanEmail, password: cleanPass })
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data && data.token) {
-          localStorage.setItem('admitroute_auth_token_v1', data.token);
-        }
-      })
-      .catch(() => {});
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    if (!response.ok || !result?.token || !result?.user) {
+      return { success: false, error: result?.error || 'Сервер авторизации недоступен. Попробуйте позже.' };
+    }
+    const user = result.user as UserAccount;
+    localStorage.setItem('admitroute_auth_token_v1', result.token);
+    localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(user));
+    const users = getAllUsers().filter(u => u.id !== user.id && u.email.toLowerCase() !== user.email.toLowerCase());
+    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify([...users, user]));
+    window.dispatchEvent(new Event('admitroute_users_update'));
+    return { success: true, user };
+  } catch {
+    return { success: false, error: 'Не удалось связаться с сервером. Проверьте соединение и попробуйте снова.' };
   }
-
-  return { success: true, user: found };
 }
 
-export function register(name: string, email: string, password: string, refCode?: string): { success: boolean; user?: UserAccount; error?: string } {
+export function login(email: string, password: string): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
+  return authenticate('login', { email: email.trim().toLowerCase(), password });
+}
+
+export async function register(name: string, email: string, password: string, refCode?: string): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
   const cleanName = name.trim();
   const cleanEmail = email.trim().toLowerCase();
   const cleanPass = password.trim();
@@ -294,59 +312,7 @@ export function register(name: string, email: string, password: string, refCode?
     return { success: false, error: 'Пароль должен содержать минимум 8 символов.' };
   }
 
-  const users = getAllUsers();
-  if (users.some(u => u.email.toLowerCase() === cleanEmail)) {
-    return { success: false, error: 'Пользователь с таким email уже существует.' };
-  }
-
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const myRefCode = `AR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
-  const newUser: UserAccount = {
-    id: `user-${crypto.randomUUID()}`,
-    email: cleanEmail,
-    name: cleanName,
-    password: cleanPass,
-    role: 'customer',
-    subscriptionTier: 'free',
-    isBanned: false,
-    referralCode: myRefCode,
-    profileLastUpdatedAt: new Date().toISOString(),
-    dailySearches: {
-      count: 0,
-      date: todayStr,
-      maxPerDay: 5,
-      bonusCount: refCode ? 5 : 0
-    },
-    gamification: {
-      streak: { currentStreak: 1, longestStreak: 1, lastActiveDate: todayStr },
-      badges: ['profile_started']
-    },
-    createdAt: new Date().toISOString(),
-    usageStats: { searchesCount: 0, recalculationsCount: 0 }
-  };
-
-  users.push(newUser);
-  saveUsers(users);
-  localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(newUser));
-
-  // Asynchronously register on serverless backend to obtain signed token and process referral bonus
-  if (typeof window !== 'undefined') {
-    fetch('/api/auth?action=register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: cleanName, email: cleanEmail, password: cleanPass, refCode })
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data && data.token) {
-          localStorage.setItem('admitroute_auth_token_v1', data.token);
-        }
-      })
-      .catch(() => {});
-  }
-
-  return { success: true, user: newUser };
+  return authenticate('register', { name: cleanName, email: cleanEmail, password: cleanPass, ...(refCode ? { refCode } : {}) });
 }
 
 export function logout(): void {
@@ -503,6 +469,26 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
   const current = getCurrentUser();
   const settings = getSiteSettings();
 
+  if (action === 'search') {
+    const quota = getSearchQuota();
+    if (quota) {
+      return {
+        allowed: quota.remaining === null || quota.remaining > 0,
+        remaining: quota.remaining ?? 999999,
+        maxLimit: quota.max ?? 999999,
+        currentCount: quota.used,
+        role: current?.role || 'guest',
+        isPro: quota.max === null
+      };
+    }
+    const initialLimit = current?.role === 'admin' || current?.subscriptionTier === 'pro'
+      ? 999999
+      : current ? (settings.freeCustomerMaxSearches ?? FREE_CUSTOMER_MAX_SEARCHES)
+        : (settings.guestMaxSearches ?? GUEST_MAX_SEARCHES);
+    return { allowed: true, remaining: initialLimit, maxLimit: initialLimit, currentCount: 0,
+      role: current?.role || 'guest', isPro: initialLimit === 999999 };
+  }
+
   if (current) {
     const usage = current.usageStats || { searchesCount: 0, recalculationsCount: 0 };
     if (current.role === 'admin' || current.subscriptionTier === 'pro') {
@@ -510,16 +496,14 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
         allowed: true,
         remaining: 999999,
         maxLimit: 999999,
-        currentCount: action === 'search' ? (usage.searchesCount ?? 0) : (usage.recalculationsCount ?? 0),
+        currentCount: usage.recalculationsCount ?? 0,
         role: current.role,
         isPro: true
       };
     }
 
-    const maxLimit = action === 'search'
-      ? (settings.freeCustomerMaxSearches ?? FREE_CUSTOMER_MAX_SEARCHES)
-      : (settings.freeCustomerMaxRecalculations ?? FREE_CUSTOMER_MAX_RECALCULATIONS);
-    const count = action === 'search' ? (usage.searchesCount ?? 0) : (usage.recalculationsCount ?? 0);
+    const maxLimit = settings.freeCustomerMaxRecalculations ?? FREE_CUSTOMER_MAX_RECALCULATIONS;
+    const count = usage.recalculationsCount ?? 0;
     const remaining = Math.max(0, maxLimit - count);
 
     return {
@@ -533,10 +517,8 @@ export function checkActionAllowed(action: 'search' | 'recalculation'): {
   }
 
   const stats = getGuestStats();
-  const maxLimit = action === 'search'
-    ? (settings.guestMaxSearches ?? GUEST_MAX_SEARCHES)
-    : (settings.guestMaxRecalculations ?? GUEST_MAX_RECALCULATIONS);
-  const count = action === 'search' ? (stats.searchesCount ?? 0) : (stats.recalculationsCount ?? 0);
+  const maxLimit = settings.guestMaxRecalculations ?? GUEST_MAX_RECALCULATIONS;
+  const count = stats.recalculationsCount ?? 0;
   const remaining = Math.max(0, maxLimit - count);
 
   return {

@@ -40,9 +40,9 @@ export const UniversityDetailModal: React.FC<UniversityDetailModalProps> = ({
               <span className="text-xs text-slate-500 font-medium">
                 {university.city}, {university.country}
               </span>
-              <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+              {university.admissionChancePercentage !== undefined && <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
                 Совпадение: {university.matchScore}%
-              </span>
+              </span>}
             </div>
 
             <h2 className="mt-2 text-xl font-bold text-slate-900 sm:text-2xl">

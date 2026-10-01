@@ -1,5 +1,6 @@
 import React from 'react';
 import type { UserAccount } from '../types';
+import { getSearchQuota } from '../services/auth';
 
 interface Props {
   user: UserAccount | null;
@@ -15,9 +16,10 @@ export const GamificationHeaderWidget: React.FC<Props> = ({
   if (!user) return null;
 
   const currentStreak = user.gamification?.streak?.currentStreak || 1;
-  const maxSearches = (user.dailySearches?.maxPerDay || (user.subscriptionTier === 'pro' ? 50 : 5)) + (user.dailySearches?.bonusCount || 0);
-  const usedSearches = user.dailySearches?.count || 0;
-  const remainingSearches = Math.max(0, maxSearches - usedSearches);
+  const quota = getSearchQuota();
+  const maxSearches = quota?.max ?? 0;
+  const remainingSearches = quota?.remaining ?? 0;
+  const isUnlimited = quota?.max === null || user.subscriptionTier === 'pro' || user.role === 'admin';
   const isTgLinked = !!user.telegramChatId;
 
   return (
@@ -35,11 +37,10 @@ export const GamificationHeaderWidget: React.FC<Props> = ({
       <button
         onClick={onOpenReferral}
         className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100/80 border border-blue-200/90 rounded-xl text-xs font-bold text-blue-900 transition shadow-xs"
-        title="Нажмите, чтобы получить +5 бонусных поисков за приглашение друга"
+        title="Дневной лимит AI-поиска"
       >
         <span className="text-blue-600">⚡</span>
-        <span>{remainingSearches}/{maxSearches} AI</span>
-        <span className="text-[10px] bg-blue-200/80 text-blue-800 px-1.5 py-0.2 rounded-md font-mono">+5</span>
+        <span>{isUnlimited ? 'Безлимит AI' : quota ? `${remainingSearches}/${maxSearches} AI` : 'Лимит AI'}</span>
       </button>
 
       {/* 3. Telegram Connect Status Button */}

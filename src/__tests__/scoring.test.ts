@@ -88,4 +88,33 @@ describe('Scoring Engine Tests', () => {
     expect(evaluation.admissionChancePercentage).toBeLessThanOrEqual(100);
     expect(evaluation.matchScore).toBeGreaterThanOrEqual(0);
   });
+
+  it('keeps a selective university ambitious when SAT is absent', () => {
+    const selectiveUni = {
+      ...sampleUni,
+      id: 'harvard-cs',
+      region: 'usa' as const,
+      acceptanceRate: '4%',
+      avgGpa: 4.85,
+      examRequirement: 'SAT 1500+'
+    };
+    const withoutSat = { ...sampleProfile, hasSat: false, satScore: '' };
+    const evaluation = evaluateUniversityProgram(selectiveUni, withoutSat);
+    expect(evaluation.matchCategory).toBe('reach');
+    expect(evaluation.admissionChancePercentage).toBeLessThanOrEqual(5);
+  });
+
+  it('does not label an elite university as a safety even with a strong SAT', () => {
+    const selectiveUni = {
+      ...sampleUni,
+      id: 'harvard-cs',
+      region: 'usa' as const,
+      acceptanceRate: '4%',
+      avgGpa: 4.85,
+      examRequirement: 'SAT 1500+'
+    };
+    const evaluation = evaluateUniversityProgram(selectiveUni, { ...sampleProfile, satScore: '1550' });
+    expect(evaluation.matchCategory).toBe('reach');
+    expect(evaluation.admissionChancePercentage).toBeLessThanOrEqual(5);
+  });
 });

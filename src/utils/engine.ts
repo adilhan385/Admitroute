@@ -399,60 +399,63 @@ export function evaluateUniversityProgram(
   else if (rawAcceptance <= 18 || uni.id.includes('harvard') || uni.id.includes('nus') || uni.id.includes('tsinghua')) {
     if (gpa < 4.5 || (ielts !== null && ielts < 6.5) || (isKZ && unt !== null && unt < 115) || (sat !== null && sat < 1300)) {
       category = 'unlikely';
-      chance = Math.min(10, Math.max(2, Math.round(rawAcceptance * 0.4)));
+      chance = Math.min(6, Math.max(1, Math.round(rawAcceptance * 0.3)));
       warning = `Экстремально высокая селективность: конкурс ${uni.details.grantStats.competitionRatio}. Текущих баллов недостаточно для преодоления первого отборочного тура.`;
     } else if (gpa < 4.85) {
       category = 'reach';
-      chance = Math.min(28, Math.max(12, Math.round(rawAcceptance * 1.2 + gpaDiff * 20)));
+      chance = Math.min(18, Math.max(3, Math.round(rawAcceptance * 0.8 + gpaDiff * 8)));
       warning = `Амбициозная цель (Reach): сильный конкурс. Риск отказа оценивается в ${100 - chance}%. Требуется олимпиадное портфолио.`;
     } else {
       category = 'reach';
-      chance = Math.min(45, Math.max(22, Math.round(rawAcceptance * 2.0 + 10)));
+      chance = Math.min(22, Math.max(5, Math.round(rawAcceptance * 1.15)));
     }
   }
   // 5. COMPETITIVE TIER (acceptance 19% - 35%)
   else if (rawAcceptance < 35) {
     if (gpaDiff < -0.4 || (ielts !== null && ielts < 6.0)) {
       category = 'reach';
-      chance = Math.max(15, Math.round(30 + gpaDiff * 25));
+      chance = Math.max(5, Math.round(rawAcceptance * 0.55 + gpaDiff * 10));
       warning = `Баллы ниже среднего уровня поступивших. Рекомендуется подавать в Target и Safety программы.`;
     } else if (gpaDiff >= 0.2 && (ielts === null || ielts >= 6.5)) {
       category = 'target';
-      chance = Math.min(80, Math.round(65 + gpaDiff * 25));
+      chance = Math.min(42, Math.round(rawAcceptance * 1.2 + gpaDiff * 8));
     } else {
       category = 'target';
-      chance = Math.min(70, Math.round(52 + gpaDiff * 20));
-    }
-  }
-
-  // SAT adjustment for programs that value SAT
-  if (sat !== null && uni.examRequirement.toLowerCase().includes('sat')) {
-    if (sat >= 1480) {
-      chance = Math.min(95, chance + 14);
-    } else if (sat >= 1350) {
-      chance = Math.min(88, chance + 7);
-    } else if (sat < 1200 && rawAcceptance < 30) {
-      if (category !== 'unlikely') {
-        category = 'reach';
-        chance = Math.min(chance, 25);
-        warning = `Балл SAT (${sat}) ниже среднего уровня зачисленных (${uni.examRequirement}).`;
-      }
+      chance = Math.min(35, Math.round(rawAcceptance * 0.85 + gpaDiff * 8));
     }
   }
   // 6. ACCESSIBLE / SAFETY TIER (acceptance >= 35%)
   else {
     if (gpaDiff < -0.5 || (ielts !== null && ielts < 5.5)) {
       category = 'reach';
-      chance = Math.max(20, Math.round(35 + gpaDiff * 20));
+      chance = Math.max(10, Math.round(rawAcceptance * 0.45 + gpaDiff * 10));
       warning = `Для зачисления необходимо подтянуть базовые академические требования программы.`;
     } else if (gpaDiff >= 0 && (unt === null || unt >= 70) && (ielts === null || ielts >= 6.0)) {
       category = 'safety';
-      chance = Math.min(92, Math.round(80 + gpaDiff * 15));
+      chance = Math.min(70, Math.round(rawAcceptance * 0.85 + gpaDiff * 8));
     } else {
       category = 'target';
-      chance = 60;
+      chance = Math.min(55, Math.round(rawAcceptance * 0.7));
     }
   }
+
+  // SAT can help, but it cannot turn a highly selective university into a safety option.
+  if (category !== 'unlikely' && sat !== null && uni.examRequirement.toLowerCase().includes('sat')) {
+    if (sat >= 1480) chance += 5;
+    else if (sat >= 1350) chance += 2;
+    else if (sat < 1200 && rawAcceptance < 30) {
+      category = 'reach';
+      chance = Math.min(chance, 15);
+      warning = `Балл SAT (${sat}) ниже среднего уровня зачисленных (${uni.examRequirement}).`;
+    }
+  }
+
+  if (requiresLang && ielts === null && !profile.hasLanguageTest) {
+    category = category === 'safety' ? 'target' : category;
+    chance = Math.min(chance, 20);
+    warning = 'Языковой сертификат пока не указан. Проверьте, принимает ли программа альтернативный экзамен.';
+  }
+  chance = Math.min(chance, Math.min(70, Math.max(5, Math.round(rawAcceptance * 1.25))));
 
   // If candidate wants 100% grant, check if grant is feasible
   if (profile.budget === 'full_grant' && chance > 10) {
@@ -503,8 +506,8 @@ export function recommendUniversities(
   profile: UserProfile,
   options?: { shuffleSeed?: number }
 ): UniversityProgram[] {
-  const regionalPool = UNIVERSITIES_DATABASE.filter(u => u.region === profile.targetRegion);
-  const otherPool = UNIVERSITIES_DATABASE.filter(u => u.region !== profile.targetRegion);
+  const regionalPool = UNIVERSITIES_DATABASE.filter(u => !u.needsResearch && u.region === profile.targetRegion);
+  const otherPool = UNIVERSITIES_DATABASE.filter(u => !u.needsResearch && u.region !== profile.targetRegion);
 
   const evaluatedPool = (regionalPool.length >= 4 ? regionalPool : [...regionalPool, ...otherPool]).map((uni) => {
     const evaluation = evaluateUniversityProgram(uni, profile);

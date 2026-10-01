@@ -6930,3 +6930,71 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     }
   },
 ];
+
+// Additional institutions checked against their own admissions/programme pages.
+// Their changing admission figures are intentionally left blank; AI researches
+// the current programme when a user selects one of these directory entries.
+type DirectoryEntry = Pick<UniversityProgram,
+  'id' | 'name' | 'shortName' | 'aliases' | 'city' | 'country' | 'region' | 'fields' | 'programTitle' | 'officialSiteUrl'>;
+
+function directoryUniversity(entry: DirectoryEntry): UniversityProgram {
+  const unknown = 'Не подтверждено';
+  const round = { name: 'Подача документов', deadline: 'Уточните на официальном сайте',
+    description: 'Условия зависят от программы и года набора.', recommendedFor: 'Абитуриентам.' };
+  return {
+    ...entry, degrees: ['Бакалавриат'], acceptanceRate: 'Не опубликовано', avgGpa: 0,
+    languageRequirement: unknown, examRequirement: unknown, tuitionYearKztOrUsd: unknown,
+    scholarshipAvailability: 'Ограничено', hasDormitory: false,
+    matchCategory: 'reach', matchScore: 0, admissionChancePercentage: undefined,
+    needsResearch: true, sourceUrls: [entry.officialSiteUrl],
+    realityCheckWarning: 'Университет и программа подтверждены официальным сайтом. Требования и шансы ещё нужно проверить.',
+    whyFits: ['Программа указана на официальном сайте университета.'],
+    keyStrengths: [], avgGraduateSalary: unknown, applicationDeadline: unknown,
+    details: {
+      aboutCampus: unknown, studentLife: unknown, livingCostsPerMonth: unknown,
+      dormitoryDetails: unknown, topEmployers: [],
+      rounds: { early: { ...round }, regular: { ...round }, late: { ...round } },
+      grantStats: { lastYearGrantsCount: unknown, lastYearCutoff: unknown,
+        competitionRatio: unknown, grantChanceSummary: 'Официальная статистика не подтверждена.' }
+    }
+  };
+}
+
+UNIVERSITIES_DATABASE.push(...([
+  { id: 'kozybayev-kz', name: 'Kozybayev University', shortName: 'Kozybayev',
+    aliases: ['козыбаев', 'ску', 'north kazakhstan university'], city: 'Петропавловск', country: 'Казахстан',
+    region: 'kazakhstan', fields: ['cs_it', 'engineering'], programTitle: 'Программы бакалавриата',
+    officialSiteUrl: 'https://www.ku.edu.kz/page/view?id=38&lang=en' },
+  { id: 'atyrau-ir-kz', name: 'Х. Досмухамедов атындағы Атырау университеті', shortName: 'Atyrau University',
+    aliases: ['атырауский университет', 'досмухамедов', 'atyrau university'], city: 'Атырау', country: 'Казахстан',
+    region: 'kazakhstan', fields: ['social_law'], programTitle: 'International Relations',
+    officialSiteUrl: 'https://atyrau.edu.kz/en/Home/BachelorSpecificProfession/c52b59d3-a8b6-4bf6-10e6-08dcf9b3b6fb' },
+  { id: 'aalto-data-fi', name: 'Aalto University', shortName: 'Aalto',
+    aliases: ['аалто', 'университет аалто'], city: 'Эспоо', country: 'Финляндия',
+    region: 'europe', fields: ['cs_it'], programTitle: 'BSc Data Science',
+    officialSiteUrl: 'https://www.aalto.fi/en/admission-services/apply-to-bachelors-programmes-in-english' },
+  { id: 'aalto-business-fi', name: 'Aalto University — School of Business', shortName: 'Aalto Business',
+    aliases: ['аалто бизнес', 'aalto business'], city: 'Эспоо', country: 'Финляндия',
+    region: 'europe', fields: ['business_econ'], programTitle: 'BSc Economics / International Business',
+    officialSiteUrl: 'https://www.aalto.fi/en/admission-services/apply-to-bachelors-programmes-in-english' },
+  { id: 'tartu-business-ee', name: 'University of Tartu', shortName: 'UniTartu',
+    aliases: ['тартуский университет', 'университет тарту', 'tartu'], city: 'Тарту', country: 'Эстония',
+    region: 'europe', fields: ['business_econ'], programTitle: 'BA Business Administration',
+    officialSiteUrl: 'https://ut.ee/en/study-programmes' },
+  { id: 'taltech-it-ee', name: 'Tallinn University of Technology', shortName: 'TalTech',
+    aliases: ['талтех', 'таллинский технический университет'], city: 'Таллин', country: 'Эстония',
+    region: 'europe', fields: ['cs_it'], programTitle: 'BSc Business Information Technology',
+    officialSiteUrl: 'https://taltech.ee/en/bachelors-studies-it/' },
+  { id: 'oulu-cs-fi', name: 'University of Oulu', shortName: 'Oulu',
+    aliases: ['университет оулу', 'оулу'], city: 'Оулу', country: 'Финляндия',
+    region: 'europe', fields: ['cs_it', 'engineering'], programTitle: 'BSc Computer Science and Engineering',
+    officialSiteUrl: 'https://www.oulu.fi/en/apply/how-apply/applying-bachelors-programmes' },
+  { id: 'turku-ict-fi', name: 'University of Turku', shortName: 'Turku',
+    aliases: ['университет турку', 'турку'], city: 'Турку', country: 'Финляндия',
+    region: 'europe', fields: ['cs_it', 'engineering'], programTitle: 'BSc Information and Communication Technology',
+    officialSiteUrl: 'https://www.utu.fi/en/study-at-utu/bachelors-and-masters-degree-programmes' },
+  { id: 'vilnius-lt', name: 'Vilnius University', shortName: 'VU Vilnius',
+    aliases: ['вильнюсский университет', 'вильнюс', 'vilnius university'], city: 'Вильнюс', country: 'Литва',
+    region: 'europe', fields: ['cs_it', 'business_econ', 'social_law'], programTitle: 'Программы бакалавриата',
+    officialSiteUrl: 'https://www.vu.lt/en/admissions/admissions-to-bachelor-studies' }
+] as DirectoryEntry[]).map(directoryUniversity));

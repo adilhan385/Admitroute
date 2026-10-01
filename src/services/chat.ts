@@ -1,5 +1,7 @@
 import { setSubscriptionTier, getAllUsers, SUPER_ADMIN_EMAIL } from './auth';
-import { pushSharedState } from './remoteSync';
+import { getGuestThreadId, pushSharedState } from './remoteSync';
+
+export { getGuestThreadId };
 
 export interface ChatMessage {
   id: string;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { UniversityProgram, MatchCategory } from '../types';
-import { Target, ExternalLink, Check, Scale, Award, FileText, Info, AlertTriangle, RefreshCw, Sparkles, Loader2 } from 'lucide-react';
+import { Target, ExternalLink, Check, Scale, Award, FileText, Info, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface RecommendationsProps {
   universities: UniversityProgram[];
@@ -11,8 +11,6 @@ interface RecommendationsProps {
   onOpenPlanModal?: (uni: UniversityProgram) => void;
   onSelectUniversity?: (uni: UniversityProgram) => void;
   onRefreshVariants?: () => void;
-  onRequestAiVariants?: () => void;
-  isAiGenerating?: boolean;
 }
 
 export const Recommendations: React.FC<RecommendationsProps> = ({
@@ -24,8 +22,6 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
   onOpenPlanModal,
   onSelectUniversity,
   onRefreshVariants,
-  onRequestAiVariants,
-  isAiGenerating
 }) => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -99,28 +95,6 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
             </button>
           )}
 
-          {onRequestAiVariants && (
-            <button
-              type="button"
-              onClick={onRequestAiVariants}
-              disabled={isAiGenerating}
-              className="inline-flex items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2.5 py-1.5 text-xs font-medium text-purple-700 hover:bg-purple-100 disabled:opacity-50 transition"
-              title="Сгенерировать свежие варианты через Gemini AI"
-            >
-              {isAiGenerating ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin text-purple-600" />
-                  <span>Поиск ИИ...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-3 w-3 text-purple-600" />
-                  <span>Варианты через ИИ</span>
-                </>
-              )}
-            </button>
-          )}
-
           <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1 text-xs font-medium text-slate-600 shadow-xs">
             <button
               type="button"
@@ -185,7 +159,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {filteredUnis.map((uni) => {
           const isCompared = selectedForCompare.includes(uni.id);
-          const chance = uni.admissionChancePercentage ?? uni.matchScore;
+          const chance = uni.admissionChancePercentage;
 
           return (
             <div
@@ -196,10 +170,11 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                 {/* Badges row */}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    {getCategoryBadge(uni.matchCategory)}
+                    {chance !== undefined && getCategoryBadge(uni.matchCategory)}
                     <span
                       className={`rounded-md border px-2 py-0.5 text-xs font-mono font-medium ${
-                        chance >= 70
+                        chance === undefined ? 'border-slate-200 bg-slate-50 text-slate-600'
+                          : chance >= 70
                           ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                           : chance >= 40
                           ? 'border-blue-200 bg-blue-50 text-blue-700'
@@ -208,7 +183,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
                           : 'border-rose-200 bg-rose-50 text-rose-700'
                       }`}
                     >
-                      Шанс: {chance}%
+                      {chance === undefined ? 'Шанс: нет данных' : `Шанс: ${chance}%`}
                     </span>
                     {uni.isAiGenerated && (
                       <span className="rounded-md border border-purple-200 bg-purple-50 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700">

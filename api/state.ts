@@ -6,6 +6,7 @@ import {
   checkRateLimit,
   getClientIp,
   getDb,
+  ensureAppStateTable,
   getRequesterSession,
   sendSanitizedError,
   hashPassword
@@ -48,14 +49,19 @@ const ALLOWED_MESSAGE_FIELDS = new Set([
   'isProActivated'
 ]);
 
+function getGuestThreadId(req: RequestLike): string | null {
+  const value = req.headers?.['x-guest-thread-id'];
+  return typeof value === 'string' && /^guest-[0-9a-f-]{36}$/.test(value) ? value : null;
+}
+
 function getSuperAdminTemplate() {
   const email = process.env.ADMIN_EMAIL || 'admin@admitroute.kz';
-  const initialPass = process.env.ADMIN_INITIAL_PASSWORD || 'ChangeMeImmediately123!';
+  const initialPass = process.env.ADMIN_INITIAL_PASSWORD;
   return {
     id: 'user-admin-01',
     email,
     name: 'Главный Администратор AdmitRoute',
-    password: hashPassword(initialPass),
+    password: initialPass ? hashPassword(initialPass) : '',
     role: 'admin',
     subscriptionTier: 'pro',
     isSuperAdmin: true,
@@ -97,23 +103,29 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 
   try {
     const sql = getDb();
+    await ensureAppStateTable(sql);
     const session = getRequesterSession(req);
     const isAdmin = session?.role === 'admin' || !!session?.isSuperAdmin;
+    const guestThreadId = getGuestThreadId(req);
 
     // GET: Retrieve state
     if (req.method === 'GET') {
       const state = await readGlobalState(sql);
 
       // Strip sensitive password hashes from public user roster
-      const sanitizedUsers = state.users.map((u: any) => {
-        const { password: _p, ...safeUser } = u;
+      const visibleUsers = isAdmin ? state.users : state.users.filter((u: any) => u.id === session?.userId);
+      const sanitizedUsers = visibleUsers.map((u: any) => {
+        const { password: _p, verificationCode: _v, ...safeUser } = u;
         return safeUser;
       });
 
       return res.status(200).json({
         state: {
           ...state,
-          users: sanitizedUsers
+          users: sanitizedUsers,
+          messages: isAdmin ? state.messages : state.messages.filter((m: any) =>
+            m.threadId === session?.userId || m.threadId === guestThreadId
+          )
         }
       });
     }
@@ -131,7 +143,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     const current = await readGlobalState(sql);
 
     // 1. Process deleted users
-    const deletedSet = new Set(incoming.deletedUserIds || []);
+    const deletedSet = new Set(isAdmin ? (incoming.deletedUserIds || []) : []);
 
     // 2. Intelligent & Secure User Merging
     const userMap = new Map<string, any>();
@@ -149,6 +161,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
         const existing = (emailKey ? userMap.get(emailKey) : null) || userMap.get(rawUser.id);
 
         if (existing) {
+          if (!isAdmin && existing.id !== session?.userId) continue;
           // If requester is not admin, only merge whitelisted fields! Prevent privilege escalation!
           if (!isAdmin) {
             const safeUpdate: Record<string, any> = {};
@@ -162,26 +175,14 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
             if (existing.email) userMap.set(existing.email.toLowerCase(), merged);
           } else {
             // Admin can update roles, bans, tiers, etc.
-            const merged = { ...existing, ...rawUser };
+            const { password: _password, verificationCode: _code, ...safeAdminUpdate } = rawUser;
+            const merged = { ...existing, ...safeAdminUpdate };
             userMap.set(existing.id, merged);
             if (existing.email) userMap.set(existing.email.toLowerCase(), merged);
           }
         } else {
-          // New user creation via sync
-          const safeNewUser: Record<string, any> = {
-            id: rawUser.id,
-            email: rawUser.email,
-            name: rawUser.name || 'Пользователь',
-            role: isAdmin ? (rawUser.role || 'customer') : 'customer', // Non-admin cannot register themselves as admin!
-            subscriptionTier: isAdmin ? (rawUser.subscriptionTier || 'free') : 'free',
-            isSuperAdmin: false,
-            isBanned: false,
-            createdAt: rawUser.createdAt || new Date().toISOString(),
-            usageStats: rawUser.usageStats || { searchesCount: 0, recalculationsCount: 0 },
-            profile: rawUser.profile || undefined
-          };
-          userMap.set(rawUser.id, safeNewUser);
-          if (emailKey) userMap.set(emailKey, safeNewUser);
+          // Accounts are created only by /api/auth, which hashes the password.
+          continue;
         }
       }
     }
@@ -216,9 +217,9 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     if (Array.isArray(incoming.messages)) {
       for (const m of incoming.messages) {
         if (!m || !m.id || !m.text || typeof m.text !== 'string') continue;
+        if (!isAdmin && m.threadId !== session?.userId && m.threadId !== guestThreadId) continue;
 
-        // Prevent spoofing senderRole as 'admin' if not authenticated as admin
-        const senderRole = (!isAdmin && m.senderRole === 'admin') ? 'user' : (m.senderRole || 'user');
+        const senderRole = isAdmin ? (m.senderRole || 'admin') : 'user';
 
         const cleanMsg: Record<string, any> = {};
         for (const k of Object.keys(m)) {
@@ -230,7 +231,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 
         const existing = msgMap.get(m.id);
         if (existing) {
-          msgMap.set(m.id, { ...existing, ...cleanMsg });
+          if (isAdmin) msgMap.set(m.id, { ...existing, ...cleanMsg });
         } else {
           msgMap.set(m.id, cleanMsg);
         }
@@ -261,12 +262,16 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     `;
 
     // Strip password hashes from response
-    const sanitizedOutputUsers = uniqueUsers.map(({ password: _p, ...u }) => u);
+    const outputUsers = isAdmin ? uniqueUsers : uniqueUsers.filter(u => u.id === session?.userId);
+    const sanitizedOutputUsers = outputUsers.map(({ password: _p, verificationCode: _v, ...u }) => u);
 
     return res.status(200).json({
       state: {
         ...nextState,
-        users: sanitizedOutputUsers
+        users: sanitizedOutputUsers,
+        messages: isAdmin ? uniqueMessages : uniqueMessages.filter(m =>
+          m.threadId === session?.userId || m.threadId === guestThreadId
+        )
       }
     });
   } catch (error) {

@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { UserProfile, UniversityProgram } from '../types';
 import { findUniversityByAliasOrName, searchUniversitiesWithAliases } from '../utils/universityMatcher';
 import { evaluateUniversityProgram } from '../utils/engine';
-import { searchOrGenerateUniversityWithAi, generateSmartFallbackUniversity } from '../services/ai';
-import { checkActionAllowed, recordActionUsage } from '../services/auth';
+import { consumeCatalogueSearch, researchUniversity, refreshSearchQuota } from '../services/universityResearch';
+import { checkActionAllowed } from '../services/auth';
 import {
   Search,
   Sparkles,
@@ -49,9 +49,12 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
   const [isDropdownDismissed, setIsDropdownDismissed] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [, setUsageTick] = useState(0);
 
   const searchLimits = checkActionAllowed('search');
+
+  useEffect(() => { void refreshSearchQuota().then(() => setUsageTick(v => v + 1)); }, []);
 
   // Popular quick-search presets with real abbreviations and international universities
   const popularPresets = [
@@ -78,7 +81,24 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
   }, [searchQuery]);
 
   // Handle selection from local DB
-  const handleSelectFromDb = (uni: UniversityProgram) => {
+  const handleSelectFromDb = async (uni: UniversityProgram) => {
+    setSearchError(null);
+    if (uni.needsResearch) {
+      setSelectedUni(uni);
+      await handleAiSearch(uni.name, uni);
+      return;
+    }
+    setIsAiLoading(true);
+    try {
+      await consumeCatalogueSearch(uni.name, profile);
+      setUsageTick(prev => prev + 1);
+    } catch (error) {
+      setSearchError(error instanceof Error ? error.message : 'Не удалось учесть поиск.');
+      if (!checkActionAllowed('search').allowed) setIsLimitModalOpen(true);
+      return;
+    } finally {
+      setIsAiLoading(false);
+    }
     const evaluated = evaluateUniversityProgram(uni, profile);
     setSelectedUni({
       ...uni,
@@ -101,7 +121,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
     const match = findUniversityByAliasOrName(query);
 
     if (match) {
-      handleSelectFromDb(match);
+      await handleSelectFromDb(match);
       return;
     }
 
@@ -109,36 +129,30 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
     await handleAiSearch(query);
   };
 
-  const handleAiSearch = async (query: string) => {
+  const handleAiSearch = async (query: string, directoryEntry?: UniversityProgram) => {
+    await refreshSearchQuota();
     const limits = checkActionAllowed('search');
     if (!limits.allowed) {
       setIsLimitModalOpen(true);
       return;
     }
     setIsAiLoading(true);
+    setSearchError(null);
     try {
-      const result = await searchOrGenerateUniversityWithAi(query, profile);
-      if (result) {
-        recordActionUsage('search');
-        setUsageTick(prev => prev + 1);
-        setSelectedUni(result);
+      const result = await researchUniversity(query, profile);
+      setUsageTick(prev => prev + 1);
+      if (result.kind === 'found') {
+        setSelectedUni(result.university);
         if (onAddCustomUniversity) {
-          onAddCustomUniversity(result);
+          onAddCustomUniversity(result.university);
         }
       } else {
-        // Safe guaranteed fallback
-        const fallback = generateSmartFallbackUniversity(query, profile);
-        setSelectedUni(fallback);
-        if (onAddCustomUniversity) {
-          onAddCustomUniversity(fallback);
-        }
+        setSelectedUni(directoryEntry || null);
+        setSearchError(`AI не нашёл подтверждённых сведений о «${query}». Проверьте написание или официальный сайт.`);
       }
-    } catch {
-      const fallback = generateSmartFallbackUniversity(query, profile);
-      setSelectedUni(fallback);
-      if (onAddCustomUniversity) {
-        onAddCustomUniversity(fallback);
-      }
+    } catch (error) {
+      setSelectedUni(directoryEntry || null);
+      setSearchError(error instanceof Error ? error.message : 'AI-поиск временно недоступен.');
     } finally {
       setIsAiLoading(false);
     }
@@ -157,14 +171,14 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             </span>
             <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
               <Sparkles className="h-3 w-3" />
-              <span>ИИ-оценка шансов</span>
+              <span>AI-поиск с источниками</span>
             </span>
           </div>
           <h3 className="mt-1 text-base font-semibold text-slate-900">
-            Проверьте шансы поступления в любой университет
+            Найдите университет и проверьте требования
           </h3>
           <p className="text-xs text-slate-500">
-            Введите название любого вуза (SDU, Harvard, Тренто, МУИТ, Bocconi) — система рассчитает реальные шансы под ваш GPA и экзамены
+            Если вуза нет в каталоге, AI проверит открытые источники. При нехватке данных процент поступления не показывается.
           </p>
         </div>
       </div>
@@ -211,7 +225,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             ) : (
               <>
                 <Search className="h-3.5 w-3.5" />
-                <span>Оценить шансы</span>
+                <span>Найти университет</span>
               </>
             )}
           </button>
@@ -228,7 +242,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 key={uni.id}
                 type="button"
                 onClick={() => {
-                  handleSelectFromDb(uni);
+                  void handleSelectFromDb(uni);
                   setSearchQuery(uni.name);
                 }}
                 className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs hover:bg-slate-50 transition"
@@ -247,6 +261,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           </div>
         )}
       </form>
+      {searchError && <div role="alert" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">{searchError}</div>}
 
       {/* Popular Quick Pills */}
       <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
@@ -259,7 +274,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               setSearchQuery(preset.name);
               const found = findUniversityByAliasOrName(preset.name);
               if (found) {
-                handleSelectFromDb(found);
+                void handleSelectFromDb(found);
               } else {
                 handleAiSearch(preset.name);
               }
@@ -279,7 +294,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             ИИ анализирует требования «{searchQuery}»
           </h4>
           <p className="mt-1 text-[11px] text-purple-700">
-            Сопоставление вашего GPA ({profile.gpa.toFixed(1)}), экзаменов и бюджета с реальным конкурсом и волнами подачи...
+            Проверка официальных страниц, программы и опубликованных требований...
           </p>
         </div>
       )}
@@ -291,25 +306,25 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                {selectedUni.matchCategory === 'target' && (
+                {selectedUni.admissionChancePercentage !== undefined && selectedUni.matchCategory === 'target' && (
                   <span className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
                     <Target className="h-3 w-3" />
                     <span>Target (Основная цель)</span>
                   </span>
                 )}
-                {selectedUni.matchCategory === 'safety' && (
+                {selectedUni.admissionChancePercentage !== undefined && selectedUni.matchCategory === 'safety' && (
                   <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800">
                     <CheckCircle2 className="h-3 w-3" />
                     <span>Safety (Надежный вариант)</span>
                   </span>
                 )}
-                {selectedUni.matchCategory === 'reach' && (
+                {selectedUni.admissionChancePercentage !== undefined && selectedUni.matchCategory === 'reach' && (
                   <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
                     <Award className="h-3 w-3" />
                     <span>Reach (Амбициозный вариант)</span>
                   </span>
                 )}
-                {selectedUni.matchCategory === 'unlikely' && (
+                {selectedUni.admissionChancePercentage !== undefined && selectedUni.matchCategory === 'unlikely' && (
                   <span className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-800">
                     <AlertTriangle className="h-3 w-3" />
                     <span>Крайне маловероятно (Высокий риск)</span>
@@ -333,22 +348,20 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
 
             {/* Chance display */}
             <div className="flex sm:flex-col items-center sm:items-end justify-between rounded-xl bg-white p-3 border border-slate-200 shadow-2xs">
-              <span className="text-[11px] font-medium text-slate-500">
-                Персональный шанс:
-              </span>
+              <span className="text-[11px] font-medium text-slate-500">Оценка шанса:</span>
               <div className="flex items-baseline gap-1">
                 <span
                   className={`text-2xl font-extrabold ${
-                    (selectedUni.admissionChancePercentage ?? 50) >= 70
+                    (selectedUni.admissionChancePercentage ?? 0) >= 70
                       ? 'text-emerald-600'
-                      : (selectedUni.admissionChancePercentage ?? 50) >= 40
+                      : (selectedUni.admissionChancePercentage ?? 0) >= 40
                       ? 'text-blue-600'
-                      : (selectedUni.admissionChancePercentage ?? 50) >= 20
+                      : (selectedUni.admissionChancePercentage ?? 0) >= 20
                       ? 'text-amber-600'
                       : 'text-rose-600'
                   }`}
                 >
-                  {selectedUni.admissionChancePercentage ?? selectedUni.matchScore}%
+                  {selectedUni.admissionChancePercentage === undefined ? 'Нет данных' : `${selectedUni.admissionChancePercentage}%`}
                 </span>
               </div>
             </div>
@@ -372,7 +385,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             <div className="rounded-xl border border-slate-200 bg-white p-3">
               <span className="text-[11px] text-slate-400 block">Проходной GPA</span>
               <span className="mt-0.5 font-semibold text-slate-800">
-                от {selectedUni.avgGpa.toFixed(1)} / 5.0
+                {selectedUni.avgGpa > 0 ? `от ${selectedUni.avgGpa.toFixed(1)} / 5.0` : 'Не опубликован'}
               </span>
               <span className="text-[10px] text-slate-500 block">
                 Ваш GPA: {profile.gpa.toFixed(1)}
@@ -392,7 +405,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             <div className="rounded-xl border border-slate-200 bg-white p-3">
               <span className="text-[11px] text-slate-400 block">Селективность</span>
               <span className="mt-0.5 font-semibold text-slate-800">
-                {selectedUni.acceptanceRate} прием
+                {selectedUni.acceptanceRate === 'Не опубликовано' ? 'Не опубликована' : `${selectedUni.acceptanceRate} прием`}
               </span>
               <span className="text-[10px] text-slate-500 block">
                 {selectedUni.details.grantStats.competitionRatio || 'Конкурс высокий'}
@@ -410,8 +423,15 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
             </div>
           </div>
 
+          {selectedUni.sourceUrls && selectedUni.sourceUrls.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2 text-xs">
+              <span className="font-semibold text-slate-600">Источники:</span>
+              {selectedUni.sourceUrls.map((url, index) => <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">Источник {index + 1}</a>)}
+            </div>
+          )}
+
           {/* 3 Waves Strip */}
-          <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 text-xs space-y-2">
+          {!selectedUni.isAiGenerated && <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 text-xs space-y-2">
             <span className="font-semibold text-slate-700 text-[11px] block">
               3 раунда подачи документов:
             </span>
@@ -432,12 +452,12 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 <span className="text-[10px] text-slate-500 block mt-0.5">{selectedUni.details.rounds.late.recommendedFor}</span>
               </div>
             </div>
-          </div>
+          </div>}
 
           {/* Actions */}
           <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 pt-4">
             <div className="flex flex-wrap items-center gap-2">
-              {onOpenPlanModal && (
+              {onOpenPlanModal && selectedUni.admissionChancePercentage !== undefined && (
                 <button
                   type="button"
                   onClick={() => onOpenPlanModal(selectedUni)}

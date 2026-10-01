@@ -20,7 +20,8 @@ const FAKE_DEMO_EMAILS = [
 ];
 
 let isSyncRunning = false;
-let isPushing = false;
+let activePush: Promise<boolean> | null = null;
+let hasPendingChanges = false;
 let syncIntervalId: number | null = null;
 
 const getLocalState = () => ({
@@ -30,9 +31,24 @@ const getLocalState = () => ({
   deletedUserIds: JSON.parse(localStorage.getItem(DELETED_USERS_KEY) || '[]')
 });
 
+export function getGuestThreadId(): string {
+  const key = 'admitroute_guest_thread_id_v1';
+  let id = localStorage.getItem(key);
+  if (!id || !/^guest-[0-9a-f-]{36}$/.test(id)) {
+    id = `guest-${crypto.randomUUID()}`;
+    localStorage.setItem(key, id);
+  }
+  return id;
+}
+
+function reportSync(ok: boolean): void {
+  window.dispatchEvent(new CustomEvent('admitroute_sync_status', { detail: { ok } }));
+}
+
 function getAuthHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-Guest-Thread-ID': getGuestThreadId()
   };
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem(TOKEN_KEY);
@@ -157,38 +173,58 @@ export async function pullSharedState(): Promise<void> {
       if (data && data.state) {
         applyRemoteState(data.state);
       }
+      if (hasPendingChanges) {
+        void pushSharedState();
+      } else {
+        reportSync(true);
+      }
+    } else {
+      reportSync(false);
     }
   } catch {
-    // Бесшумный fallback при отсутствии сети
+    reportSync(false);
   }
 }
 
 /**
  * Отправка локальных изменений в защищенный Serverless API
  */
-export async function pushSharedState(): Promise<void> {
-  if (typeof window === 'undefined' || !navigator.onLine || isPushing) return;
-  isPushing = true;
-
-  const currentLocal = getLocalState();
-
-  try {
-    const res = await fetch('/api/state', {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(currentLocal)
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.state) {
-        applyRemoteState(data.state);
+export async function pushSharedState(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  if (!navigator.onLine) {
+    hasPendingChanges = true;
+    reportSync(false);
+    return false;
+  }
+  if (activePush) await activePush;
+  const request = (async () => {
+    try {
+      const res = await fetch('/api/state', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(getLocalState())
+      });
+      if (!res.ok) {
+        hasPendingChanges = true;
+        reportSync(false);
+        return false;
       }
+      const data = await res.json();
+      if (data?.state) applyRemoteState(data.state);
+      hasPendingChanges = false;
+      reportSync(true);
+      return true;
+    } catch {
+      hasPendingChanges = true;
+      reportSync(false);
+      return false;
     }
-  } catch {
-    // Бесшумный fallback при временном отсутствии сети
+  })();
+  activePush = request;
+  try {
+    return await request;
   } finally {
-    isPushing = false;
+    if (activePush === request) activePush = null;
   }
 }
 

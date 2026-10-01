@@ -13,12 +13,14 @@ import {
 } from 'lucide-react';
 import {
   getThreadMessages,
+  getGuestThreadId,
   sendUserMessage,
   ADMIN_CONTACTS,
   getTotalUnreadForAdmin
 } from '../services/chat';
 import type { UserAccount } from '../types';
 import type { ChatMessage } from '../services/chat';
+import { pushSharedState } from '../services/remoteSync';
 
 interface LiveChatWidgetProps {
   currentUser: UserAccount | null;
@@ -42,11 +44,12 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
   const [inputText, setInputText] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadCountAdmin, setUnreadCountAdmin] = useState<number>(() => getTotalUnreadForAdmin());
+  const [syncError, setSyncError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const isAdmin = currentUser?.role === 'admin' || !!currentUser?.isSuperAdmin;
   const isGuest = !currentUser || currentUser.role === 'guest';
-  const threadId = currentUser ? currentUser.id : 'guest-session';
+  const threadId = currentUser ? currentUser.id : getGuestThreadId();
   const userName = currentUser ? currentUser.name : 'Гость сайта';
   const userEmail = currentUser ? currentUser.email : 'guest@admitroute.kz';
   const isPro = currentUser?.subscriptionTier === 'pro';
@@ -58,6 +61,12 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
     }
   }, [isOpenExternal]);
 
+  useEffect(() => {
+    if (isOpenExternal && initialTopic === 'PRO') {
+      setInputText('Здравствуйте! Хочу оформить подписку AdmitRoute PRO.');
+    }
+  }, [isOpenExternal, initialTopic]);
+
   const handleClose = () => {
     setIsOpen(false);
     if (onCloseExternal) onCloseExternal();
@@ -67,6 +76,14 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
     const msgs = getThreadMessages(threadId);
     setMessages(msgs);
   };
+
+  useEffect(() => {
+    const handleStatus = (event: Event) => {
+      setSyncError(!(event as CustomEvent<{ ok: boolean }>).detail.ok);
+    };
+    window.addEventListener('admitroute_sync_status', handleStatus);
+    return () => window.removeEventListener('admitroute_sync_status', handleStatus);
+  }, []);
 
   useEffect(() => {
     loadMessages();
@@ -139,7 +156,7 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
                 </div>
                 <div className="flex items-center gap-1 text-[10px] text-slate-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Онлайн • Подписка PRO и поддержка</span>
+                  <span>Подписка PRO и поддержка</span>
                 </div>
               </div>
             </div>
@@ -280,6 +297,12 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
 
           {/* Input Form for All Users */}
           <div className="border-t border-slate-200 bg-white">
+            {syncError && (
+              <div role="alert" className="flex items-center justify-between gap-2 bg-amber-50 px-3 py-2 text-[11px] text-amber-900">
+                <span>Нет связи с сервером. Сообщения пока сохранены только в этом браузере.</span>
+                <button type="button" onClick={() => void pushSharedState()} className="shrink-0 font-semibold underline">Повторить</button>
+              </div>
+            )}
             {isGuest && (
               <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-3 py-1.5 text-[10px] text-slate-500">
                 <span>Режим гостя • Ответ появится прямо здесь</span>
@@ -330,9 +353,6 @@ export const LiveChatWidget: React.FC<LiveChatWidgetProps> = ({
           type="button"
           onClick={() => {
             setIsOpen(true);
-            if (initialTopic) {
-              handleRequestProPurchase();
-            }
           }}
           className="group flex items-center gap-2 rounded-full border border-slate-700/60 bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xl hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all"
         >
