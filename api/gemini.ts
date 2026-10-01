@@ -9,8 +9,8 @@ import {
   getRequesterSession
 } from './_security.js';
 
-const PRIMARY_MODEL = 'gemini-3.8-flash';
-const FALLBACK_MODELS = ['gemini-3.5-flash-lite'];
+const PRIMARY_MODEL = 'gemini-3.5-flash-lite';
+const FALLBACK_MODELS = ['gemini-3.8-flash'];
 const STATE_KEY = 'admitroute_global_state_v1';
 
 const GeminiRequestSchema = z.object({

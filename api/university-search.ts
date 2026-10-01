@@ -7,7 +7,7 @@ import {
 import { ensureSearchUsageTable } from './_searchUsage.js';
 
 const STATE_KEY = 'admitroute_global_state_v1';
-const MODEL = 'gemini-3.8-flash';
+const MODEL = 'gemini-3.5-flash-lite';
 const SearchSchema = z.object({
   mode: z.enum(['catalogue', 'research']).default('research'),
   query: z.string().trim().min(2).max(160),
