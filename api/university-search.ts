@@ -6,7 +6,7 @@ import {
 } from './_security.js';
 
 const STATE_KEY = 'admitroute_global_state_v1';
-const MODEL = 'gemini-2.5-flash';
+const MODEL = 'gemini-3.8-flash';
 const SearchSchema = z.object({
   mode: z.enum(['catalogue', 'research']).default('research'),
   query: z.string().trim().min(2).max(160),
@@ -44,6 +44,71 @@ async function ensureUsageTable(sql: ReturnType<typeof getDb>) {
 function parseModelJson(text: string): any {
   const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
   return JSON.parse(cleaned);
+}
+
+async function researchWithWikipedia(query: string, profile: z.infer<typeof SearchSchema>['profile'], apiKey: string) {
+  const headers = { 'Accept': 'application/json', 'User-Agent': 'AdmitRoute/1.0 (https://admitroute.vercel.app)' };
+  const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=8&format=json`;
+  const searchResponse = await fetch(searchUrl, { headers, signal: AbortSignal.timeout(12000) });
+  if (!searchResponse.ok) throw new Error(`Wikipedia HTTP ${searchResponse.status}`);
+  const searchData = await searchResponse.json() as any;
+  const words = query.toLowerCase().match(/[\p{L}\p{N}]+/gu)?.filter(word =>
+    word.length > 2 && !['university', 'college', 'institute', 'университет', 'институт', 'the'].includes(word)
+  ) || [];
+  const hit = (searchData.query?.search || []).find((item: any) => {
+    const title = String(item.title || '').toLowerCase();
+    return /(university|college|institute|университет)/i.test(title) &&
+      words.length > 0 && words.every(word => title.includes(word));
+  });
+  if (!hit) return { found: false, university: null, sources: [] as string[] };
+
+  const title = String(hit.title);
+  const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g, '_'))}`;
+  const propsUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&titles=${encodeURIComponent(title)}&format=json`;
+  const [summaryResponse, propsResponse] = await Promise.all([
+    fetch(summaryUrl, { headers, signal: AbortSignal.timeout(12000) }),
+    fetch(propsUrl, { headers, signal: AbortSignal.timeout(12000) })
+  ]);
+  if (!summaryResponse.ok || !propsResponse.ok) throw new Error('University source unavailable');
+  const summary = await summaryResponse.json() as any;
+  const props = await propsResponse.json() as any;
+  const qid = Object.values(props.query?.pages || {})
+    .map((page: any) => page.pageprops?.wikibase_item)
+    .find((value): value is string => typeof value === 'string');
+  if (!qid || !/\b(university|college|institute|higher education)\b/i.test(`${summary.description || ''} ${summary.extract || ''}`)) {
+    return { found: false, university: null, sources: [] as string[] };
+  }
+  const claimsResponse = await fetch(
+    `https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${encodeURIComponent(qid)}&property=P856&format=json`,
+    { headers, signal: AbortSignal.timeout(12000) }
+  );
+  if (!claimsResponse.ok) throw new Error('Official site source unavailable');
+  const claims = await claimsResponse.json() as any;
+  const officialSiteUrl = claims.claims?.P856?.[0]?.mainsnak?.datavalue?.value;
+  if (typeof officialSiteUrl !== 'string' || !/^https:\/\//.test(officialSiteUrl)) {
+    return { found: false, university: null, sources: [] as string[] };
+  }
+
+  const prompt = `Ты проверяешь конкретный университет. Запрос: ${JSON.stringify(query)}.
+Источник Wikipedia: ${JSON.stringify({ title: summary.title, description: summary.description, extract: String(summary.extract || '').slice(0, 3500) })}.
+Официальный сайт из Wikidata: ${officialSiteUrl}.
+Профиль: направление ${profile.field}, GPA ${profile.gpa}/${profile.gpaScale || '5.0'}, язык ${profile.languageScore || 'не указан'}, экзамен ${profile.stateExamScore || 'не указан'}, SAT ${profile.satScore || 'не указан'}, бюджет ${profile.budget}, год ${profile.targetYear}.
+Если источник не описывает именно запрошенный вуз, ответь found=false. Иначе верни JSON с полями found, name, shortName, city, country, region (kazakhstan/europe/asia/usa), programTitle, acceptanceRate, avgGpa, languageRequirement, examRequirement, tuitionYearKztOrUsd, applicationDeadline, scholarshipAvailability, hasDormitory, whyFits, keyStrengths. Если программа или правила приёма не подтверждены в источнике, пиши null. Не придумывай баллы, цену, дедлайны, гранты, работодателей или шанс зачисления.`;
+  const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1, responseMimeType: 'application/json' } }),
+    signal: AbortSignal.timeout(30000)
+  });
+  if (!aiResponse.ok) throw new Error(`Gemini fallback HTTP ${aiResponse.status}`);
+  const aiData = await aiResponse.json() as any;
+  const raw = aiData.candidates?.[0]?.content?.parts?.map((part: any) => part.text || '').join('') || '';
+  const result = parseModelJson(raw);
+  if (result.found !== true) return { found: false, university: null, sources: [] as string[] };
+  return {
+    found: true,
+    university: { ...result, name: summary.title, officialSiteUrl },
+    sources: [summary.content_urls?.desktop?.page || summaryUrl, officialSiteUrl]
+  };
 }
 
 export default async function handler(req: RequestLike, res: ResponseLike) {
@@ -120,12 +185,16 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 Не выдумывай процент приема, проходной GPA, цену, дедлайн, стипендию или работодателей. Для неподтвержденных сведений используй null. Не рассчитывай вероятность поступления.`;
 
     try {
-      const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+      const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.1 } }),
         signal: AbortSignal.timeout(30000)
       });
+      if (googleResponse.status === 429) {
+        const fallback = await researchWithWikipedia(query, profile, process.env.GEMINI_API_KEY!);
+        return res.status(200).json({ ...fallback, quota });
+      }
       if (!googleResponse.ok) throw new Error(`Gemini HTTP ${googleResponse.status}`);
       const data = await googleResponse.json() as any;
       const candidate = data.candidates?.[0];
