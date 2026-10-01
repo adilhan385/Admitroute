@@ -96,6 +96,8 @@ const BUDGET_LABELS: Record<string, string> = {
   no_limit: 'Без ограничений (самофинансирование)'
 };
 
+type ServerSearchUsage = Record<string, { total: number; today: number }>;
+
 export const AdminPanel: React.FC<AdminPanelProps> = ({
   isOpen,
   onClose,
@@ -105,6 +107,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'users' | 'messages' | 'settings'>(initialTab);
   const [users, setUsers] = useState<UserAccount[]>([]);
+  const [serverSearchUsage, setServerSearchUsage] = useState<ServerSearchUsage | null>(null);
+  const [searchUsageLoadFailed, setSearchUsageLoadFailed] = useState(false);
   const [threadSummaries, setThreadSummaries] = useState<ChatThreadSummary[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(initialThreadId || null);
   const [activeThreadMessages, setActiveThreadMessages] = useState<ChatMessage[]>([]);
@@ -163,6 +167,45 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialTab, initialThreadId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let active = true;
+    const refreshUsage = async () => {
+      const token = localStorage.getItem('admitroute_auth_token_v1');
+      if (!token) return;
+      try {
+        const response = await fetch('/api/admin-search-usage', {
+          headers: { Authorization: `Bearer ${token}` }, cache: 'no-store'
+        });
+        if (!response.ok) throw new Error('Search usage unavailable');
+        const data = await response.json() as { usage?: Array<{ userId: string; total: number; today: number }> };
+        if (active) {
+          setServerSearchUsage(Object.fromEntries((data.usage || []).map(item => [item.userId, {
+            total: Number(item.total) || 0, today: Number(item.today) || 0
+          }])));
+          setSearchUsageLoadFailed(false);
+        }
+      } catch {
+        if (active) {
+          setServerSearchUsage(null);
+          setSearchUsageLoadFailed(true);
+        }
+      }
+    };
+    void refreshUsage();
+    const timer = window.setInterval(() => { void refreshUsage(); }, 15000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [isOpen]);
+
+  const searchUsageLabel = (user: UserAccount) => {
+    if (!serverSearchUsage) return searchUsageLoadFailed ? 'Статистика поисков недоступна' : 'Статистика поисков загружается';
+    const usage = serverSearchUsage[user.id] || { total: 0, today: 0 };
+    const unlimited = user.role === 'admin' || user.subscriptionTier === 'pro';
+    const baseMax = Math.max(1, Math.min(100, Number(siteSettings.freeCustomerMaxSearches) || 8));
+    const bonus = Math.max(0, Number(user.dailySearches?.bonusCount) || 0);
+    return `${usage.total} поисков вузов • ${usage.today}${unlimited ? ' сегодня (без лимита)' : `/${baseMax + bonus} сегодня`}`;
+  };
 
   useEffect(() => {
     const handleLiveSync = () => {
@@ -572,7 +615,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </td>
 
                         <td className="px-4 py-2.5 text-[11px] text-slate-600">
-                          {u.usageStats?.searchesCount ?? 0} поисков • {u.usageStats?.recalculationsCount ?? 0} расчетов
+                          {searchUsageLabel(u)} • {u.usageStats?.recalculationsCount ?? 0} расчетов
                         </td>
 
                         <td className="px-4 py-2.5">
@@ -1205,7 +1248,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
                     <div className="text-[11px] text-slate-500 mb-0.5">Статистика активности</div>
                     <div className="font-semibold text-slate-800">
-                      {selectedUserForView.usageStats?.searchesCount ?? 0} поисков • {selectedUserForView.usageStats?.recalculationsCount ?? 0} расчетов
+                      {searchUsageLabel(selectedUserForView)} • {selectedUserForView.usageStats?.recalculationsCount ?? 0} расчетов
                     </div>
                   </div>
                 </div>

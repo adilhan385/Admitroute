@@ -4,6 +4,7 @@ import {
   type RequestLike, type ResponseLike, applyCors, checkRateLimit,
   getClientIp, getDb, getRequesterSession
 } from './_security.js';
+import { ensureSearchUsageTable } from './_searchUsage.js';
 
 const STATE_KEY = 'admitroute_global_state_v1';
 const MODEL = 'gemini-3.8-flash';
@@ -28,17 +29,6 @@ function quotaResponse(used: number, max: number | null): Quota {
   const tomorrow = new Date();
   tomorrow.setUTCHours(24, 0, 0, 0);
   return { used, max, remaining: max === null ? null : Math.max(0, max - used), resetsAt: tomorrow.toISOString() };
-}
-
-async function ensureUsageTable(sql: ReturnType<typeof getDb>) {
-  await sql`
-    CREATE TABLE IF NOT EXISTS ai_search_usage (
-      actor_id TEXT NOT NULL,
-      usage_day DATE NOT NULL,
-      used INTEGER NOT NULL DEFAULT 0,
-      PRIMARY KEY (actor_id, usage_day)
-    );
-  `;
 }
 
 function parseModelJson(text: string): any {
@@ -128,7 +118,7 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 
   try {
     const sql = getDb();
-    await ensureUsageTable(sql);
+    await ensureSearchUsageTable(sql);
     const stateRows = await sql`SELECT value FROM app_state WHERE key = ${STATE_KEY};`;
     const state = stateRows[0]?.value || {};
     const user = session ? (state.users || []).find((u: any) => u.id === session.userId && !u.isBanned) : null;
