@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPublicSharedData } from '../services/retention';
+import { CalendarDays, Check, Circle, Eye, Landmark, LockKeyhole } from 'lucide-react';
 
 interface Props {
   shareToken: string;
@@ -47,7 +48,7 @@ export const SharedRoadmapView: React.FC<Props> = ({ shareToken, onExit }) => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-xl border border-slate-200/80 space-y-4">
-          <div className="text-4xl">🔒</div>
+          <LockKeyhole className="mx-auto h-9 w-9 text-slate-500" aria-hidden="true" />
           <h3 className="text-lg font-bold text-slate-900">Доступ недоступен</h3>
           <p className="text-xs text-slate-500">{error || 'Не удалось загрузить данные'}</p>
           <button
@@ -71,7 +72,7 @@ export const SharedRoadmapView: React.FC<Props> = ({ shareToken, onExit }) => {
       <div className="bg-slate-900 text-white py-3 px-4">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-base">👁️</span>
+            <Eye className="h-4 w-4" aria-hidden="true" />
             <span className="font-semibold">Гостевой режим для родителей и ментора</span>
             <span className="bg-white/20 px-2 py-0.5 rounded-full text-[10px] font-mono">Только чтение</span>
           </div>
@@ -111,7 +112,7 @@ export const SharedRoadmapView: React.FC<Props> = ({ shareToken, onExit }) => {
         {/* Selected Universities */}
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <span>🏛️</span> Выбранные университеты и программы ({data.selectedPrograms?.length || 0})
+            <Landmark className="h-5 w-5 text-slate-600" aria-hidden="true" /> Выбранные университеты и программы ({data.selectedPrograms?.length || 0})
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -139,7 +140,7 @@ export const SharedRoadmapView: React.FC<Props> = ({ shareToken, onExit }) => {
         {/* Roadmap Steps */}
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <span>📅</span> Контрольные этапы и дедлайны
+            <CalendarDays className="h-5 w-5 text-slate-600" aria-hidden="true" /> Контрольные этапы и дедлайны
           </h2>
 
           <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm divide-y divide-slate-100">
@@ -147,7 +148,7 @@ export const SharedRoadmapView: React.FC<Props> = ({ shareToken, onExit }) => {
               <div key={step.id} className="py-3 flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <span className={`mt-0.5 text-base ${step.completed ? 'text-emerald-500' : 'text-slate-300'}`}>
-                    {step.completed ? '✓' : '○'}
+                    {step.completed ? <Check className="h-4 w-4" aria-hidden="true" /> : <Circle className="h-4 w-4" aria-hidden="true" />}
                   </span>
                   <div>
                     <h4 className={`text-xs font-bold ${step.completed ? 'line-through text-slate-400' : 'text-slate-800'}`}>

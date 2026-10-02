@@ -6,6 +6,7 @@ import {
   disconnectTelegram
 } from '../services/retention';
 import type { TelegramSettings } from '../types';
+import { Award, ChartNoAxesColumn, Check, ClipboardCopy, Clock3, Lightbulb, Send, TriangleAlert, X } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -98,12 +99,12 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
           onClick={onClose}
           className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm transition"
         >
-          ✕
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
 
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-2xl">
-            ✈️
+            <Send className="h-6 w-6 text-slate-700" aria-hidden="true" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-slate-900">Уведомления в Telegram</h3>
@@ -117,7 +118,7 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
           <div className="space-y-5">
             <div className="p-4 bg-emerald-50 border border-emerald-200/80 rounded-2xl flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <span className="text-lg">✅</span>
+                <Check className="h-5 w-5 text-emerald-700" aria-hidden="true" />
                 <div>
                   <div className="text-xs font-bold text-emerald-900">Telegram подключен</div>
                   <div className="text-[11px] text-emerald-700">ID чата: {maskedChatId || '••••'}</div>
@@ -144,7 +145,7 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
                   className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <div className="text-xs font-semibold text-slate-800">⏰ Напоминания о дедлайнах</div>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800"><Clock3 className="h-3.5 w-3.5" aria-hidden="true" /> Напоминания о дедлайнах</div>
                   <div className="text-[11px] text-slate-500">Оповещения за 14, 7, 3 и 1 день до срока подачи</div>
                 </div>
               </label>
@@ -157,7 +158,7 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
                   className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <div className="text-xs font-semibold text-slate-800">📊 Еженедельный дайджест</div>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800"><ChartNoAxesColumn className="h-3.5 w-3.5" aria-hidden="true" /> Еженедельный дайджест</div>
                   <div className="text-[11px] text-slate-500">Сводка ключевых задач на неделю по понедельникам</div>
                 </div>
               </label>
@@ -170,7 +171,7 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
                   className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <div className="text-xs font-semibold text-slate-800">⚠️ Актуальность профиля</div>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800"><TriangleAlert className="h-3.5 w-3.5" aria-hidden="true" /> Актуальность профиля</div>
                   <div className="text-[11px] text-slate-500">Мягкие напоминания, если баллы не обновлялись 60+ дней</div>
                 </div>
               </label>
@@ -183,7 +184,7 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
                   className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <div className="text-xs font-semibold text-slate-800">🏆 Достижения и бейджи</div>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800"><Award className="h-3.5 w-3.5" aria-hidden="true" /> Достижения и бейджи</div>
                   <div className="text-[11px] text-slate-500">Поздравления с подачей заявок и стриком подготовки</div>
                 </div>
               </label>
@@ -211,14 +212,14 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
                   rel="noreferrer"
                   className="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
                 >
-                  <span>🚀</span> Открыть бота в Telegram
+                  <Send className="h-4 w-4" aria-hidden="true" /> Открыть бота в Telegram
                 </a>
 
                 <button
                   onClick={handleCopyLink}
                   className="w-full py-2 px-3 bg-white hover:bg-slate-50 border border-sky-200 text-sky-900 rounded-xl text-xs font-medium transition"
                 >
-                  {copied ? '✓ Ссылка скопирована' : '📋 Скопировать прямую ссылку'}
+                  {copied ? <><Check className="mr-1 inline h-4 w-4" aria-hidden="true" /> Ссылка скопирована</> : <><ClipboardCopy className="mr-1 inline h-4 w-4" aria-hidden="true" /> Скопировать прямую ссылку</>}
                 </button>
               </div>
             ) : (
@@ -226,12 +227,12 @@ export const TelegramNotificationModal: React.FC<Props> = ({ isOpen, onClose, on
                 onClick={handleGenerateCode}
                 className="w-full py-3 px-4 bg-slate-900 hover:bg-slate-700 text-white rounded-md font-semibold text-sm transition flex items-center justify-center gap-2"
               >
-                <span>✈️</span> Подключить Telegram-бота
+                <Send className="h-4 w-4" aria-hidden="true" /> Подключить Telegram-бота
               </button>
             )}
 
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-500 space-y-1">
-              <div>💡 <b>Как это работает:</b></div>
+              <div className="flex items-center gap-1"><Lightbulb className="h-3.5 w-3.5" aria-hidden="true" /><b>Как это работает:</b></div>
               <div>1. Нажмите кнопку подключения и перейдите в бота <code>@{botUsername}</code>.</div>
               <div>2. Нажмите кнопку Start — бот автоматически привяжет ваш аккаунт.</div>
               <div>3. Вы сможете настроить частоту уведомлений в любой момент.</div>

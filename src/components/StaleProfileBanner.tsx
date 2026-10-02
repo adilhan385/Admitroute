@@ -1,6 +1,7 @@
 import React from 'react';
 import type { UserAccount } from '../types';
 import { checkProfileStaleness } from '../services/retention';
+import { TriangleAlert } from 'lucide-react';
 
 interface Props {
   user: UserAccount | null;
@@ -16,7 +17,7 @@ export const StaleProfileBanner: React.FC<Props> = ({ user, onEditProfile }) => 
   return (
     <div className="border-l-2 border-amber-600 bg-amber-50 p-4 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fadeIn">
       <div className="flex items-start gap-3">
-        <span className="text-2xl mt-0.5">⚠️</span>
+        <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
         <div>
           <h4 className="font-bold text-sm sm:text-base">
             Ваш академический профиль не обновлялся {daysSinceUpdate} дней

@@ -36,6 +36,26 @@ function parseModelJson(text: string): any {
   return JSON.parse(cleaned);
 }
 
+function verifiedAdmissionsEvidence(value: any, officialSiteUrl: string, sources: string[]) {
+  if (!value || typeof value !== 'object') return null;
+  const { year, applicants, admitted, enrolled, sourceUrl } = value;
+  if (year !== 2025 || !Number.isSafeInteger(applicants) || !Number.isSafeInteger(admitted) ||
+      applicants <= 0 || admitted <= 0 || admitted > applicants ||
+      (enrolled != null && (!Number.isSafeInteger(enrolled) || enrolled < 0 || enrolled > admitted))) return null;
+  try {
+    const officialHost = new URL(officialSiteUrl).hostname.replace(/^www\./, '');
+    const evidenceHost = new URL(sourceUrl).hostname.replace(/^www\./, '');
+    const isOfficial = evidenceHost === officialHost || evidenceHost.endsWith(`.${officialHost}`);
+    const isGrounded = sources.some(url => {
+      try { return new URL(url).hostname.replace(/^www\./, '') === evidenceHost; }
+      catch { return false; }
+    });
+    if (!isOfficial || !isGrounded || !sourceUrl.startsWith('https://')) return null;
+    return { year, applicants, admitted, ...(enrolled == null ? {} : { enrolled }), sourceUrl,
+      scope: 'Первый курс, общий набор в университет' };
+  } catch { return null; }
+}
+
 async function researchWithWikipedia(query: string, profile: z.infer<typeof SearchSchema>['profile'], apiKey: string) {
   const headers = { 'Accept': 'application/json', 'User-Agent': 'AdmitRoute/1.0 (https://admitroute.vercel.app)' };
   const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=8&format=json`;
@@ -174,7 +194,8 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
 Используй Google Search. Проверь существование учреждения, его официальный сайт и программу бакалавриата по направлению ${profile.field}.
 Не подменяй вуз похожим. Если точное учреждение не установлено, ответь found=false.
 Профиль: GPA ${profile.gpa}/${profile.gpaScale || '5.0'}, язык ${profile.languageScore || 'не указан'}, экзамен ${profile.stateExamScore || 'не указан'}, SAT ${profile.satScore || 'не указан'}, бюджет ${profile.budget}, год ${profile.targetYear}.
-Верни только JSON объект: {"found":boolean,"name":string,"shortName":string,"city":string,"country":string,"region":"kazakhstan"|"europe"|"asia"|"usa","programTitle":string,"officialSiteUrl":string,"acceptanceRate":string|null,"avgGpa":number|null,"languageRequirement":string|null,"examRequirement":string|null,"tuitionYearKztOrUsd":string|null,"applicationDeadline":string|null,"scholarshipAvailability":"100% гранты"|"Частичные стипендии"|"Ограничено"|null,"hasDormitory":boolean|null,"whyFits":string[],"keyStrengths":string[]}.
+Верни только JSON объект: {"found":boolean,"name":string,"shortName":string,"city":string,"country":string,"region":"kazakhstan"|"europe"|"asia"|"usa","programTitle":string,"officialSiteUrl":string,"acceptanceRate":string|null,"avgGpa":number|null,"languageRequirement":string|null,"examRequirement":string|null,"tuitionYearKztOrUsd":string|null,"applicationDeadline":string|null,"scholarshipAvailability":"100% гранты"|"Частичные стипендии"|"Ограничено"|null,"hasDormitory":boolean|null,"whyFits":string[],"keyStrengths":string[],"admissionsEvidence":{"year":2025,"applicants":number,"admitted":number,"enrolled":number|null,"sourceUrl":string}|null}.
+Для admissionsEvidence используй только официальную статистику вуза о наборе первого курса за 2025 год, укажи точную ссылку на страницу с этими числами. Если не удалось найти число заявок и принятых, используй null. Не перечисляй имена поступивших.
 Не выдумывай процент приема, проходной GPA, цену, дедлайн, стипендию или работодателей. Для неподтвержденных сведений используй null. Не рассчитывай вероятность поступления.`;
 
     try {
@@ -198,6 +219,12 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
         .filter((url: unknown): url is string => typeof url === 'string' && url.startsWith('https://'));
       const verified = result?.found === true && typeof result.name === 'string' &&
         typeof result.officialSiteUrl === 'string' && /^https:\/\//.test(result.officialSiteUrl) && sources.length > 0;
+      if (verified) {
+        result.admissionsEvidence = verifiedAdmissionsEvidence(result.admissionsEvidence, result.officialSiteUrl, sources);
+        result.acceptanceRate = result.admissionsEvidence
+          ? `${(result.admissionsEvidence.admitted / result.admissionsEvidence.applicants * 100).toFixed(1)}%`
+          : null;
+      }
       return res.status(200).json({ found: verified, university: verified ? result : null, sources, quota });
     } catch (error) {
       // A failed provider call should not consume a search attempt.

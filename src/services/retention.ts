@@ -12,32 +12,32 @@ function getStoredSessionToken(): string {
 export const BADGE_DEFINITIONS: Record<string, { title: string; icon: string; description: string }> = {
   profile_started: {
     title: 'Первый шаг',
-    icon: '🌱',
+    icon: 'Sprout',
     description: 'Регистрация на платформе AdmitRoute'
   },
   profile_completed: {
     title: 'Полный профиль',
-    icon: '🎯',
+    icon: 'Target',
     description: 'Все данные профиля и баллов заполнены'
   },
   first_program_selected: {
     title: 'Ориентир задан',
-    icon: '🏛️',
+    icon: 'Landmark',
     description: 'Добавлена первая программа в список поступления'
   },
   first_application_submitted: {
     title: 'Заявка отправлена',
-    icon: '🚀',
+    icon: 'Send',
     description: 'Первая официальная подача документов'
   },
   all_applications_submitted: {
     title: 'Финишная прямая',
-    icon: '🎓',
+    icon: 'GraduationCap',
     description: 'Все запланированные вузы поданы'
   },
   streak_7_days: {
     title: 'Недельный стрик',
-    icon: '🔥',
+    icon: 'Flame',
     description: '7 дней регулярной подготовки подряд'
   }
 };

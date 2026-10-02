@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { ApplicationTracker, UniversityProgram } from '../types';
 import { updateApplicationStage } from '../services/retention';
+import { ChartNoAxesColumn, Check, ClipboardList, FileText, GraduationCap, Landmark, MessageSquareText, Send } from 'lucide-react';
 
 interface Props {
   selectedPrograms: UniversityProgram[];
@@ -10,12 +11,12 @@ interface Props {
 }
 
 const STAGES_CONFIG = [
-  { key: 'questionnaire', label: 'Анкета вуза', icon: '📝' },
-  { key: 'essay', label: 'Мотивационное эссе', icon: '✍️' },
-  { key: 'recommendations', label: 'Рекомендации', icon: '💌' },
-  { key: 'tests_sent', label: 'Баллы ЕНТ / IELTS', icon: '📊' },
-  { key: 'submitted', label: 'Заявка подана', icon: '🚀' },
-  { key: 'decision', label: 'Решение комиссии', icon: '🎓' }
+  { key: 'questionnaire', label: 'Анкета вуза', icon: ClipboardList },
+  { key: 'essay', label: 'Мотивационное эссе', icon: FileText },
+  { key: 'recommendations', label: 'Рекомендации', icon: MessageSquareText },
+  { key: 'tests_sent', label: 'Баллы ЕНТ / IELTS', icon: ChartNoAxesColumn },
+  { key: 'submitted', label: 'Заявка подана', icon: Send },
+  { key: 'decision', label: 'Решение комиссии', icon: GraduationCap }
 ];
 
 export const ApplicationTrackerKanban: React.FC<Props> = ({
@@ -29,7 +30,7 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
   if (selectedPrograms.length === 0) {
     return (
       <div className="border-t border-slate-300 py-8 text-center text-slate-500">
-        <p className="text-3xl mb-3">🏛️</p>
+        <Landmark className="mx-auto mb-3 h-8 w-8 text-slate-500" aria-hidden="true" />
         <h4 className="text-base font-semibold text-slate-800 mb-1">Список программ пуст</h4>
         <p className="text-sm">Выберите целевые университеты в результатах подбора, чтобы отслеживать этапы подачи документов.</p>
       </div>
@@ -57,7 +58,7 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
     if (res.success) {
       onRefreshApplications();
       if (res.newBadgeEarned && onBadgeEarned) {
-        onBadgeEarned('🚀 Первая заявка официально подана!');
+        onBadgeEarned('Первая заявка официально подана!');
       }
     }
   };
@@ -67,7 +68,7 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <span>📋</span> Канбан-трекер статуса подачи документов
+            <ClipboardList className="h-5 w-5 text-slate-600" aria-hidden="true" /> Канбан-трекер статуса подачи документов
           </h3>
           <p className="text-xs text-slate-500">
             Контролируйте каждый этап по каждой выбранной программе — от черновика эссе до официального зачисления.
@@ -132,9 +133,9 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
                     }`}
                   >
                     {tracker?.status === 'accepted'
-                      ? '🎉 Зачислен'
+                      ? 'Зачислен'
                       : tracker?.status === 'submitted'
-                      ? '🚀 Документы поданы'
+                      ? 'Документы поданы'
                       : tracker?.status === 'rejected'
                       ? 'Отклонено'
                       : 'В процессе подготовки'}
@@ -151,6 +152,7 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
 
                   const isDone = currentStatus === 'completed' || currentStatus === 'accepted';
                   const isInProgress = currentStatus === 'in_progress';
+                  const StageIcon = stage.icon;
 
                   return (
                     <div
@@ -164,8 +166,8 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-base">{stage.icon}</span>
-                        {isDone && <span className="text-emerald-600 font-bold">✓</span>}
+                        <StageIcon className="h-4 w-4 text-slate-600" aria-hidden="true" />
+                        {isDone && <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" />}
                       </div>
 
                       <div className="font-semibold mb-2 truncate" title={stage.label}>
@@ -182,7 +184,7 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
                         >
                           <option value="not_started">Ожидается</option>
                           <option value="pending">На рассмотрении</option>
-                          <option value="accepted">🎉 Принят!</option>
+                          <option value="accepted">Принят</option>
                           <option value="waitlist">Лист ожидания</option>
                           <option value="rejected">Отказ</option>
                         </select>
@@ -196,7 +198,7 @@ export const ApplicationTrackerKanban: React.FC<Props> = ({
                         >
                           <option value="not_started">Не начато</option>
                           <option value="in_progress">В процессе</option>
-                          <option value="completed">Готово ✓</option>
+                          <option value="completed">Готово</option>
                         </select>
                       )}
                     </div>

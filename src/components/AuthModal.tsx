@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Lock, Mail, User, Shield, AlertCircle, ArrowRight } from 'lucide-react';
+import { X, Lock, Mail, User, Shield, AlertCircle, ArrowRight, Gift } from 'lucide-react';
 import { login, register } from '../services/auth';
 import type { UserAccount } from '../types';
 
@@ -183,7 +183,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 Реферальный код (бонус +5 AI-поисков)
               </label>
               <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-2.5 text-xs">🎁</span>
+                <Gift className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-500" aria-hidden="true" />
                 <input
                   type="text"
                   value={refCode}

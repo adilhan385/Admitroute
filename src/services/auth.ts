@@ -43,7 +43,7 @@ export const FREE_CUSTOMER_MAX_SEARCHES = 6;
 export const FREE_CUSTOMER_MAX_RECALCULATIONS = 12;
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
-  announcementText: '🔥 Стартовал прием на осенний семестр 2026! Проверьте дедлайны ранней подачи.',
+  announcementText: 'Стартовал прием на осенний семестр 2026. Проверьте дедлайны ранней подачи.',
   isAnnouncementActive: true,
   maintenanceMode: false,
   guestMaxSearches: 2,

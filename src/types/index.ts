@@ -85,6 +85,14 @@ export interface UniversityProgram {
   matchCategory: MatchCategory;
   matchScore: number; // 0 - 100
   admissionChancePercentage?: number; // 5 - 98%
+  admissionsEvidence?: {
+    year: number;
+    applicants: number;
+    admitted: number;
+    enrolled?: number;
+    sourceUrl: string;
+    scope: string;
+  };
   realityCheckWarning?: string; // Honest warning if candidate does not meet minimums
   isAiGenerated?: boolean;
   needsResearch?: boolean;

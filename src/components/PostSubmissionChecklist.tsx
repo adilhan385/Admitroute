@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { PostSubmissionChecklistItem } from '../types';
 import { DEFAULT_POST_SUBMISSION_CHECKLIST } from '../services/retention';
+import { GraduationCap } from 'lucide-react';
 
 interface Props {
   checklist?: PostSubmissionChecklistItem[];
@@ -46,7 +47,7 @@ export const PostSubmissionChecklist: React.FC<Props> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-blue-100/70">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🎓</span>
+            <GraduationCap className="h-5 w-5 text-slate-600" aria-hidden="true" />
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
               Пост-подача: Ожидание решений и зачисление
             </h3>

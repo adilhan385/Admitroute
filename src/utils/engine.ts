@@ -328,9 +328,9 @@ export function calculateDiagnosis(profile: UserProfile): ProfileDiagnosis {
   // Dynamic Honest Summary
   let summary = '';
   if (readinessLevel === 'critical') {
-    summary = `🚨 КРИТИЧЕСКИЙ УРОВЕНЬ РИСКА: При текущих показателях (GPA ${gpaDisplay}, ${profile.languageScore || 'без языка'}, ${profile.satScore || profile.stateExamScore || 'без тестов'}, без портфолио) поступление в вузы ${regionNames[profile.targetRegion] || 'выбранного региона'} со 100% грантом АБСОЛЮТНО НЕВОЗМОЖНО. Профиль не преодолевает даже минимальный отсевочный порог. Вам необходима фундаментальная подготовка с нуля минимум на 1–2 года: пересдача тестов и вытягивание успеваемости.`;
+    summary = `КРИТИЧЕСКИЙ УРОВЕНЬ РИСКА: При текущих показателях (GPA ${gpaDisplay}, ${profile.languageScore || 'без языка'}, ${profile.satScore || profile.stateExamScore || 'без тестов'}, без портфолио) поступление в вузы ${regionNames[profile.targetRegion] || 'выбранного региона'} со 100% грантом АБСОЛЮТНО НЕВОЗМОЖНО. Профиль не преодолевает даже минимальный отсевочный порог. Вам необходима фундаментальная подготовка с нуля минимум на 1–2 года: пересдача тестов и вытягивание успеваемости.`;
   } else if (readinessLevel === 'low') {
-    summary = `⚠️ СУЩЕСТВЕННЫЙ ДЕФИЦИТ БАЛЛОВ: Академический профиль имеет критические пробелы по языку или профильным тестам. Поступление на гранты сопряжено с риском отказа выше 85%. Рекомендуется сосредоточиться на экстренной пересдаче тестов либо выбирать коммерческие отделения без высокого конкурса.`;
+    summary = `СУЩЕСТВЕННЫЙ ДЕФИЦИТ БАЛЛОВ: Академический профиль имеет критические пробелы по языку или профильным тестам. Поступление на гранты сопряжено с риском отказа выше 85%. Рекомендуется сосредоточиться на экстренной пересдаче тестов либо выбирать коммерческие отделения без высокого конкурса.`;
   } else if (readinessLevel === 'moderate') {
     summary = `БАЗОВЫЙ ПРОФИЛЬ С ПОТЕНЦИАЛОМ: Вы преодолеваете минимальные квалификационные пороги, но для победы в конкурсе на 100% стипендию требуется точечное усиление слабых сторон (поднятие балла тестов и оформление портфолио).`;
   } else {
@@ -381,19 +381,19 @@ export function evaluateUniversityProgram(
   if (isLangCriticallyLow && requiresLang) {
     category = 'unlikely';
     chance = Math.max(1, Math.min(3, Math.round(ielts * 2)));
-    warning = `🚨 Дисквалификация по языку: программа требует ${uni.languageRequirement}. С результатом «${profile.languageScore}» заявка будет отклонена еще до рассмотрения приемной комиссией.`;
+    warning = `Дисквалификация по языку: программа требует ${uni.languageRequirement}. С результатом «${profile.languageScore}» заявка будет отклонена еще до рассмотрения приемной комиссией.`;
   }
   // 2. HARD BLOCKER: UNT Failure in Kazakhstan (UNT < 50)
   else if (isKZ && unt !== null && unt < 50) {
     category = 'unlikely';
     chance = 0;
-    warning = `🚨 Законодательный запрет на зачисление: в Казахстане минимальный пороговый балл ЕНТ для вузов составляет 50 (для нацвузов — 65). С результатом «${profile.stateExamScore}» зачисление в ${uni.shortName} юридически невозможно даже на платное отделение.`;
+    warning = `Законодательный запрет на зачисление: в Казахстане минимальный пороговый балл ЕНТ для вузов составляет 50 (для нацвузов — 65). С результатом «${profile.stateExamScore}» зачисление в ${uni.shortName} юридически невозможно даже на платное отделение.`;
   }
   // 3. HARD BLOCKER: Critical GPA Deficit (e.g. 3.0 vs 4.2)
   else if (gpaDiff <= -0.8) {
     category = 'unlikely';
     chance = Math.min(8, Math.max(1, Math.round(rawAcceptance * 0.2 + (gpa / 5) * 5)));
-    warning = `🚨 Критический академический дефицит: средний балл (GPA ${gpaDisplay}) отстает на ${Math.abs(gpaDiff).toFixed(1)} от среднего проходного (${uni.avgGpa}). Вуз отсекает абитуриентов с низкой успеваемостью.`;
+    warning = `Критический академический дефицит: средний балл (GPA ${gpaDisplay}) отстает на ${Math.abs(gpaDiff).toFixed(1)} от среднего проходного (${uni.avgGpa}). Вуз отсекает абитуриентов с низкой успеваемостью.`;
   }
   // 4. ELITE / HIGHLY SELECTIVE TIER (acceptance <= 18% or Harvard, NUS, TUM, KAIST, NU)
   else if (rawAcceptance <= 18 || uni.id.includes('harvard') || uni.id.includes('nus') || uni.id.includes('tsinghua')) {
@@ -585,7 +585,7 @@ export function generateRoadmap(profile: UserProfile): RoadmapStep[] {
     steps.push({
       id: 'step-remedial-lang',
       month: 'Месяц 1 — 3',
-      title: '🚨 Экстренная ликвидация языкового дефицита (с нуля до A2/B1)',
+      title: 'Экстренная ликвидация языкового дефицита (с нуля до A2/B1)',
       category: 'exams',
       description: `Текущий уровень (${profile.languageScore || 'IELTS 1.0'}) не позволяет подавать документы в вузы. Ежедневные занятия 2–3 часа, фокус на грамматику и словарный запас 2000+ слов. Цель первого этапа: пробный тест 5.0+`,
       deadlineDate: '30 апреля 2026',
@@ -597,7 +597,7 @@ export function generateRoadmap(profile: UserProfile): RoadmapStep[] {
       steps.push({
         id: 'step-remedial-ent',
         month: 'Месяц 2 — 4',
-        title: '🚨 Базовая подготовка к пересдаче ЕНТ (Преодоление порога 50 баллов)',
+        title: 'Базовая подготовка к пересдаче ЕНТ (Преодоление порога 50 баллов)',
         category: 'exams',
         description: `Текущий балл (${profile.stateExamScore || 'ЕНТ 1/140'}) лишает права зачисления. Изучение базовых формул и тем по обязательным предметам (Грамотность чтения, Математическая грамотность, История Казахстана). Цель: 65+ баллов.`,
         deadlineDate: '25 мая 2026',

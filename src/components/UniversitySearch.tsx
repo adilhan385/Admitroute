@@ -18,7 +18,8 @@ import {
   Info,
   ExternalLink,
   Plus,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react';
 
 interface UniversitySearchProps {
@@ -283,7 +284,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
                 }}
                 className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 text-xs"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>
@@ -466,7 +467,7 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
 
             {/* Chance display */}
             <div className="flex sm:flex-col items-center sm:items-end justify-between">
-              <span className="text-[11px] font-medium text-slate-500">Оценка шанса:</span>
+              <span className="text-[11px] font-medium text-slate-500">{selectedUni.admissionChancePercentage === undefined ? 'Личный шанс:' : 'Ориентировочная оценка:'}</span>
               <div className="flex items-baseline gap-1">
                 <span
                   className={`text-2xl font-extrabold ${
@@ -484,6 +485,21 @@ export const UniversitySearch: React.FC<UniversitySearchProps> = ({
               </div>
             </div>
           </div>
+
+          {selectedUni.admissionsEvidence && (
+            <div className="mt-4 border-l-2 border-slate-300 pl-3 text-xs text-slate-700">
+              <span className="font-semibold">Приём {selectedUni.admissionsEvidence.year}: </span>
+              {selectedUni.admissionsEvidence.admitted.toLocaleString('ru-RU')} из {selectedUni.admissionsEvidence.applicants.toLocaleString('ru-RU')} подавших
+              {' '}({(selectedUni.admissionsEvidence.admitted / selectedUni.admissionsEvidence.applicants * 100).toFixed(1)}%).
+              <span className="ml-1 text-slate-500">{selectedUni.admissionsEvidence.scope}. Это доля приёма за прошлый год, а не личная вероятность.</span>
+              <a href={selectedUni.admissionsEvidence.sourceUrl} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-700 underline">Официальный источник</a>
+            </div>
+          )}
+          {!selectedUni.admissionsEvidence && selectedUni.admissionChancePercentage !== undefined && (
+            <p className="mt-3 text-xs text-slate-500">
+              Статистика поступления за 2025 год для этого вуза не подтверждена. Процент выше — ориентир модели по вашему профилю, а не доля реально зачисленных.
+            </p>
+          )}
 
           {/* REALITY CHECK ALERT (if candidate is underqualified) */}
           {selectedUni.realityCheckWarning && (

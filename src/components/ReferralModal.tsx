@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Check, Gift, MessageCircle, Send, X } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -38,12 +39,12 @@ export const ReferralModal: React.FC<Props> = ({ isOpen, onClose, referralCode =
           onClick={onClose}
           className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm transition"
         >
-          ✕
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
 
         <div className="text-center mb-5">
           <div className="w-16 h-16 rounded-md bg-slate-900 text-white flex items-center justify-center text-3xl mx-auto mb-3">
-            🎁
+            <Gift className="h-8 w-8" aria-hidden="true" />
           </div>
           <h3 className="text-xl font-black text-slate-900">Пригласи друга в AdmitRoute</h3>
           <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
@@ -77,7 +78,7 @@ export const ReferralModal: React.FC<Props> = ({ isOpen, onClose, referralCode =
                 onClick={handleCopy}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition"
               >
-                {copied ? '✓' : 'Копировать'}
+                {copied ? <Check className="h-4 w-4" aria-label="Скопировано" /> : 'Копировать'}
               </button>
             </div>
           </div>
@@ -87,13 +88,13 @@ export const ReferralModal: React.FC<Props> = ({ isOpen, onClose, referralCode =
               onClick={handleTelegramShare}
               className="flex-1 py-2.5 px-3 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition"
             >
-              <span>✈️</span> Telegram
+              <Send className="h-4 w-4" aria-hidden="true" /> Telegram
             </button>
             <button
               onClick={handleWhatsappShare}
               className="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition"
             >
-              <span>💬</span> WhatsApp
+              <MessageCircle className="h-4 w-4" aria-hidden="true" /> WhatsApp
             </button>
           </div>
         </div>

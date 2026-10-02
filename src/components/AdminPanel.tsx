@@ -18,6 +18,7 @@ import {
   EyeOff,
   Copy,
   Check,
+  Bell,
   GraduationCap,
   Key
 } from 'lucide-react';
@@ -453,7 +454,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         {/* Action Notice Alert */}
         {actionNotice && (
           <div className="bg-emerald-600 px-4 py-1.5 text-center text-xs font-semibold text-white animate-in slide-in-from-top duration-150">
-            ✓ {actionNotice}
+            <Check className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" /> {actionNotice}
           </div>
         )}
 
@@ -599,7 +600,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 text-slate-700 px-2 py-0.5 text-[11px] font-medium">
-                              <span>🎓 Студент</span>
+                              <GraduationCap className="h-3 w-3" aria-hidden="true" /><span>Студент</span>
                             </span>
                           )}
                         </td>
@@ -610,7 +611,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               ? 'bg-blue-100 text-blue-800'
                               : 'bg-slate-100 text-slate-600'
                           }`}>
-                            {u.subscriptionTier === 'pro' ? '⭐ PRO' : 'Free'}
+                            {u.subscriptionTier === 'pro' ? 'PRO' : 'Free'}
                           </span>
                         </td>
 
@@ -781,7 +782,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       <div className="flex items-center gap-1.5 mt-0.5">
                         {thread.isPro ? (
                           <span className="rounded bg-blue-100 px-1.5 py-0.2 text-[9px] font-bold text-blue-700">
-                            ⭐ PRO
+                            PRO
                           </span>
                         ) : (
                           <span className="rounded bg-slate-200 px-1.5 py-0.2 text-[9px] font-medium text-slate-600">
@@ -820,7 +821,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         <span className="text-[11px] text-slate-500 font-normal">({currentThreadSummary.userEmail})</span>
                         {currentThreadSummary.isPro ? (
                           <span className="rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
-                            ⭐ PRO
+                            PRO
                           </span>
                         ) : (
                           <span className="rounded-md bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
@@ -858,7 +859,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition-colors"
                       >
                         <Sparkles className="h-3.5 w-3.5" />
-                        <span>⚡ Выдать PRO</span>
+                        <span>Выдать PRO</span>
                       </button>
                     ) : (
                       <div className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl">
@@ -960,7 +961,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-700">
-                    👤 Гостевой доступ (Guest)
+                    <Users className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" /> Гостевой доступ (Guest)
                   </span>
                 </div>
                 <h4 className="text-sm font-bold text-slate-900">Ограничения и права для неавторизованных гостей</h4>
@@ -1021,7 +1022,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
-                    🎓 Зарегистрированные пользователи (Free)
+                    <GraduationCap className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" /> Зарегистрированные пользователи (Free)
                   </span>
                 </div>
                 <h4 className="text-sm font-bold text-slate-900">Квоты для бесплатного тарифа</h4>
@@ -1067,7 +1068,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800">
-                    📢 Глобальное объявление
+                    <Bell className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" /> Глобальное объявление
                   </span>
                 </div>
                 <h4 className="text-sm font-bold text-slate-900">Верхний информационный баннер для всех посетителей</h4>
@@ -1149,7 +1150,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         ? 'bg-blue-500 text-white'
                         : 'bg-slate-800 text-slate-300'
                     }`}>
-                      {selectedUserForView.subscriptionTier === 'pro' ? '⭐ PRO' : 'FREE'}
+                      {selectedUserForView.subscriptionTier === 'pro' ? 'PRO' : 'FREE'}
                     </span>
                     {selectedUserForView.isBanned && (
                       <span className="rounded-md bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold text-rose-300">
@@ -1170,7 +1171,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition-colors"
                 title="Вернуться к списку пользователей"
               >
-                <span>✕ Назад к списку</span>
+                <span>Назад к списку</span>
               </button>
             </div>
 
@@ -1263,7 +1264,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </h4>
                   {selectedUserForView.profile ? (
                     <span className="rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold">
-                      ✓ Анкета заполнена
+                      <Check className="mr-1 inline h-3 w-3" aria-hidden="true" /> Анкета заполнена
                     </span>
                   ) : (
                     <span className="rounded-md bg-slate-100 text-slate-500 px-2 py-0.5 text-[10px] font-medium">
@@ -1389,7 +1390,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       onClick={() => handleSetSubscription(selectedUserForView.id, 'pro')}
                       className="rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 transition-colors"
                     >
-                      ⭐ Выдать PRO
+                      Выдать PRO
                     </button>
                   )
                 )}

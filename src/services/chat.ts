@@ -176,7 +176,7 @@ export function activateProFromChat(threadId: string, userId?: string): { succes
     userName: 'Система AdmitRoute',
     userEmail: 'system@admitroute.kz',
     senderRole: 'system',
-    text: `🎉 Администратор Адильхан активировал подписку AdmitRoute PRO${targetUser ? ' для аккаунта ' + targetUser.email : ''}! Теперь вам открыт безлимитный поиск любых университетов мира, расширенный роадмап и AI-генератор эссе.`,
+    text: `Администратор Адильхан активировал подписку AdmitRoute PRO${targetUser ? ' для аккаунта ' + targetUser.email : ''}. Теперь вам открыт безлимитный поиск любых университетов мира, расширенный роадмап и AI-генератор эссе.`,
     createdAt: new Date().toISOString(),
     isReadByAdmin: true,
     isReadByUser: false,

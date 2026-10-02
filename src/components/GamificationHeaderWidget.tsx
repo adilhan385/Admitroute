@@ -1,6 +1,7 @@
 import React from 'react';
 import type { UserAccount } from '../types';
 import { getSearchQuota } from '../services/auth';
+import { Flame, Search, Send } from 'lucide-react';
 
 interface Props {
   user: UserAccount | null;
@@ -29,7 +30,7 @@ export const GamificationHeaderWidget: React.FC<Props> = ({
         className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100/80 border border-amber-200/90 rounded-xl text-xs font-bold text-amber-900 transition cursor-default shadow-xs"
         title={`Стрик подготовки: ${currentStreak} дн. подряд! Регулярная активность повышает шансы на грант.`}
       >
-        <span className="text-base animate-pulse">🔥</span>
+        <Flame className="h-4 w-4" aria-hidden="true" />
         <span>{currentStreak} {currentStreak === 1 ? 'день' : currentStreak < 5 ? 'дня' : 'дней'}</span>
       </div>
 
@@ -39,7 +40,7 @@ export const GamificationHeaderWidget: React.FC<Props> = ({
         className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100/80 border border-blue-200/90 rounded-xl text-xs font-bold text-blue-900 transition shadow-xs"
         title="Дневной лимит AI-поиска"
       >
-        <span className="text-blue-600">⚡</span>
+        <Search className="h-4 w-4 text-blue-600" aria-hidden="true" />
         <span>{isUnlimited ? 'Безлимит AI' : quota ? `${remainingSearches}/${maxSearches} AI` : 'Лимит AI'}</span>
       </button>
 
@@ -53,7 +54,7 @@ export const GamificationHeaderWidget: React.FC<Props> = ({
         }`}
         title={isTgLinked ? 'Telegram-бот подключен (нажмите для настроек)' : 'Подключить Telegram-бота для напоминаний о дедлайнах'}
       >
-        <span>✈️</span>
+        <Send className="h-4 w-4" aria-hidden="true" />
         <span className="hidden sm:inline">{isTgLinked ? 'TG подключен' : 'Бот в TG'}</span>
         {isTgLinked && <span className="w-2 h-2 rounded-full bg-emerald-500" />}
       </button>

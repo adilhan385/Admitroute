@@ -2917,7 +2917,12 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     degrees: [
       'Бакалавриат (4 года)'
     ],
-    acceptanceRate: '3.4%',
+    acceptanceRate: '4.2%',
+    admissionsEvidence: {
+      year: 2025, applicants: 47893, admitted: 2003, enrolled: 1675,
+      sourceUrl: 'https://college.harvard.edu/admissions/admissions-statistics',
+      scope: 'Harvard College, первый курс, весь набор'
+    },
     avgGpa: 4.98,
     languageRequirement: 'TOEFL 105+ / IELTS 7.5+',
     examRequirement: 'SAT (1520 – 1580) + глубокое лидерское портфолио мирового уровня',
@@ -2975,7 +2980,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
       grantStats: {
         lastYearGrantsCount: 'Более 55% студентов получают полную финансовую помощь от фонда $50+ млрд',
         lastYearCutoff: 'SAT 1530+ / GPA 5.0 / национальные или международные достижения',
-        competitionRatio: '29 человек на 1 место',
+        competitionRatio: 'Около 24 заявок на 1 зачисление в 2025 году',
         grantChanceSummary: 'Анти-иллюзия: конкурс жесточайший. Даже при SAT 1550+ гарантий нет, требуется уникальный личный вклад.'
       }
     }
@@ -3000,7 +3005,12 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
     degrees: [
       'Бакалавриат (4 года)'
     ],
-    acceptanceRate: '3.9%',
+    acceptanceRate: '4.6%',
+    admissionsEvidence: {
+      year: 2025, applicants: 29281, admitted: 1334, enrolled: 1152,
+      sourceUrl: 'https://ir.mit.edu/projects/2025-26-common-data-set/',
+      scope: 'MIT, первый курс, весь набор'
+    },
     avgGpa: 4.99,
     languageRequirement: 'TOEFL 105+ / IELTS 7.5+',
     examRequirement: 'SAT Math 800 (общий 1530 – 1590) + олимпиады IMO/IOI/IPhO',
@@ -3058,7 +3068,7 @@ export const UNIVERSITIES_DATABASE: UniversityProgram[] = [
       grantStats: {
         lastYearGrantsCount: '100% принятых студентов получают необходимое финансирование',
         lastYearCutoff: 'SAT 1550+ / победы на республиканских или международных научных конкурсах',
-        competitionRatio: '25 человек на место',
+        competitionRatio: 'Около 22 заявок на 1 зачисление в 2025 году',
         grantChanceSummary: 'Анти-иллюзия: требуется сверхсильная база по математике и программированию.'
       }
     }

@@ -33,7 +33,7 @@ import { SharedRoadmapView } from './components/SharedRoadmapView';
 import { StaleProfileBanner } from './components/StaleProfileBanner';
 import { PostSubmissionChecklist } from './components/PostSubmissionChecklist';
 import { fetchUserApplications, DEFAULT_POST_SUBMISSION_CHECKLIST } from './services/retention';
-import { Bell } from 'lucide-react';
+import { Award, Bell } from 'lucide-react';
 import { SlidersHorizontal } from 'lucide-react';
 
 const STORAGE_KEY_PROFILE = 'admitroute_profile_v1';
@@ -398,7 +398,7 @@ export const App: React.FC = () => {
       {/* Achievement & Badge Toast Notification */}
       {toastBadge && (
         <div className="fixed top-16 right-4 z-50 p-4 bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 animate-bounce">
-          <span className="text-2xl">🏆</span>
+          <Award className="h-5 w-5 text-amber-400" aria-hidden="true" />
           <div>
             <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">Новое достижение!</div>
             <div className="text-xs font-semibold">{toastBadge}</div>

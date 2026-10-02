@@ -118,7 +118,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
             {/* Plan 2: PRO */}
             <div className="relative flex flex-col border-t-2 border-slate-900 bg-slate-50 p-5">
               <div className="absolute -top-3 right-5 bg-slate-900 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
-                🔥 Рекомендуется
+                Рекомендуется
               </div>
 
               <div className="flex items-center justify-between">
@@ -127,7 +127,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                 </span>
                 {isPro && (
                   <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
-                    ✓ У вас уже PRO
+                    У вас уже PRO
                   </span>
                 )}
               </div>

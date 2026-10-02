@@ -191,7 +191,7 @@ export const Header: React.FC<HeaderProps> = ({
                   ? 'bg-blue-100 text-blue-800'
                   : 'bg-slate-200 text-slate-700'
               }`}>
-                {isAdmin ? 'ADMIN' : isPro ? '⭐ PRO' : 'FREE'}
+                {isAdmin ? 'ADMIN' : isPro ? 'PRO' : 'FREE'}
               </span>
               <button
                 type="button"

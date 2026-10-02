@@ -80,22 +80,22 @@ export const UniversityPlanModal: React.FC<UniversityPlanModalProps> = ({
   const feasibilityConfig = {
     near_impossible: {
       badge: 'bg-rose-100 text-rose-800 border-rose-300',
-      title: '🚨 Критический разрыв с требованиями',
+      title: 'Критический разрыв с требованиями',
       color: 'text-rose-600'
     },
     low: {
       badge: 'bg-amber-100 text-amber-800 border-amber-300',
-      title: '⚠️ Высокая сложность (Высокий риск отказа)',
+      title: 'Высокая сложность (Высокий риск отказа)',
       color: 'text-amber-600'
     },
     moderate: {
       badge: 'bg-blue-100 text-blue-800 border-blue-300',
-      title: '⚡ Достижимо при интенсивной подготовке',
+      title: 'Достижимо при интенсивной подготовке',
       color: 'text-blue-600'
     },
     high: {
       badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-      title: '✅ Высокая сходимость (Высокий шанс)',
+      title: 'Высокая сходимость (Высокий шанс)',
       color: 'text-emerald-600'
     }
   }[plan.gapAnalysis.overallFeasibility];

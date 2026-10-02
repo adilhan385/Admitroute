@@ -74,6 +74,8 @@ export async function researchUniversity(query: string, profile: UserProfile): P
     ? raw.scholarshipAvailability as UniversityProgram['scholarshipAvailability'] : 'Ограничено';
   const officialSiteUrl = string('officialSiteUrl', '');
   const sourceUrls = (data.sources || []).filter(url => /^https:\/\//.test(url)).slice(0, 5);
+  const evidence = raw.admissionsEvidence && typeof raw.admissionsEvidence === 'object'
+    ? raw.admissionsEvidence as UniversityProgram['admissionsEvidence'] : undefined;
 
   const university: UniversityProgram = {
     id: `research-${crypto.randomUUID()}`,
@@ -81,6 +83,7 @@ export async function researchUniversity(query: string, profile: UserProfile): P
     city: string('city'), country: string('country'), region,
     fields: [profile.field], programTitle: string('programTitle', 'Программа уточняется'),
     degrees: ['Бакалавриат'], acceptanceRate: string('acceptanceRate', 'Не опубликовано'),
+    admissionsEvidence: evidence,
     avgGpa: typeof raw.avgGpa === 'number' && raw.avgGpa > 0 ? raw.avgGpa : 0,
     languageRequirement: string('languageRequirement'), examRequirement: string('examRequirement'),
     tuitionYearKztOrUsd: string('tuitionYearKztOrUsd'), scholarshipAvailability: scholarship,

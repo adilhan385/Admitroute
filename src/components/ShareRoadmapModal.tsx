@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getShareLinkStatus, createShareLink, revokeShareLink } from '../services/retention';
+import { Check, ClipboardCopy, Link2, ShieldCheck, UsersRound, X } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -65,12 +66,12 @@ export const ShareRoadmapModal: React.FC<Props> = ({ isOpen, onClose }) => {
           onClick={onClose}
           className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm transition"
         >
-          ✕
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
 
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-2xl">
-            👥
+            <UsersRound className="h-6 w-6 text-slate-700" aria-hidden="true" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-slate-900">Доступ для родителей / ментора</h3>
@@ -84,7 +85,7 @@ export const ShareRoadmapModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 mb-5 text-[11px] text-slate-600 space-y-1.5">
           <div className="font-semibold text-slate-800 flex items-center gap-1.5">
-            <span>🛡️</span> Конфиденциальность и безопасность:
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Конфиденциальность и безопасность:
           </div>
           <div>• Ментор видит только выбранные вузы, этапы канбан-трекера и дедлайны.</div>
           <div>• Личные переписки с куратором, черновики эссе и пароли <b>строго скрыты</b>.</div>
@@ -108,7 +109,7 @@ export const ShareRoadmapModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   onClick={handleCopy}
                   className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5"
                 >
-                  <span>{copied ? '✓' : '📋'}</span> {copied ? 'Скопировано!' : 'Скопировать ссылку'}
+                  {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <ClipboardCopy className="h-4 w-4" aria-hidden="true" />} {copied ? 'Скопировано' : 'Скопировать ссылку'}
                 </button>
                 <button
                   onClick={handleRevoke}
@@ -124,7 +125,7 @@ export const ShareRoadmapModal: React.FC<Props> = ({ isOpen, onClose }) => {
             onClick={handleCreate}
             className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm shadow-md shadow-indigo-500/20 transition flex items-center justify-center gap-2"
           >
-            <span>🔗</span> Сгенерировать защищённую ссылку
+            <Link2 className="h-4 w-4" aria-hidden="true" /> Сгенерировать защищённую ссылку
           </button>
         )}
 
